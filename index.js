@@ -22,7 +22,7 @@ Liftoff.prototype.require = function (dep) {
     dep.forEach(this.require, this);
   } else {
     try {
-      var module = require(findLocal(module, this.cwd));
+      var module = require(findLocal(dep, this.cwd));
       this.emit('require', dep, module);
       return module;
     } catch (e) {
