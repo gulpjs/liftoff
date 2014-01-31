@@ -16,7 +16,7 @@ Check out [the hacker project](https://github.com/tkellen/node-hacker/blob/maste
 ### Try it now
 Want to see how the above example works?
 
-1. Install the sample project hacker with `npm install -g hacker`
+1. Install the sample project `hacker` with `npm install -g hacker`
 2. Make a `Hackfile.js` with some arbitrary javascript it.
 3. Run `hacker` while in the same parent folder.
 
