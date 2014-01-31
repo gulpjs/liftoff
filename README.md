@@ -11,7 +11,7 @@ Now, when you run the `hack` command, you want it to use the `Hackfile` in your 
 So, everything is working great.  Now you can find your local `hack` and `Hackfile` with ease.  Unfortunately, it turns out you've authored your `Hackfile` in coffee-script, or some other JS variant.  In order to support *that*, you have to load the compiler for it, and then register the extension for it with node.  Good news, Liftoff can do that too.
 
 ### Examples
-Check out [the example liftoff command](/blob/master/bin/liftoff.js) to see how you might use this.
+Check out [the example liftoff command](/bin/liftoff.js) to see how you might use this.
 
 
 ### Try it now
