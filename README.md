@@ -21,4 +21,4 @@ Want to see how the above example works?
 2. Make a `Hackfile.js` with some arbitrary javascript it.
 3. Run `liftoff` while in the same parent folder.
 
-For extra credit, try writing your `Hackfile` in coffeescript.  Then, run `takeoff --require coffee-script/register`.  Make sure you install coffee-script locally, though!
+For extra credit, try writing your `Hackfile` in coffeescript.  Then, run `takeoff --require coffee-script`.  Make sure you install coffee-script locally, though!
