@@ -10,9 +10,14 @@ var Hack = new Liftoff({
   cwdOpt: 'cwd', // the cli option to change the cwd
   requireOpt: 'require' // the cli option for pre-requiring modules
 }).on('require', function (name, module) {
-  // console.log('required:', name, module);
+  // called each time a module is pre-required
+  if (name === 'coffee-script') {
+    module.register();
+  }
+  console.log('required:', name);
 }).on('requireFail', function (name, err) {
-  // console.log('failed to require:', name, err);
+  // called each time a pre-required module can't be loaded
+  console.log('failed to require:', name, err);
 }).on('run', function () {
   console.log('CLI OPTIONS:', this.args);
   console.log('CWD:', this.cwd);
