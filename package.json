@@ -1,7 +1,7 @@
 {
   "name": "liftoff",
   "description": "Launch your command line tool with ease.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "homepage": "https://github.com/tkellen/node-liftoff",
   "author": {
     "name": "Tyler Kellen",
@@ -23,9 +23,6 @@
   "main": "index.js",
   "engines": {
     "node": ">= 0.10.0"
-  },
-  "bin": {
-    "liftoff": "./bin/liftoff.js"
   },
   "scripts": {
     "test": "tap ./test"
