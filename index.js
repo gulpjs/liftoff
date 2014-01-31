@@ -3,6 +3,7 @@
 var util = require('util');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
+var zipObject = require('lodash.zipobject');
 
 var findup = require('findup-sync');
 var findCwd = require('./lib/find_cwd');
@@ -10,7 +11,10 @@ var findLocal = require('./lib/find_local');
 var validExtensions = require('./lib/valid_extensions');
 
 function Liftoff (opts) {
-  this.moduleName = opts.moduleName;
+  this.localDeps = opts.localDeps||[];
+  if(!Array.isArray(this.localDeps)) {
+    this.localDeps = [this.localDeps];
+  }
   this.configName = opts.configName;
   this.cwdOpt = opts.cwdOpt||'cwd';
   this.requireOpt = opts.requireOpt||'require';
@@ -50,7 +54,10 @@ Liftoff.prototype.launch = function () {
   // if we found a config, load the requested module and matching package
   if(this.configPath) {
     this.configBase = path.dirname(this.configPath);
-    this.modulePath = findLocal(this.moduleName, this.configBase);
+    // map all dependencies to their local location
+    this.depMap = zipObject(this.localDeps, this.localDeps.map(function (dep) {
+      return findLocal(dep, this.configBase);
+    }, this));
   }
   // kick it off!
   this.emit('run');

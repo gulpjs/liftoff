@@ -1,7 +1,7 @@
 {
   "name": "liftoff",
   "description": "Launch your command line tool with ease.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "homepage": "https://github.com/tkellen/node-liftoff",
   "author": {
     "name": "Tyler Kellen",
@@ -36,6 +36,7 @@
   "dependencies": {
     "findup-sync": "~0.1.2",
     "resolve": "~0.6.1",
-    "optimist": "~0.6.0"
+    "optimist": "~0.6.0",
+    "lodash.zipobject": "~2.4.1"
   }
 }
