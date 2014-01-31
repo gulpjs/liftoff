@@ -4,7 +4,7 @@
 var Liftoff = require('../');
 //var liftoff = require('liftoff'); // you want this, not the above
 
-var hack = new Liftoff({
+var Hack = new Liftoff({
   moduleName: 'hack', // your npm module (installed locally to each project)
   configName: 'hackfile', // your module's configuration file name
   cwdOpt: 'cwd', // the cli option to change the cwd
@@ -28,4 +28,4 @@ var hack = new Liftoff({
   }
 });
 
-hack.launch();
+Hack.launch();
