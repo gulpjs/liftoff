@@ -29,7 +29,12 @@ var Hack = new Liftoff({
   console.log('YOUR LOCAL MODULE IS LOCATED AT:', this.modulePath);
 
   if(this.configPath) {
-    require(this.configPath);
+    process.chdir(this.configBase); // set the current working directory of
+                                    // this process to the folder the config
+                                    // is in.  now when you read or write
+                                    // files, they'll be relative to it.
+    require(this.configPath); // load your local config
+
   }
 });
 
