@@ -36,6 +36,7 @@
   "dependencies": {
     "findup-sync": "~0.1.2",
     "resolve": "~0.6.1",
-    "optimist": "~0.6.0"
+    "optimist": "~0.6.0",
+    "lodash.zipobject": "~2.4.1"
   }
 }
