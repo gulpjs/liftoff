@@ -1,5 +1,4 @@
 'use strict';
-
 var util = require('util');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
@@ -21,16 +20,28 @@ function Liftoff (opts) {
 }
 util.inherits(Liftoff, EventEmitter);
 
-Liftoff.prototype.require = function (dep) {
+Liftoff.prototype.requireLocal = function (dep, mute) {
   if(Array.isArray(dep)) {
-    dep.forEach(this.require, this);
+    dep.forEach(this.requireLocal, this);
   } else {
+    // try to find module from local cwd
+    var modulePath = findLocal(dep, this.cwd);
     try {
-      var module = require(findLocal(dep, this.cwd));
-      this.emit('require', dep, module);
+      // if module path is an error, the requested module
+      // could not be resolved.  throw the error so it gets
+      // emitted
+      if(modulePath instanceof Error) {
+        throw modulePath;
+      }
+      var module = require(modulePath);
+      if(!mute) {
+        this.emit('require', dep, module);
+      }
       return module;
     } catch (e) {
-      this.emit('requireFail', dep, e);
+      if(!mute) {
+        this.emit('requireFail', dep, e);
+      }
     }
   }
 };
@@ -41,9 +52,9 @@ Liftoff.prototype.launch = function () {
   // get cwd
   this.cwd = findCwd(this.args[this.cwdOpt]);
   // load required modules
-  this.localRequires = this.args[this.requireOpt]||null;
+  this.localRequires = this.args[this.requireOpt];
   if(this.localRequires) {
-    this.require(this.localRequires);
+    this.requireLocal(this.localRequires);
   }
   // set valid extensions
   this.validExtensions = validExtensions();
@@ -53,7 +64,12 @@ Liftoff.prototype.launch = function () {
   this.configPath = findup(this.configNameRegex, {cwd: this.cwd, nocase: true});
   // if we found a config, load the requested module and matching package
   if(this.configPath) {
+    // save base directory for config file
     this.configBase = path.dirname(this.configPath);
+    // try to load local package.json (silently)
+    try {
+      this.localPackage = require(path.join(this.configBase,'package'));
+    } catch (e) {}
     // map all dependencies to their local location
     this.depMap = zipObject(this.localDeps, this.localDeps.map(function (dep) {
       return findLocal(dep, this.configBase);
