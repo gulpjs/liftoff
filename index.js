@@ -1,39 +1,46 @@
 const util = require('util');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
+const extend = require('extend');
+const semver = require('semver');
 const findup = require('findup-sync');
 const findCwd = require('./lib/find_cwd');
 const findLocal = require('./lib/find_local');
 const validExtensions = require('./lib/valid_extensions');
 
 function Liftoff (opts) {
+  opts = opts||{};
+  var defaults = {
+    cwdFlag: 'cwd',
+    preloadFlag: 'require',
+    completionFlag: 'completion',
+    completions: null,
+    cliPackage: null
+  };
   if(opts.name) {
-    if (!this.processTitle) {
-      this.processTitle = opts.name;
+    if (!opts.processTitle) {
+      opts.processTitle = opts.name;
     }
-    if(!this.configName) {
-      this.configName = opts.name+'file';
+    if(!opts.configName) {
+      opts.configName = opts.name+'file';
     }
-    if(!this.moduleName) {
-      this.moduleName = opts.name;
+    if(!opts.moduleName) {
+      opts.moduleName = opts.name;
     }
   }
-  if(!this.processTitle) {
+  if(!opts.processTitle) {
     throw new Error('You must specify a processTitle.');
   }
-  if(!this.configName) {
+  if(!opts.configName) {
     throw new Error('You must specify a configName.');
   }
-  if(!this.moduleName) {
+  if(!opts.moduleName) {
     throw new Error('You must specify a moduleName.');
   }
-  if(!this.configLocationFlag) {
-    this.configLocationFlag = this.configName;
+  if(!opts.configLocationFlag) {
+    this.configLocationFlag = opts.configName;
   }
-  this.cwdFlag = opts.cwdFlag||'cwd';
-  this.preloadFlag = opts.preloadFlag||'require';
-  this.completionFlag = opts.completion||'completion';
-  this.completions = opts.completions||null;
+  extend(this, defaults, opts);
 }
 util.inherits(Liftoff, EventEmitter);
 
@@ -48,6 +55,7 @@ Liftoff.prototype.requireLocal = function (module, basedir) {
 };
 
 Liftoff.prototype.launch = function (fn, argv) {
+  console.log(this);
   if(typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
@@ -92,6 +100,7 @@ Liftoff.prototype.launch = function (fn, argv) {
     modulePath: null
   };
 
+  // preload any required modules
   preload.forEach(function (dep) {
     this.requireLocal(dep, env.cwd);
   }, this);
@@ -108,9 +117,15 @@ Liftoff.prototype.launch = function (fn, argv) {
     try {
       env.modulePath = findLocal(this.moduleName, env.configBase);
       env.modulePackage = require(findup('package.json', {cwd: env.modulePath}));
-    } catch (e) {}
 
+      // check for semver difference between cli and local installation
+      if (semver.gt(this.cliPackage.version, env.modulePackage.version)) {
+        this.emit('versionMismatch', this.cliPackage.version, this.modulePackage.version);
+      }
+    } catch (e) {}
   }
+
+  // liftoff!
   fn.apply(env);
 };
 
