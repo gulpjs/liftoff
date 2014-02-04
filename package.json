@@ -37,7 +37,6 @@
   "dependencies": {
     "findup-sync": "~0.1.2",
     "resolve": "~0.6.1",
-    "optimist": "~0.6.0",
-    "lodash": "~2.4.1"
+    "minimist": "0.0.5"
   }
 }

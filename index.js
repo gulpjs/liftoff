@@ -1,41 +1,39 @@
-const _ = require('lodash');
 const util = require('util');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const findup = require('findup-sync');
-const depMap = require('./lib/dep_map');
 const findCwd = require('./lib/find_cwd');
 const findLocal = require('./lib/find_local');
 const validExtensions = require('./lib/valid_extensions');
 
 function Liftoff (opts) {
-  opts = opts||{};
-  var defaults = {
-    cwdOpt: 'cwd',
-    preloadOpt: 'require',
-    localDeps: []
-  };
   if(opts.name) {
-    if (!opts.processTitle) {
-      opts.processTitle = opts.name;
+    if (!this.processTitle) {
+      this.processTitle = opts.name;
     }
-    if(!opts.configName) {
-      opts.configName = opts.name+'file';
+    if(!this.configName) {
+      this.configName = opts.name+'file';
     }
-    if(!opts.localDeps) {
-      opts.localDeps = [opts.name];
+    if(!this.moduleName) {
+      this.moduleName = opts.name;
     }
   }
-  if(!opts.processTitle) {
+  if(!this.processTitle) {
     throw new Error('You must specify a processTitle.');
   }
-  if(!opts.configName) {
+  if(!this.configName) {
     throw new Error('You must specify a configName.');
   }
-  if(!Array.isArray(opts.localDeps)) {
-    throw new Error('localDeps must be an array.');
+  if(!this.moduleName) {
+    throw new Error('You must specify a moduleName.');
   }
-  _.extend(this, defaults, opts);
+  if(!this.configLocationFlag) {
+    this.configLocationFlag = this.configName;
+  }
+  this.cwdFlag = opts.cwdFlag||'cwd';
+  this.preloadFlag = opts.preloadFlag||'require';
+  this.completionFlag = opts.completion||'completion';
+  this.completions = opts.completions||null;
 }
 util.inherits(Liftoff, EventEmitter);
 
@@ -49,32 +47,52 @@ Liftoff.prototype.requireLocal = function (module, basedir) {
   }
 };
 
-Liftoff.prototype.launch = function (fn, args) {
+Liftoff.prototype.launch = function (fn, argv) {
   if(typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
-  if(!args) {
-    args = require('optimist').argv;
+  if(!argv) {
+    argv = require('minimist')(process.argv.slice(2));
   }
   process.title = this.processTitle;
+
+  // parse command line options
+  var cwd = argv[this.cwdFlag];
+  var configLocation = argv[this.configLocationFlag];
+  var preload = argv[this.preloadFlag]||[];
+  var completion = argv[this.completionFlag];
+
+  // run completions, if any available
+  if (completion && this.completions) {
+    return this.completions(completion);
+  }
+
+  // ensure preloads is an array
+  if(!Array.isArray(preload)) {
+    preload = [preload];
+  }
+
+  // if direct location of configFile has been specified,
+  // use the folder it is located in as the cwd
+  if(configLocation) {
+    cwd = path.dirname(configLocation);
+  }
 
   // build an environment
   var env = {
     settings: this,
-    args: args,
-    cwd: findCwd(args[this.cwdOpt]),
-    preload: [],
+    argv: argv,
+    cwd: findCwd(cwd),
+    preload: preload,
     validExtensions: null,
     configNameRegex: null,
     configPath: null,
     configBase: null,
     localPackage: null,
-    depMap: []
+    modulePath: null
   };
 
-  // preload any modules requested
-  var deps = args[this.preloadOpt]||[];
-  _.flatten([deps]).forEach(function (dep) {
+  preload.forEach(function (dep) {
     this.requireLocal(dep, env.cwd);
   }, this);
 
@@ -86,12 +104,12 @@ Liftoff.prototype.launch = function (fn, args) {
   // finish populating environment if a config was found
   if(env.configPath) {
     env.configBase = path.dirname(env.configPath);
-    // attempt to load local package.json
+    // attempt to load local module and package
     try {
-      env.localPackage = require(findup('package.json', {cwd: env.configBase}));
+      env.modulePath = findLocal(this.moduleName, env.configBase);
+      env.modulePackage = require(findup('package.json', {cwd: env.modulePath}));
     } catch (e) {}
-    // map all dependencies to their local location
-    env.depMap = depMap(this.localDeps, env.cwd);
+
   }
   fn.apply(env);
 };

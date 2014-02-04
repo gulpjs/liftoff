@@ -19,50 +19,19 @@ Create an instance of Liftoff to invoke your application.
 An example utilizing all options:
 ```js
 var Hacker = new Liftoff({
-  processTitle: 'hacker',
-  cwdOpt: 'cwd',
-  preloadOpt: 'require',
-  localDeps: ['hacker'],
+  name: 'hacker',
+  moduleName: 'hacker',
   configName: 'hackerfile',
-  name: 'hacker'
+  processTitle: 'hacker',
+  configLocationFlag: 'hackerfile',
+  cwdFlag: 'cwd',
+  preloadFlag: 'require',
+  completionFlag: 'completion',
+  completions: function (type) {
+    console.log('Completions not implemented.');
+  }
 });
 ```
-
-#### opts.processTitle
-
-Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
-
-Type: `String`  
-Default: `null`
-
-#### opts.cwdOpt
-
-Sets what flag to use for altering the current working directory.  For example, `myapp --cwd ../` would invoke your application as though you'd called it from the parent of your current directory.
-
-Type: `String`  
-Default: `cwd`
-
-#### opts.preloadOpt
-
-Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
-[require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for your `configFile`.
-
-Type: `String`  
-Default: `require`
-
-#### opts.localDeps
-
-Sets which module(s) your application expects to find locally when being run.
-
-Type: `Array`  
-Default: `[]`
-
-#### opts.configName
-
-Sets the name of the configuration file liftoff will attempt to find.  Case-insensitive.
-
-Type: `String`  
-Default: `null`
 
 #### opts.name
 
@@ -75,13 +44,63 @@ These are equivalent:
 ```js
 new Liftoff({
   processTitle: 'hacker',
-  localDeps: ['hacker'],
+  moduleName: 'hacker',
   configName: 'hackerfile',
   name: 'hacker'
 });
 
 new Liftoff({name:hacker});
 ```
+
+#### opts.moduleName
+
+Sets which module your application expects to find locally when being run.
+
+Type: `Array`  
+Default: `null`
+
+#### opts.configName
+
+Sets the name of the configuration file liftoff will attempt to find.  Case-insensitive.
+
+Type: `String`  
+Default: `null`
+
+#### opts.processTitle
+
+Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
+
+Type: `String`  
+Default: `null`
+
+#### opts.cwdFlag
+
+Sets what flag to use for altering the current working directory.  For example, `myapp --cwd ../` would invoke your application as though you'd called it from the parent of your current directory.
+
+Type: `String`  
+Default: `cwd`
+
+#### opts.configLocationFlag
+
+Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.  This option overrides `cwdFlag`.
+
+Type: `String`  
+Default: `require`
+
+#### opts.preloadFlag
+
+Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
+[require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for your `configFile`.
+
+Type: `String`  
+Default: `require`
+
+#### opts.completions(type)
+
+A method to handle bash/zsh/whatever completions.
+
+Type: `Function`  
+Default: `null`
 
 ### events
 
@@ -111,28 +130,28 @@ Hacker.on('requireFail', function (name, err) {
 });
 ```
 
-### launch(fn, args)
+### launch(fn, argv)
 
 #### fn
 
 A function to start your application, invoked with the following context:
 
 - `liftoff`: your instance of liftoff
-- `args`: cli arguments, as parsed by optimist, or as passed in manually via `args`
+- `argv`: cli arguments, as parsed by [minimist](https://npmjs.org/package/minimist), or as passed in manually.
 - `cwd`: the current working directory
 - `preload`: an array of modules that liftoff tried to pre-load
 - `validExtensions`: an array of supported extensions for your config file
 - `configNameRegex`: the regular expression used to find your config file
 - `configPath`: the full path to your configuration file
 - `configBase`: the base directory of your configuration file
-- `localPackage`: the contents of package.json
-- `depMap`: the full path to any modules listed in `localDeps` which were found
+- `modulePath`: the full path to the local module your project relies on
+- `modulePackage`: the contents of the local module's package.json
 
-#### args
-Manually specify command line options.
+#### argv
+Manually specify command line arguments.  Useful for invoking the CLI programmatically.
 
 Type: `Object`  
-Default: `null`  
+Default: `null`
 
 ## Examples
 Check out [the hacker project](https://github.com/tkellen/node-hacker/blob/master/bin/hacker.js) to see a working example of this tool.
