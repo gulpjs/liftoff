@@ -41,7 +41,6 @@ function Liftoff (opts) {
     this.configLocationFlag = opts.configName;
   }
   extend(this, defaults, opts);
-  console.log(this);
 }
 util.inherits(Liftoff, EventEmitter);
 
