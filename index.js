@@ -3,7 +3,6 @@ var util = require('util');
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var zipObject = require('lodash.zipobject');
-
 var findup = require('findup-sync');
 var findCwd = require('./lib/find_cwd');
 var findLocal = require('./lib/find_local');
@@ -14,6 +13,7 @@ function Liftoff (opts) {
   if(!Array.isArray(this.localDeps)) {
     this.localDeps = [this.localDeps];
   }
+  this.processTitle = opts.processTitle;
   this.configName = opts.configName;
   this.cwdOpt = opts.cwdOpt||'cwd';
   this.requireOpt = opts.requireOpt||'require';
@@ -46,7 +46,9 @@ Liftoff.prototype.requireLocal = function (dep, mute) {
   }
 };
 
-Liftoff.prototype.launch = function () {
+Liftoff.prototype.launch = function (fn) {
+  // set the process title
+  process.title = this.processTitle;
   // parse cli
   this.args = require('optimist').argv;
   // get cwd
@@ -75,8 +77,7 @@ Liftoff.prototype.launch = function () {
       return findLocal(dep, this.configBase);
     }, this));
   }
-  // kick it off!
-  this.emit('run');
+  fn.apply(this);
 };
 
 module.exports = Liftoff;
