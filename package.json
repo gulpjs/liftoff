@@ -38,8 +38,6 @@
     "findup-sync": "~0.1.2",
     "resolve": "~0.6.1",
     "minimist": "0.0.5",
-    "semver": "~2.2.1",
-    "extend": "~1.2.1",
-    "lodash.merge": "~2.4.1"
+    "extend": "~1.2.1"
   }
 }
