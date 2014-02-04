@@ -14,8 +14,7 @@ function Liftoff (opts) {
     cwdFlag: 'cwd',
     preloadFlag: 'require',
     completionFlag: 'completion',
-    completions: null,
-    cliPackage: null
+    completions: null
   };
   if(opts.name) {
     if (!opts.processTitle) {
@@ -55,7 +54,6 @@ Liftoff.prototype.requireLocal = function (module, basedir) {
 };
 
 Liftoff.prototype.launch = function (fn, argv) {
-  console.log(this);
   if(typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
@@ -96,7 +94,7 @@ Liftoff.prototype.launch = function (fn, argv) {
     configNameRegex: null,
     configPath: null,
     configBase: null,
-    localPackage: null,
+    modulePackage: null,
     modulePath: null
   };
 
@@ -117,11 +115,6 @@ Liftoff.prototype.launch = function (fn, argv) {
     try {
       env.modulePath = findLocal(this.moduleName, env.configBase);
       env.modulePackage = require(findup('package.json', {cwd: env.modulePath}));
-
-      // check for semver difference between cli and local installation
-      if (semver.gt(this.cliPackage.version, env.modulePackage.version)) {
-        this.emit('versionMismatch', this.cliPackage.version, this.modulePackage.version);
-      }
     } catch (e) {}
   }
 
