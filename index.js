@@ -1,83 +1,99 @@
-'use strict';
-var util = require('util');
-var path = require('path');
-var EventEmitter = require('events').EventEmitter;
-var zipObject = require('lodash.zipobject');
-var findup = require('findup-sync');
-var findCwd = require('./lib/find_cwd');
-var findLocal = require('./lib/find_local');
-var validExtensions = require('./lib/valid_extensions');
+const _ = require('lodash');
+const util = require('util');
+const path = require('path');
+const EventEmitter = require('events').EventEmitter;
+const findup = require('findup-sync');
+const depMap = require('./lib/dep_map');
+const findCwd = require('./lib/find_cwd');
+const findLocal = require('./lib/find_local');
+const validExtensions = require('./lib/valid_extensions');
 
 function Liftoff (opts) {
-  this.localDeps = opts.localDeps||[];
-  if(!Array.isArray(this.localDeps)) {
-    this.localDeps = [this.localDeps];
+  opts = opts||{};
+  var defaults = {
+    cwdOpt: 'cwd',
+    preloadOpt: 'require',
+    localDeps: []
+  };
+  if(opts.name) {
+    if (!opts.processTitle) {
+      opts.processTitle = opts.name;
+    }
+    if(!opts.configName) {
+      opts.configName = opts.name+'file';
+    }
+    if(!opts.localDeps) {
+      opts.localDeps = [opts.name];
+    }
   }
-  this.processTitle = opts.processTitle;
-  this.configName = opts.configName;
-  this.cwdOpt = opts.cwdOpt||'cwd';
-  this.requireOpt = opts.requireOpt||'require';
+  if(!opts.processTitle) {
+    throw new Error('You must specify a processTitle.');
+  }
+  if(!opts.configName) {
+    throw new Error('You must specify a configName.');
+  }
+  if(!Array.isArray(opts.localDeps)) {
+    throw new Error('localDeps must be an array.');
+  }
+  _.extend(this, defaults, opts);
 }
 util.inherits(Liftoff, EventEmitter);
 
-Liftoff.prototype.requireLocal = function (dep, mute) {
-  if(Array.isArray(dep)) {
-    dep.forEach(this.requireLocal, this);
-  } else {
-    // try to find module from local cwd
-    var modulePath = findLocal(dep, this.cwd);
-    try {
-      // if module path is an error, the requested module
-      // could not be resolved.  throw the error so it gets
-      // emitted
-      if(modulePath instanceof Error) {
-        throw modulePath;
-      }
-      var module = require(modulePath);
-      if(!mute) {
-        this.emit('require', dep, module);
-      }
-      return module;
-    } catch (e) {
-      if(!mute) {
-        this.emit('requireFail', dep, e);
-      }
-    }
+Liftoff.prototype.requireLocal = function (module, basedir) {
+  try {
+    var result = require(findLocal(module, basedir));
+    this.emit('require', module, result);
+    return result;
+  } catch (e) {
+    this.emit('requireFail', module, e);
   }
 };
 
-Liftoff.prototype.launch = function (fn) {
-  // set the process title
-  process.title = this.processTitle;
-  // parse cli
-  this.args = require('optimist').argv;
-  // get cwd
-  this.cwd = findCwd(this.args[this.cwdOpt]);
-  // load required modules
-  this.localRequires = this.args[this.requireOpt];
-  if(this.localRequires) {
-    this.requireLocal(this.localRequires);
+Liftoff.prototype.launch = function (fn, args) {
+  if(typeof fn !== 'function') {
+    throw new Error('You must provide a callback function.');
   }
-  // set valid extensions
-  this.validExtensions = validExtensions();
-  // set the regex for finding a valid config file
-  this.configNameRegex = this.configName+'{'+this.validExtensions+'}';
-  // set config path based on what we can require
-  this.configPath = findup(this.configNameRegex, {cwd: this.cwd, nocase: true});
-  // if we found a config, load the requested module and matching package
-  if(this.configPath) {
-    // save base directory for config file
-    this.configBase = path.dirname(this.configPath);
-    // try to load local package.json (silently)
+  if(!args) {
+    args = require('optimist').argv;
+  }
+  process.title = this.processTitle;
+
+  // build an environment
+  var env = {
+    settings: this,
+    args: args,
+    cwd: findCwd(args[this.cwdOpt]),
+    preload: [],
+    validExtensions: null,
+    configNameRegex: null,
+    configPath: null,
+    configBase: null,
+    localPackage: null,
+    depMap: []
+  };
+
+  // preload any modules requested
+  var deps = args[this.preloadOpt]||[];
+  _.flatten([deps]).forEach(function (dep) {
+    this.requireLocal(dep, env.cwd);
+  }, this);
+
+  // find the config file
+  env.validExtensions = validExtensions();
+  env.configNameRegex = this.configName+'{'+env.validExtensions.join(',')+'}';
+  env.configPath = findup(env.configNameRegex, {cwd: env.cwd, nocase: true});
+
+  // finish populating environment if a config was found
+  if(env.configPath) {
+    env.configBase = path.dirname(env.configPath);
+    // attempt to load local package.json
     try {
-      this.localPackage = require(path.join(this.configBase,'package'));
+      env.localPackage = require(findup('package.json', {cwd: env.configBase}));
     } catch (e) {}
     // map all dependencies to their local location
-    this.depMap = zipObject(this.localDeps, this.localDeps.map(function (dep) {
-      return findLocal(dep, this.configBase);
-    }, this));
+    env.depMap = depMap(this.localDeps, env.cwd);
   }
-  fn.apply(this);
+  fn.apply(env);
 };
 
 module.exports = Liftoff;
