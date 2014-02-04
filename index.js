@@ -2,7 +2,6 @@ const util = require('util');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const extend = require('extend');
-const semver = require('semver');
 const findup = require('findup-sync');
 const findCwd = require('./lib/find_cwd');
 const findLocal = require('./lib/find_local');
