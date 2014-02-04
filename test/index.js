@@ -6,16 +6,16 @@ const NAME = 'tap';
 var app = new Liftoff({
   processTitle: NAME,
   configName: NAME+'file',
-  localDeps: [NAME]
+  moduleName: NAME
 });
 
 test('constructor', function (t) {
 
-  test('the "name" option can auto-set processTitle, localDeps & configFile', function (t) {
+  test('the "name" option can auto-set processTitle, moduleName & configFile', function (t) {
     var alt = new Liftoff({name:NAME});
     t.equal(alt.processTitle, NAME);
     t.equal(alt.configName, NAME+'file');
-    t.deepEqual(alt.localDeps, [NAME]);
+    t.deepEqual(alt.moduleName, NAME);
     t.end();
   });
 
@@ -35,31 +35,27 @@ test('constructor', function (t) {
     t.end();
   });
 
-  test('sets local dependencies to resolve at launch', function (t) {
-    t.deepEqual(app.localDeps, [NAME]);
-    t.throws(function () {
-      new Liftoff({processTitle:NAME,configName:NAME,localDeps:NAME});
-    }, new Error('localDeps must be an array.'));
-    t.end();
+  test('sets local module to resolve at launch', function (t) {
+    t.equal(app.module, NAME);
   });
 
   test('sets a cli option to support changing the cwd', function (t) {
     var alt = new Liftoff({
       name: NAME,
-      cwdOpt: 'cwd2'
+      cwdFlag: 'cwd2'
     });
-    t.equal(app.cwdOpt, 'cwd', 'defaults to "cwd"');
-    t.equal(alt.cwdOpt, 'cwd2');
+    t.equal(app.cwdFlag, 'cwd', 'defaults to "cwd"');
+    t.equal(alt.cwdFlag, 'cwd2');
     t.end();
   });
 
   test('sets a cli option to support pre-loading modules', function (t) {
     var alt = new Liftoff({
       name: NAME,
-      preloadOpt: 'require2'
+      preloadFlag: 'require2'
     });
-    t.equal(app.preloadOpt, 'require', 'defaults to "require"');
-    t.equal(alt.preloadOpt, 'require2');
+    t.equal(app.preloadFlag, 'require', 'defaults to "require"');
+    t.equal(alt.preloadFlag, 'require2');
     t.end();
   });
 
