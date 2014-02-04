@@ -36,7 +36,8 @@ test('constructor', function (t) {
   });
 
   test('sets local module to resolve at launch', function (t) {
-    t.equal(app.module, NAME);
+    t.equal(app.moduleName, NAME);
+    t.end();
   });
 
   test('sets a cli option to support changing the cwd', function (t) {
