@@ -23,10 +23,10 @@ var Hacker = new Liftoff({
   moduleName: 'hacker',
   configName: 'hackerfile',
   processTitle: 'hacker',
-  configLocationOpt: 'hackerfile',
-  cwdOpt: 'cwd',
-  preloadOpt: 'require',
-  completionOpt: 'completion',
+  configLocationFlag: 'hackerfile',
+  cwdFlag: 'cwd',
+  preloadFlag: 'require',
+  completionFlag: 'completion',
   completions: function (type) {
     console.log('Completions not implemented.');
   }
@@ -37,7 +37,7 @@ var Hacker = new Liftoff({
 
 Sugar for setting `processTitle`, `localDeps`, `configName` automatically.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 These are equivalent:
@@ -56,50 +56,50 @@ new Liftoff({name:hacker});
 
 Sets which module your application expects to find locally when being run.
 
-Type: `Array`
+Type: `Array`  
 Default: `null`
 
 #### opts.configName
 
 Sets the name of the configuration file liftoff will attempt to find.  Case-insensitive.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 #### opts.processTitle
 
 Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
-#### opts.cwdOpt
+#### opts.cwdFlag
 
 Sets what flag to use for altering the current working directory.  For example, `myapp --cwd ../` would invoke your application as though you'd called it from the parent of your current directory.
 
-Type: `String`
+Type: `String`  
 Default: `cwd`
 
-#### opts.preloadOpt
+#### opts.configLocationFlag
+
+Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.  This option overrides `cwdFlag`.
+
+Type: `String`  
+Default: `require`
+
+#### opts.preloadFlag
 
 Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
 [require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for your `configFile`.
 
-Type: `String`
-Default: `require`
-
-#### opts.configLocationOpt
-
-Sets what flag to use for defining the directory to search for your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.
-
-Type: `String`
+Type: `String`  
 Default: `require`
 
 #### opts.completions(type)
 
 A method to handle bash/zsh/whatever completions.
 
-Type: `Function`
+Type: `Function`  
 Default: `null`
 
 ### events
@@ -130,27 +130,27 @@ Hacker.on('requireFail', function (name, err) {
 });
 ```
 
-### launch(fn, args)
+### launch(fn, argv)
 
 #### fn
 
 A function to start your application, invoked with the following context:
 
 - `liftoff`: your instance of liftoff
-- `args`: cli arguments, as parsed by [minimist](https://npmjs.org/package/minimist), or as passed in manually via `args`
+- `argv`: cli arguments, as parsed by [minimist](https://npmjs.org/package/minimist), or as passed in manually.
 - `cwd`: the current working directory
 - `preload`: an array of modules that liftoff tried to pre-load
 - `validExtensions`: an array of supported extensions for your config file
 - `configNameRegex`: the regular expression used to find your config file
 - `configPath`: the full path to your configuration file
 - `configBase`: the base directory of your configuration file
-- `localPackage`: the contents of package.json
-- `depMap`: the full path to any modules listed in `localDeps` which were found
+- `modulePath`: the full path to the local module your project relies on
+- `modulePackage`: the contents of the local module's package.json
 
-#### args
-Manually specify command line options.
+#### argv
+Manually specify command line arguments.  Useful for invoking the CLI programmatically.
 
-Type: `Object`
+Type: `Object`  
 Default: `null`
 
 ## Examples
