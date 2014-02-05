@@ -56,7 +56,7 @@ new Liftoff({name:hacker});
 
 Sets which module your application expects to find locally when being run.
 
-Type: `Array`  
+Type: `String`  
 Default: `null`
 
 #### opts.configName
