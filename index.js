@@ -114,7 +114,16 @@ Liftoff.prototype.launch = function (fn, argv) {
     try {
       env.modulePath = findLocal(this.moduleName, env.configBase);
       env.modulePackage = require(findup('package.json', {cwd: env.modulePath}));
-    } catch (e) {}
+    } catch (e) {
+      try {
+        env.modulePackage = require(findup('package.json', {cwd: env.configBase}));
+        // check to see if we're developing against ourselves.  if we are, use
+        // the 'main' property for our module path
+        if(env.modulePackage.name === env.settings.moduleName) {
+          env.modulePath = path.join(env.configBase, env.modulePackage.main);
+        }
+      } catch (e) {}
+    }
   }
 
   // liftoff!
