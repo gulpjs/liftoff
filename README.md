@@ -35,7 +35,7 @@ var Hacker = new Liftoff({
 
 #### opts.name
 
-Sugar for setting `processTitle`, `localDeps`, `configName` & `configLocationFlag` automatically.
+Sugar for setting `processTitle`, `localDeps` &amp; `configName` automatically.
 
 Type: `String`  
 Default: `null`
@@ -46,10 +46,10 @@ new Liftoff({
   processTitle: 'hacker',
   moduleName: 'hacker',
   configName: 'hackerfile',
-  name: 'hacker'
 });
-
-new Liftoff({name:hacker});
+```
+```js
+new Liftoff({name:'hacker'});
 ```
 
 #### opts.moduleName
@@ -85,12 +85,12 @@ Default: `cwd`
 Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.  This option overrides `cwdFlag`.
 
 Type: `String`  
-Default: `configName+"file"`
+Default: `same as configName`
 
 #### opts.preloadFlag
 
 Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
-[require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for your `configFile`.
+[require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for a file matching `configName`.
 
 Type: `String`  
 Default: `"require"`
@@ -142,10 +142,10 @@ A function to start your application, invoked with the following context:
 - `preload`: an array of modules that liftoff tried to pre-load
 - `validExtensions`: an array of supported extensions for your config file
 - `configNameRegex`: the regular expression used to find your config file
-- `configPath`: the full path to your configuration file
-- `configBase`: the base directory of your configuration file
-- `modulePath`: the full path to the local module your project relies on
-- `modulePackage`: the contents of the local module's package.json
+- `configPath`: the full path to your configuration file (if found)
+- `configBase`: the base directory of your configuration file (if found)
+- `modulePath`: the full path to the local module your project relies on (if found)
+- `modulePackage`: the contents of the local module's package.json (if found)
 
 #### argv
 Manually specify command line arguments.  Useful for invoking the CLI programmatically.
@@ -162,4 +162,4 @@ To try the example, do the following:
 2. Make a `Hackerfile.js` with some arbitrary javascript it.
 3. Run `hacker` while in the same parent folder.
 
-For extra credit, try writing your `Hackerfile` in coffeescript.  Then, run `hacker --require coffee-script`.  Make sure you install coffee-script locally, though!
+For extra credit, try writing your `Hackerfile` in coffeescript.  Then, run `hacker --require coffee-script`.  Make sure you install coffee-script locally, though.
