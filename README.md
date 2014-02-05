@@ -35,7 +35,7 @@ var Hacker = new Liftoff({
 
 #### opts.name
 
-Sugar for setting `processTitle`, `localDeps`, `configName` automatically.
+Sugar for setting `processTitle`, `localDeps`, `configName` & `configLocationFlag` automatically.
 
 Type: `String`  
 Default: `null`
