@@ -56,7 +56,7 @@ new Liftoff({name:hacker});
 
 Sets which module your application expects to find locally when being run.
 
-Type: `String`  
+Type: `Array`  
 Default: `null`
 
 #### opts.configName
@@ -85,7 +85,7 @@ Default: `cwd`
 Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.  This option overrides `cwdFlag`.
 
 Type: `String`  
-Default: `configName+"file"`
+Default: `require`
 
 #### opts.preloadFlag
 
@@ -93,7 +93,7 @@ Sets what flag to use for pre-loading modules.  For example, `myapp --require co
 [require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for your `configFile`.
 
 Type: `String`  
-Default: `"require"`
+Default: `require`
 
 #### opts.completions(type)
 
