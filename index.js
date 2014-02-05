@@ -121,6 +121,9 @@ Liftoff.prototype.launch = function (fn, argv) {
         // the 'main' property for our module path
         if(env.modulePackage.name === env.settings.moduleName) {
           env.modulePath = path.join(env.configBase, env.modulePackage.main);
+        } else {
+          // null out modulePackage if we've grabbed values for some other project
+          env.modulePackage = null;
         }
       } catch (e) {}
     }
