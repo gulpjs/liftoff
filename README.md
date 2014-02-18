@@ -160,8 +160,9 @@ Check out [the hacker project](https://github.com/tkellen/node-hacker/blob/maste
 
 To try the example, do the following:
 
-1. Install the sample project `hacker` with `npm install -g hacker`
+1. Install the sample project `hacker` with `npm install -g hacker`.
 2. Make a `Hackerfile.js` with some arbitrary javascript it.
+3. Install hacker next to it with `npm install hacker`.
 3. Run `hacker` while in the same parent folder.
 
 For extra credit, try writing your `Hackerfile` in coffeescript.  Then, run `hacker --require coffee-script`.  Make sure you install coffee-script locally, though.
