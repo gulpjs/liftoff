@@ -3,7 +3,9 @@
 
 [![NPM](https://nodei.co/npm/liftoff.png)](https://nodei.co/npm/liftoff/)
 
-## What?
+## What is it?
+[See this blog post, or read on.](http://weblog.bocoup.com/building-command-line-tools-in-node-with-liftoff/)
+
 Say you're writing a CLI tool.  Let's call it [hacker](http://github.com/tkellen/node-hacker).  You want to configure it using a `Hackerfile`.  This is node, so you install `hacker` locally for each project you use it in.  But, in order to get the `hacker` command in your PATH, you also install it globally.
 
 Now, when you run the `hacker` command, you want it to use the `Hackerfile` in your current directory, and the local installation of `hacker` next to it.  It'd be nice if it traversed up your folders until it found a `Hackerfile`&mdash;for those times when you're not in the root directory of your project.  Heck, you might even want to launch it from a folder outside of your project by manually specifying a working directory.  Liftoff manages this for you.
