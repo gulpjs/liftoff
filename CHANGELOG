@@ -1,0 +1,9 @@
+v0.8.5:
+  date: 2014-02-19
+  changes:
+    - Implement `addExtensions` option.
+    - Default to `index.js` if `modulePackage` has no `main` property.
+v0.8.4:
+  date: 2014-02-05
+  changes:
+    - Initial public release.
