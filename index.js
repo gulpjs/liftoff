@@ -125,7 +125,7 @@ Liftoff.prototype.launch = function (fn, argv) {
         // check to see if we're developing against ourselves.  if we are, use
         // the 'main' property for our module path
         if(env.modulePackage.name === env.settings.moduleName) {
-          env.modulePath = path.join(env.configBase, env.modulePackage.main);
+          env.modulePath = path.join(env.configBase, env.modulePackage.main||'index.js');
         } else {
           // null out modulePackage if we've grabbed values for some other project
           env.modulePackage = null;
