@@ -11,6 +11,14 @@ var app = new Liftoff({
   moduleName: NAME
 });
 
+var appAddExtensions = new Liftoff({
+  processTitle: NAME,
+  configName: NAME+'file',
+  extensions: ['rc'],
+  moduleName: NAME
+});
+
+
 test('constructor', function (t) {
 
   test('the "name" option auto-configures processTitle, moduleName, configFile & configLocationFlag', function (t) {
