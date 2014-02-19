@@ -11,6 +11,7 @@ function Liftoff (opts) {
   opts = opts||{};
   var defaults = {
     cwdFlag: 'cwd',
+    addExtensions: [],
     preloadFlag: 'require',
     completionFlag: 'completion',
     completions: null
@@ -103,8 +104,12 @@ Liftoff.prototype.launch = function (fn, argv) {
   }, this);
 
   // find the config file
-  env.validExtensions = validExtensions();
-  env.configNameRegex = this.configName+'{'+env.validExtensions.join(',')+'}';
+  env.validExtensions = validExtensions(this.addExtensions);
+  if(this.configName instanceof RegExp) {
+    env.configNameRegex = this.configName;
+  } else {
+    env.configNameRegex = this.configName+'{'+env.validExtensions.join(',')+'}';
+  }
   env.configPath = findup(env.configNameRegex, {cwd: env.cwd, nocase: true});
 
   // finish populating environment if a config was found

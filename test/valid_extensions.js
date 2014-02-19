@@ -7,4 +7,10 @@ test('returns extensions that node currently knows how to load', function (t) {
 
   require.extensions['.cows'] = function(){};
   t.deepEqual(validExtensions(), ['.js','.json','.node','.cows']);
+  delete require.extensions['.cows'];
+});
+
+test('allows explicit addition of extensions', function (t) {
+  t.deepEqual(validExtensions(['rc']), ['rc','.js','.json','.node']);
+  t.end();
 });
