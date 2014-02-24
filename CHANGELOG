@@ -1,3 +1,7 @@
+v0.8.7:
+  date: 2014-02-24
+  changes:
+    - Pass environment as first argument to `launch`.
 v0.8.5:
   date: 2014-02-19
   changes:
