@@ -95,17 +95,21 @@ test('constructor', function (t) {
 });
 
 test('launch(fn)', function (t) {
-  var env = false;
+  var env_ctx = false;
+  var env_passed = false;
   t.throws(function() {
     app.launch();
   }, 'throws if no callback is provided');
-  app.launch(function() {
-    env = this;
+
+  app.launch(function (env) {
+    env_applied = this;
+    env_passed = env;
   }, {
     require: ['coffee-script/register'],
     cwd: './fixtures'
   });
-  t.ok(env, 'invokes a provided callback with an environment');
+  t.ok(env_applied, 'invokes a provided callback with environment as context');
+  t.ok(env_passed, 'invokes a provided callback with environment as argument');
 
   var expected = {
     settings: app,
@@ -122,7 +126,8 @@ test('launch(fn)', function (t) {
     modulePackage: require('../node_modules/tap/package.json'),
     modulePath: path.join(__dirname,'../node_modules/tap/lib/main.js')
   };
-  t.deepEqual(env, expected);
+  t.deepEqual(env_applied, expected);
+  t.deepEqual(env_passed, expected);
 
   t.end();
 });

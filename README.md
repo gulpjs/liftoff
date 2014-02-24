@@ -40,7 +40,7 @@ var Hacker = new Liftoff({
 
 Sugar for setting `processTitle`, `localDeps` &amp; `configName` automatically.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 These are equivalent:
@@ -59,14 +59,14 @@ new Liftoff({name:'hacker'});
 
 Sets which module your application expects to find locally when being run.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 #### opts.configName
 
 Sets the name of the configuration file liftoff will attempt to find.  Case-insensitive.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 #### opts.addExtensions
@@ -75,28 +75,28 @@ Explicitly add custom extensions to include when searching for a configuration f
 
 An example usage for this setting would be to add an `rc` extension.  e.g. with a configName of `.myapp`, you want Liftoff to look for `.myapp{rc,.js,.json,.node}`
 
-Type: `Array`  
-Default: `[]`  
+Type: `Array`
+Default: `[]`
 
 #### opts.processTitle
 
 Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 #### opts.cwdFlag
 
 Sets what flag to use for altering the current working directory.  For example, `myapp --cwd ../` would invoke your application as though you'd called it from the parent of your current directory.
 
-Type: `String`  
+Type: `String`
 Default: `cwd`
 
 #### opts.configLocationFlag
 
 Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.  This option overrides `cwdFlag`.
 
-Type: `String`  
+Type: `String`
 Default: `same as configName`
 
 #### opts.preloadFlag
@@ -104,14 +104,14 @@ Default: `same as configName`
 Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
 [require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for a file matching `configName`.
 
-Type: `String`  
+Type: `String`
 Default: `"require"`
 
 #### opts.completions(type)
 
 A method to handle bash/zsh/whatever completions.
 
-Type: `Function`  
+Type: `Function`
 Default: `null`
 
 ### events
@@ -144,9 +144,9 @@ Hacker.on('requireFail', function (name, err) {
 
 ### launch(fn, argv)
 
-#### fn
+#### fn(env)
 
-A function to start your application, invoked with the following context:
+A function to start your application.  The `env` will contain the following keys:
 
 - `liftoff`: your instance of liftoff
 - `argv`: cli arguments, as parsed by [minimist](https://npmjs.org/package/minimist), or as passed in manually.
@@ -162,7 +162,7 @@ A function to start your application, invoked with the following context:
 #### argv
 Manually specify command line arguments.  Useful for invoking the CLI programmatically.
 
-Type: `Object`  
+Type: `Object`
 Default: `null`
 
 ## Examples

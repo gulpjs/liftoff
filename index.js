@@ -135,7 +135,7 @@ Liftoff.prototype.launch = function (fn, argv) {
   }
 
   // liftoff!
-  fn.apply(env);
+  fn.call(env, env);
 };
 
 module.exports = Liftoff;
