@@ -104,7 +104,6 @@ Liftoff.prototype.buildEnvironment = function (argv) {
   if (!modulePath && configBase) {
     modulePackage = silentRequire(fileSearch('package.json', [configBase]));
     if (modulePackage.name === this.moduleName) {
-      console.log('found SELF!');
       modulePath = path.join(configBase, modulePackage.main||'index.js');
     } else {
       // clear if we just required a package for some other project
