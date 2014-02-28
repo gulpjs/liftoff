@@ -1,16 +1,15 @@
-const test = require('tap').test;
+const expect = require('chai').expect;
 const validExtensions = require('../lib/valid_extensions.js');
 
-test('returns extensions that node currently knows how to load', function (t) {
-  t.deepEqual(validExtensions(), ['.js','.json','.node']);
-  t.end();
+describe('validExtensions', function () {
+  it('should return extensions that node currently knows how to load', function () {
+    expect(validExtensions()).to.deep.equal(['.js','.json','.node']);
+    require.extensions['.cows'] = function(){};
+    expect(validExtensions()).to.deep.equal(['.js','.json','.node','.cows']);
+    delete require.extensions['.cows'];
+  });
 
-  require.extensions['.cows'] = function(){};
-  t.deepEqual(validExtensions(), ['.js','.json','.node','.cows']);
-  delete require.extensions['.cows'];
-});
-
-test('allows explicit addition of extensions', function (t) {
-  t.deepEqual(validExtensions(['rc']), ['rc','.js','.json','.node']);
-  t.end();
+  it('should allow explicit addition of extensions', function () {
+    expect(validExtensions(['rc'])).to.deep.equal(['rc','.js','.json','.node']);
+  });
 });

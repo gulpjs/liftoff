@@ -26,8 +26,8 @@ var Hacker = new Liftoff({
   configName: 'hackerfile',
   addExtensions: ['.anything'],
   processTitle: 'hacker',
-  configLocationFlag: 'hackerfile',
   cwdFlag: 'cwd',
+  configPathFlag: 'hackerfile',
   preloadFlag: 'require',
   completionFlag: 'completion',
   completions: function (type) {
@@ -38,7 +38,7 @@ var Hacker = new Liftoff({
 
 #### opts.name
 
-Sugar for setting `processTitle`, `localDeps` &amp; `configName` automatically.
+Sugar for setting `processTitle`, `moduleName`, `configName` & `configPathFlag` automatically.
 
 Type: `String`
 Default: `null`
@@ -49,6 +49,7 @@ new Liftoff({
   processTitle: 'hacker',
   moduleName: 'hacker',
   configName: 'hackerfile',
+  configPathFlag: 'hackerfile'
 });
 ```
 ```js
@@ -64,7 +65,7 @@ Default: `null`
 
 #### opts.configName
 
-Sets the name of the configuration file liftoff will attempt to find.  Case-insensitive.
+Sets the name of the configuration file Liftoff will attempt to find.  Case-insensitive.
 
 Type: `String`
 Default: `null`
@@ -92,9 +93,16 @@ Sets what flag to use for altering the current working directory.  For example, 
 Type: `String`
 Default: `cwd`
 
-#### opts.configLocationFlag
+#### opts.configPathFlag
 
-Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.  This option overrides `cwdFlag`.
+Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.
+
+Type: `String`
+Default: `same as configName`
+
+#### opts.modulePathFlag
+
+Sets what flag to use for defining the path to your locally installed module.  For example, `myapp --myappdir ~/` would specify the location of your config file.  This option overrides `cwdFlag`.
 
 Type: `String`
 Default: `same as configName`
@@ -146,9 +154,8 @@ Hacker.on('requireFail', function (name, err) {
 
 #### fn(env)
 
-A function to start your application.  The `env` will contain the following keys:
+A function to start your application.  When invoked, `this` will be your instance of Liftoff.  The `env` param will contain the following keys:
 
-- `liftoff`: your instance of liftoff
 - `argv`: cli arguments, as parsed by [minimist](https://npmjs.org/package/minimist), or as passed in manually.
 - `cwd`: the current working directory
 - `preload`: an array of modules that liftoff tried to pre-load
