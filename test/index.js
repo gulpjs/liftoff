@@ -132,20 +132,22 @@ describe('Liftoff', function () {
   describe('requireLocal', function () {
 
     it('should emit `require` with the name of the module and the required module', function (done) {
-      app.on('require', function (name, module) {
+      var requireTest = new Liftoff({name:'require'});
+      requireTest.on('require', function (name, module) {
         expect(name).to.equal('mocha');
         expect(module).to.equal(require('mocha'));
         done();
       });
-      app.requireLocal('mocha', __dirname);
+      requireTest.requireLocal('mocha', __dirname);
     });
 
     it('should emit `requireFail` with an error if a module can\'t be found.', function (done) {
-      app.on('requireFail', function (name, module) {
+      var requireFailTest = new Liftoff({name:'requireFail'});
+      requireFailTest.on('requireFail', function (name, module) {
         expect(name).to.equal('badmodule');
         done();
       });
-      app.requireLocal('badmodule', __dirname);
+      requireFailTest.requireLocal('badmodule', __dirname);
     });
 
   });
