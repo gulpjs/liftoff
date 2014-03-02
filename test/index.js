@@ -122,11 +122,32 @@ describe('Liftoff', function () {
 
     it('should pass environment to first argument of launch callback', function (done) {
       process.argv = [];
-      app.launch( function (env) {
+      app.launch(function (env) {
         expect(env).to.deep.equal(app.buildEnvironment({"_":[]}));
         done();
       });
     });
+  });
+
+  describe('requireLocal', function () {
+
+    it('should emit `require` with the name of the module and the required module', function (done) {
+      app.on('require', function (name, module) {
+        expect(name).to.equal('mocha');
+        expect(module).to.equal(require('mocha'));
+        done();
+      });
+      app.requireLocal('mocha', __dirname);
+    });
+
+    it('should emit `requireFail` with an error if a module can\'t be found.', function (done) {
+      app.on('requireFail', function (name, module) {
+        expect(name).to.equal('badmodule');
+        done();
+      });
+      app.requireLocal('badmodule', __dirname);
+    });
+
   });
 
 });
