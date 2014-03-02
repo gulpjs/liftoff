@@ -33,6 +33,12 @@ describe('Liftoff', function () {
     it('should return path from cwdFlag if both it and configPathFlag are defined', function () {
       expect(app.findCwd({cwd:'../',mochafile:'test/fixtures/mochafile.js'})).to.equal(path.resolve('../'));
     });
+    it('should ignore cwdFlag if it isn\'t a string', function () {
+      expect(app.findCwd({cwd:true})).to.equal(process.cwd());
+    });
+    it('should ignore configPathFlag if it isn\'t a string', function () {
+      expect(app.findCwd({mochafile:true})).to.equal(process.cwd());
+    });
   });
 
   describe('buildEnvironment', function () {
