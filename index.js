@@ -17,7 +17,7 @@ util.inherits(Liftoff, EE);
 
 Liftoff.prototype.requireLocal = function (module, basedir) {
   try {
-    var result = resolve.sync(module, {basedir: basedir});
+    var result = require(resolve.sync(module, {basedir: basedir}));
     this.emit('require', module, result);
     return result;
   } catch (e) {
@@ -103,7 +103,7 @@ Liftoff.prototype.buildEnvironment = function (argv) {
   // our config to see if its `name` matches the module we're looking for
   if (!modulePath && configBase) {
     modulePackage = silentRequire(fileSearch('package.json', [configBase]));
-    if (modulePackage.name === this.moduleName) {
+    if (modulePackage && modulePackage.name === this.moduleName) {
       modulePath = path.join(configBase, modulePackage.main||'index.js');
       cwd = configBase;
     } else {
