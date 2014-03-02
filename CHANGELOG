@@ -1,7 +1,8 @@
-v0.9.5:
+v0.9.6:
   date: 2014-04-02
   changes:
     - Fix regression where external modules are not properly required.
+    - Ignore configPathFlag / cwdFlag the value isn't a string
 v0.9.3:
   date: 2014-02-28
   changes:

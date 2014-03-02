@@ -31,10 +31,10 @@ Liftoff.prototype.findCwd = function (argv) {
   var configPath = argv[this.configPathFlag];
   // if a path to the desired config was specified but no cwd
   // was provided, use the dir of the config.
-  if (configPath && !cwd) {
+  if (typeof configPath === 'string' && !cwd) {
     cwd = path.dirname(path.resolve(configPath));
   }
-  if (cwd) {
+  if (typeof cwd === 'string') {
     return path.resolve(cwd);
   } else {
     return process.cwd();
