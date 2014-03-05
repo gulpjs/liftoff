@@ -40,7 +40,7 @@ var Hacker = new Liftoff({
 
 Sugar for setting `processTitle`, `moduleName`, `configName` & `configPathFlag` automatically.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 These are equivalent:
@@ -60,14 +60,14 @@ new Liftoff({name:'hacker'});
 
 Sets which module your application expects to find locally when being run.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 #### opts.configName
 
 Sets the name of the configuration file Liftoff will attempt to find.  Case-insensitive.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 #### opts.addExtensions
@@ -76,35 +76,50 @@ Explicitly add custom extensions to include when searching for a configuration f
 
 An example usage for this setting would be to add an `rc` extension.  e.g. with a configName of `.myapp`, you want Liftoff to look for `.myapp{rc,.js,.json,.node}`
 
-Type: `Array`
+Type: `Array`  
 Default: `[]`
 
 #### opts.processTitle
 
 Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 #### opts.cwdFlag
 
 Sets what flag to use for altering the current working directory.  For example, `myapp --cwd ../` would invoke your application as though you'd called it from the parent of your current directory.
 
-Type: `String`
+Type: `String`  
 Default: `cwd`
 
 #### opts.configPathFlag
 
-Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile ../Myappfile.js` would explicitly specify the location of your config file.
+Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile /var/www/project/Myappfile.js` would explicitly specify the location of your config file.  **Note:** Liftoff will assume the current working directory is the directory containing the config file unless an alternate location is specified using `cwdFlag`.
 
-Type: `String`
+
+Type: `String`  
 Default: `same as configName`
+
+##### Examples 
+
+These are functionally indentical:
+```
+myapp --myappfile /var/www/project/Myappfile.js
+myapp --cwd /var/www/project
+```
+
+These will run myapp from a shared directory as though it were located in another project:
+```
+myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project1
+myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
+```
 
 #### opts.modulePathFlag
 
 Sets what flag to use for defining the path to your locally installed module.  For example, `myapp --myappdir ~/` would specify the location of your config file.  This option overrides `cwdFlag`.
 
-Type: `String`
+Type: `String`  
 Default: `same as configName`
 
 #### opts.preloadFlag
@@ -112,14 +127,14 @@ Default: `same as configName`
 Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
 [require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for a file matching `configName`.
 
-Type: `String`
+Type: `String`  
 Default: `"require"`
 
 #### opts.completions(type)
 
 A method to handle bash/zsh/whatever completions.
 
-Type: `Function`
+Type: `Function`  
 Default: `null`
 
 ### events
@@ -169,7 +184,7 @@ A function to start your application.  When invoked, `this` will be your instanc
 #### argv
 Manually specify command line arguments.  Useful for invoking the CLI programmatically.
 
-Type: `Object`
+Type: `Object`  
 Default: `null`
 
 ## Examples
