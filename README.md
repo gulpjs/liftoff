@@ -74,7 +74,7 @@ Default: `null`
 
 Explicitly add custom extensions to include when searching for a configuration file.  Node supports `.js`, `.json` & `.node` natively, so there is no need to add these.
 
-An example usage for this setting would be to add an `rc` extension.  e.g. with a configName of `.myapp`, you want Liftoff to look for `.myapp{rc,.js,.json,.node}`
+An example usage would be setting this to `['rc']`.  With a configName of `.myapp`, Liftoff would then look for `.myapp{rc,.js,.json,.node}`
 
 Type: `Array`  
 Default: `[]`
@@ -114,13 +114,6 @@ These will run myapp from a shared directory as though it were located in anothe
 myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project1
 myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
 ```
-
-#### opts.modulePathFlag
-
-Sets what flag to use for defining the path to your locally installed module.  For example, `myapp --myappdir ~/` would specify the location of your config file.  This option overrides `cwdFlag`.
-
-Type: `String`  
-Default: `same as configName`
 
 #### opts.preloadFlag
 
