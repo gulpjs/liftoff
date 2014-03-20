@@ -89,6 +89,7 @@ Liftoff.prototype.buildEnvironment = function (argv) {
   if (configPath) {
     configPath = path.resolve(configPath);
     var configBase = path.dirname(configPath);
+    var configExtension = path.extname(configPath);
   }
 
   // locate local module and package in config directory
@@ -120,6 +121,7 @@ Liftoff.prototype.buildEnvironment = function (argv) {
     configNameRegex: configNameRegex,
     configPath: configPath,
     configBase: configBase,
+    configExtension: configExtension,
     modulePath: modulePath,
     modulePackage: modulePackage||{}
   };

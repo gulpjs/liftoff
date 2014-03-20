@@ -101,7 +101,7 @@ Sets what flag to use for defining the path to your configfile.  For example, `m
 Type: `String`  
 Default: `same as configName`
 
-##### Examples 
+##### Examples
 
 These are functionally indentical:
 ```
@@ -171,6 +171,7 @@ A function to start your application.  When invoked, `this` will be your instanc
 - `configNameRegex`: the regular expression used to find your config file
 - `configPath`: the full path to your configuration file (if found)
 - `configBase`: the base directory of your configuration file (if found)
+- `configExtension`: the extension name of your configuration file (if found)
 - `modulePath`: the full path to the local module your project relies on (if found)
 - `modulePackage`: the contents of the local module's package.json (if found)
 
