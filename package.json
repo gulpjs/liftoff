@@ -31,7 +31,8 @@
     "tap": "~0.4.8",
     "coffee-script": "~1.7.1",
     "mocha": "~1.17.1",
-    "chai": "~1.9.0"
+    "chai": "~1.9.0",
+    "sinon": "^1.9.0"
   },
   "keywords": [
     "command line"
