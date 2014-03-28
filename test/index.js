@@ -1,6 +1,8 @@
 const Liftoff = require('../');
 const path = require('path');
 const expect = require('chai').expect;
+const sinon = require('sinon');
+const resolve = require('resolve');
 
 const NAME = 'mocha';
 
@@ -75,6 +77,14 @@ describe('Liftoff', function () {
       process.chdir('test/fixtures');
       expect(app.buildEnvironment({}).configPath).to.equal(path.resolve('mochafile.js'));
       process.chdir(cwdSaved);
+    });
+
+    it('should locate local module using cwd if no config is found', function () {
+      var test = new Liftoff({name:'chai'});
+      var cwd = 'explicit/cwd';
+      var spy = sinon.spy(resolve, 'sync');
+      test.buildEnvironment({cwd:cwd});
+      expect(spy.calledWith('chai', {basedir:path.join(process.cwd(),cwd),paths:[]})).to.be.true;
     });
 
     it('should locate config using cwdFlag if supplied', function () {
