@@ -1,7 +1,7 @@
 {
   "name": "liftoff",
   "description": "Launch your command line tool with ease.",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "homepage": "https://github.com/tkellen/node-liftoff",
   "author": {
     "name": "Tyler Kellen",
@@ -32,7 +32,7 @@
     "coffee-script": "~1.7.1",
     "mocha": "~1.17.1",
     "chai": "~1.9.0",
-    "sinon": "^1.9.0"
+    "sinon": "~1.9.0"
   },
   "keywords": [
     "command line"
