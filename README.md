@@ -8,7 +8,7 @@
 
 Say you're writing a CLI tool.  Let's call it [hacker](http://github.com/tkellen/node-hacker).  You want to configure it using a `Hackerfile`.  This is node, so you install `hacker` locally for each project you use it in.  But, in order to get the `hacker` command in your PATH, you also install it globally.
 
-Now, when you run the `hacker` command, you want it to use the `Hackerfile` in your current directory, and the local installation of `hacker` next to it.  It'd be nice if it traversed up your folders until it found a `Hackerfile`&mdash;for those times when you're not in the root directory of your project.  Heck, you might even want to launch it from a folder outside of your project by manually specifying a working directory.  Liftoff manages this for you.
+Now, when you run `hacker`, you want to configure what it does using the `Hackerfile` in your current directory, and you want it to execute using the local installation of your tool.  Also, it'd be nice if the `hacker` command was smart enough to traverse up your folders until it finds a `Hackerfile`&mdash;for those times when you're not in the root directory of your project.  Heck, you might even want to launch `hacker` from a folder outside of your project by manually specifying a working directory.  Liftoff manages this for you.
 
 So, everything is working great.  Now you can find your local `hacker` and `Hackerfile` with ease.  Unfortunately, it turns out you've authored your `Hackerfile` in coffee-script, or some other JS variant.  In order to support *that*, you have to load the compiler for it, and then register the extension for it with node.  Good news, Liftoff can do that too.
 
@@ -40,7 +40,7 @@ var Hacker = new Liftoff({
 
 Sugar for setting `processTitle`, `moduleName`, `configName` & `configPathFlag` automatically.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 These are equivalent:
@@ -60,14 +60,14 @@ new Liftoff({name:'hacker'});
 
 Sets which module your application expects to find locally when being run.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 #### opts.configName
 
 Sets the name of the configuration file Liftoff will attempt to find.  Case-insensitive.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 #### opts.addExtensions
@@ -76,34 +76,33 @@ Explicitly add custom extensions to include when searching for a configuration f
 
 An example usage would be setting this to `['rc']`.  With a configName of `.myapp`, Liftoff would then look for `.myapp{rc,.js,.json,.node}`
 
-Type: `Array`  
+Type: `Array`
 Default: `[]`
 
 #### opts.processTitle
 
 Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
 
-Type: `String`  
+Type: `String`
 Default: `null`
 
 #### opts.cwdFlag
 
 Sets what flag to use for altering the current working directory.  For example, `myapp --cwd ../` would invoke your application as though you'd called it from the parent of your current directory.
 
-Type: `String`  
+Type: `String`
 Default: `cwd`
 
 #### opts.configPathFlag
 
 Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile /var/www/project/Myappfile.js` would explicitly specify the location of your config file.  **Note:** Liftoff will assume the current working directory is the directory containing the config file unless an alternate location is specified using `cwdFlag`.
 
-
-Type: `String`  
+Type: `String`
 Default: `same as configName`
 
-##### Examples 
+##### Examples
 
-These are functionally indentical:
+These are functionally identical:
 ```
 myapp --myappfile /var/www/project/Myappfile.js
 myapp --cwd /var/www/project
@@ -120,14 +119,14 @@ myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
 Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
 [require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for a file matching `configName`.
 
-Type: `String`  
+Type: `String`
 Default: `"require"`
 
 #### opts.completions(type)
 
 A method to handle bash/zsh/whatever completions.
 
-Type: `Function`  
+Type: `Function`
 Default: `null`
 
 ### events
@@ -177,7 +176,7 @@ A function to start your application.  When invoked, `this` will be your instanc
 #### argv
 Manually specify command line arguments.  Useful for invoking the CLI programmatically.
 
-Type: `Object`  
+Type: `Object`
 Default: `null`
 
 ## Examples
