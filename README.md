@@ -24,7 +24,11 @@ var Hacker = new Liftoff({
   name: 'hacker',
   moduleName: 'hacker',
   configName: 'hackerfile',
-  addExtensions: ['.anything'],
+  extensions: {
+    '.js': null,
+    '.json': null,
+    '.coffee': 'coffee-script/require'
+  },
   processTitle: 'hacker',
   cwdFlag: 'cwd',
   configPathFlag: 'hackerfile',
@@ -60,44 +64,76 @@ new Liftoff({name:'hacker'});
 
 Sets which module your application expects to find locally when being run.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 #### opts.configName
 
 Sets the name of the configuration file Liftoff will attempt to find.  Case-insensitive.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
-#### opts.addExtensions
+#### opts.extensions
 
-Explicitly add custom extensions to include when searching for a configuration file.  Node supports `.js`, `.json` & `.node` natively, so there is no need to add these.
+Set extensions to include when searching for a configuration file.  If an external module is needed to load a given extension (e.g. `.coffee`), the module name should be specified as the value for the key.
 
-An example usage would be setting this to `['rc']`.  With a configName of `.myapp`, Liftoff would then look for `.myapp{rc,.js,.json,.node}`
+Type: `Object`  
+Default: `{".js":null,".json":null}`
 
-Type: `Array`
-Default: `[]`
+##### Examples
+
+In this example Liftoff will look for `myappfile{.js,.json,.coffee}`.  If a config with the extension `.coffee` is found, Liftoff will try to require `coffee-script/require` from the current cwd before calling `launch`.
+```js
+var MyApp = new Liftoff({
+  name: 'myapp'
+  extensions: {
+    ".js": null,
+    ".json": null,
+    ".coffee": "coffee-script/require"
+  }
+});
+```
+
+In this example, Liftoff will look for `.myapp{rc}`.
+```js
+var MyApp = new Liftoff({
+  name: 'myapp',
+  configName: '.myapp',
+  extensions: {
+    "rc": null
+  }
+});
+```
+
+In this example, Liftoff will automatically attempt to load the correct module for any extension supported by [node-interpret](https://github.com/tkellen/node-interpret) (as long as it does not require a register method).
+
+```js
+var MyApp = new Liftoff({
+  name: 'myapp',
+  extensions: require('interpret').extensions
+});
+```
 
 #### opts.processTitle
 
 Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
 
-Type: `String`
+Type: `String`  
 Default: `null`
 
 #### opts.cwdFlag
 
 Sets what flag to use for altering the current working directory.  For example, `myapp --cwd ../` would invoke your application as though you'd called it from the parent of your current directory.
 
-Type: `String`
+Type: `String`  
 Default: `cwd`
 
 #### opts.configPathFlag
 
 Sets what flag to use for defining the path to your configfile.  For example, `myapp --myappfile /var/www/project/Myappfile.js` would explicitly specify the location of your config file.  **Note:** Liftoff will assume the current working directory is the directory containing the config file unless an alternate location is specified using `cwdFlag`.
 
-Type: `String`
+Type: `String`  
 Default: `same as configName`
 
 ##### Examples
@@ -119,14 +155,14 @@ myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
 Sets what flag to use for pre-loading modules.  For example, `myapp --require coffee-script` would require a local version of coffee-script (if available) before attempting to find your configuration file.  If your required module registers a new
 [require.extension](http://nodejs.org/api/globals.html#globals_require_extensions), it will be included as an option when looking for a file matching `configName`.
 
-Type: `String`
+Type: `String`  
 Default: `"require"`
 
 #### opts.completions(type)
 
 A method to handle bash/zsh/whatever completions.
 
-Type: `Function`
+Type: `Function`  
 Default: `null`
 
 ### events
@@ -166,7 +202,6 @@ A function to start your application.  When invoked, `this` will be your instanc
 - `argv`: cli arguments, as parsed by [minimist](https://npmjs.org/package/minimist), or as passed in manually.
 - `cwd`: the current working directory
 - `preload`: an array of modules that liftoff tried to pre-load
-- `validExtensions`: an array of supported extensions for your config file
 - `configNameRegex`: the regular expression used to find your config file
 - `configPath`: the full path to your configuration file (if found)
 - `configBase`: the base directory of your configuration file (if found)
@@ -176,7 +211,7 @@ A function to start your application.  When invoked, `this` will be your instanc
 #### argv
 Manually specify command line arguments.  Useful for invoking the CLI programmatically.
 
-Type: `Object`
+Type: `Object`  
 Default: `null`
 
 ## Examples
@@ -188,5 +223,3 @@ To try the example, do the following:
 2. Make a `Hackerfile.js` with some arbitrary javascript it.
 3. Install hacker next to it with `npm install hacker`.
 3. Run `hacker` while in the same parent folder.
-
-For extra credit, try writing your `Hackerfile` in coffeescript.  Then, run `hacker --require coffee-script`.  Make sure you install coffee-script locally, though.

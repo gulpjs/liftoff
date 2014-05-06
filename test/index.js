@@ -16,7 +16,11 @@ var app = new Liftoff({
   preloadFlag: 'require',
   completionFlag: 'completion',
   completion: function() {},
-  addExtensions: [],
+  extensions: {
+    '.js': null,
+    '.json': null,
+    '.coffee': 'coffee-script/register'
+  },
   searchPaths: ['test/fixtures/search_path']
 });
 
@@ -46,13 +50,29 @@ describe('Liftoff', function () {
   describe('buildEnvironment', function () {
 
     it('should attempt pre-loading local modules if they are requested', function () {
-      var called = false;
-      app.on('require', function () {
-        called = true;
+      var name, mod;
+      app.on('require', function (moduleName, module) {
+        name = moduleName;
+        mod = module;
       });
-      var env = app.buildEnvironment({require:['coffee-script']});
-      expect(called).to.be.true;
-      expect(env.preload).to.deep.equal(['coffee-script']);
+      var env = app.buildEnvironment({require:['coffee-script/register']});
+      expect(name).to.equal('coffee-script/register');
+      expect(mod).to.equal(require('coffee-script/register'));
+      expect(env.preload).to.deep.equal(['coffee-script/register']);
+    });
+
+    it('should attempt pre-loading local modules based on extension option', function () {
+      var name, mod;
+      app.on('require', function (moduleName, module) {
+        name = moduleName;
+        mod = module;
+      });
+      var env = app.buildEnvironment({
+        mochafile: 'test/fixtures/coffee/mochafile.coffee'
+      });
+      expect(name).to.equal('coffee-script/register');
+      expect(mod).to.equal(require('coffee-script/register'));
+      expect(env.preload).to.deep.equal(['coffee-script/register']);
     });
 
     it('should use configName directly if it is a regex', function () {
@@ -64,12 +84,15 @@ describe('Liftoff', function () {
       expect(test.buildEnvironment().configNameRegex.toString()).to.equal('/mocha/');
     });
 
-    it('should use configName + addExtensions + extensions on require.extensions', function () {
+    it('should use configName + extensions', function () {
       var test = new Liftoff({
         name: NAME,
-        addExtensions: ['rc']
+        extensions: {
+          '.js': null,
+          '.json': null
+        }
       });
-      expect(test.buildEnvironment().configNameRegex.toString()).to.equal('mochafile{rc,.js,.json,.node}');
+      expect(test.buildEnvironment().configNameRegex.toString()).to.equal('mochafile{.js,.json}');
     });
 
     it('should locate config using cwd', function () {
@@ -173,5 +196,3 @@ describe('Liftoff', function () {
 require('./file_search');
 require('./parse_options');
 require('./silent_require');
-require('./valid_extensions');
-

@@ -7,7 +7,6 @@ const resolve = require('resolve');
 const fileSearch = require('./lib/file_search');
 const parseOptions = require('./lib/parse_options');
 const silentRequire = require('./lib/silent_require');
-const validExtensions = require('./lib/valid_extensions');
 
 function Liftoff (opts) {
   EE.call(this);
@@ -45,23 +44,15 @@ Liftoff.prototype.findCwd = function (argv) {
 Liftoff.prototype.buildEnvironment = function (argv) {
   argv = argv||{};
 
-  // attempt preloading modules
-  var preload = argv[this.preloadFlag];
-  if (preload) {
-    if (!Array.isArray(preload)) {
-      preload = [preload];
-    }
-    preload.forEach(function (dep) {
-      this.requireLocal(dep, this.findCwd(argv));
-    }, this);
-  }
-
   // calculate cwd
   var cwd = this.findCwd(argv);
 
+  // get modules we want to preload
+  var preload = argv[this.preloadFlag]||[];
+
   // calculate config file name
   var configNameRegex = this.configName;
-  var extensions = validExtensions(this.addExtensions);
+  var extensions = Object.keys(this.extensions);
   if (configNameRegex instanceof RegExp) {
     configNameRegex = configNameRegex.toString();
   } else {
@@ -85,7 +76,8 @@ Liftoff.prototype.buildEnvironment = function (argv) {
     configPath = fileSearch(configNameRegex, searchIn);
   }
 
-  // if we have a config path, find the directory it resides in
+  // if we have a config path, save the directory it resides in
+  // and check to see if the extension requires a preloaded module
   if (configPath) {
     configPath = path.resolve(configPath);
     var configBase = path.dirname(configPath);
@@ -99,11 +91,13 @@ Liftoff.prototype.buildEnvironment = function (argv) {
   } catch (e) {}
 
   // if we have a configuration but we failed to find a local module, maybe
-  // we are developing against ourselves?  check the package.json sibling to
-  // our config to see if its `name` matches the module we're looking for
+  // we are developing against ourselves?
   if (!modulePath && configBase) {
+    // check the package.json sibling to our config to see if its `name`
+    // matches the module we're looking for
     modulePackage = silentRequire(fileSearch('package.json', [configBase]));
     if (modulePackage && modulePackage.name === this.moduleName) {
+      // if it does, our module path is `main` inside package.json
       modulePath = path.join(configBase, modulePackage.main||'index.js');
       cwd = configBase;
     } else {
@@ -112,11 +106,26 @@ Liftoff.prototype.buildEnvironment = function (argv) {
     }
   }
 
+  // preload module needed for config if any has been specified.
+  var preloadForExtension = this.extensions[path.extname(configPath)];
+  if (preloadForExtension) {
+    preload.push(preloadForExtension);
+  }
+
+  // preload modules, if any
+  if (preload.length) {
+    if (!Array.isArray(preload)) {
+      preload = [preload];
+    }
+    preload.forEach(function (dep) {
+      this.requireLocal(dep, this.findCwd(argv));
+    }, this);
+  }
+
   return {
     argv: argv,
     cwd: cwd,
-    preload: preload||[],
-    validExtensions: extensions,
+    preload: preload,
     configNameRegex: configNameRegex,
     configPath: configPath,
     configBase: configBase,
