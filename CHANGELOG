@@ -1,3 +1,7 @@
+v0.10.0:
+  date: 2014-05-06
+  changes:
+    - Remove `addExtension` in favor of `extension` option.
 v0.9.7:
   date: 2014-04-28
   changes:

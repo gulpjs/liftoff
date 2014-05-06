@@ -24,7 +24,11 @@ var Hacker = new Liftoff({
   name: 'hacker',
   moduleName: 'hacker',
   configName: 'hackerfile',
-  addExtensions: ['.anything'],
+  extensions: {
+    '.js': null,
+    '.json': null,
+    '.coffee': 'coffee-script/require'
+  },
   processTitle: 'hacker',
   cwdFlag: 'cwd',
   configPathFlag: 'hackerfile',
@@ -70,14 +74,45 @@ Sets the name of the configuration file Liftoff will attempt to find.  Case-inse
 Type: `String`
 Default: `null`
 
-#### opts.addExtensions
+#### opts.extensions
 
-Explicitly add custom extensions to include when searching for a configuration file.  Node supports `.js`, `.json` & `.node` natively, so there is no need to add these.
+Set extensions to include when searching for a configuration file.  If an external module is needed to load a given extension (e.g. `.coffee`), the module name should be specified as the value for the key.
 
-An example usage would be setting this to `['rc']`.  With a configName of `.myapp`, Liftoff would then look for `.myapp{rc,.js,.json,.node}`
+Type: `Object`
+Default: `{".js":null,".json":null}`
 
-Type: `Array`
-Default: `[]`
+##### Examples
+
+In this example Liftoff will look for `myappfile{.js,.json,.coffee}`.  If a config with the extension `.coffee` is found, Liftoff will try to require `coffee-script/require` from the current cwd before calling `launch`.
+```
+var MyApp = new Liftoff({
+  name: 'myapp'
+  extensions: {
+    "js": null,
+    "json": null,
+    ".coffee": "coffee-script/require"
+  }
+});
+```
+
+In this example, Liftoff will look for `.myapp{rc}`.
+```js
+var MyApp = new Liftoff({
+  name: 'myapp',
+  configName: '.myapp',
+  extensions: {
+    "rc": null
+  }
+});
+```
+
+In this example, Liftoff will automatically attempt to load the correct module for any extension supported by [node-interpret](https://github.com/tkellen/node-interpret) (as long as it does not require a register method).
+
+```js
+var MyApp = new Liftoff({
+  name: 'myapp',
+  extensions: require('interpret').extensions
+});
 
 #### opts.processTitle
 
@@ -166,7 +201,6 @@ A function to start your application.  When invoked, `this` will be your instanc
 - `argv`: cli arguments, as parsed by [minimist](https://npmjs.org/package/minimist), or as passed in manually.
 - `cwd`: the current working directory
 - `preload`: an array of modules that liftoff tried to pre-load
-- `validExtensions`: an array of supported extensions for your config file
 - `configNameRegex`: the regular expression used to find your config file
 - `configPath`: the full path to your configuration file (if found)
 - `configBase`: the base directory of your configuration file (if found)
