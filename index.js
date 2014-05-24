@@ -4,6 +4,7 @@ const EE = require('events').EventEmitter;
 const fs = require('fs');
 const extend = require('extend');
 const resolve = require('resolve');
+const minimist = require('minimist');
 const fileSearch = require('./lib/file_search');
 const parseOptions = require('./lib/parse_options');
 const silentRequire = require('./lib/silent_require');
@@ -11,6 +12,10 @@ const silentRequire = require('./lib/silent_require');
 function Liftoff (opts) {
   EE.call(this);
   extend(this, parseOptions(opts));
+
+  if (!this.argv) {
+    this.argv = minimist(process.argv.slice(2));
+  }
 }
 util.inherits(Liftoff, EE);
 
@@ -140,7 +145,7 @@ Liftoff.prototype.launch = function (fn, argv) {
   }
 
   if (!argv) {
-    argv = require('minimist')(process.argv.slice(2));
+    argv = this.argv;
   }
 
   process.title = this.processTitle;
