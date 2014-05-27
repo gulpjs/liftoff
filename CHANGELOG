@@ -1,7 +1,12 @@
+v0.11.0:
+  date: 2014-05-27
+  changes:
+    - Refactor and remove options parsing.
 v0.10.0:
   date: 2014-05-06
   changes:
     - Remove `addExtension` in favor of `extension` option.
+    - Support preloading modules based on extension.
 v0.9.7:
   date: 2014-04-28
   changes:
