@@ -4,18 +4,18 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const resolve = require('resolve');
 
-const NAME = 'mocha';
+require('./lib/build_config_name_regex');
+require('./lib/file_search');
+require('./lib/find_config');
+require('./lib/find_cwd');
+require('./lib/parse_options');
+require('./lib/silent_require');
 
-var appDefaults = new Liftoff({name: NAME})
+const NAME = 'mocha';
 var app = new Liftoff({
   processTitle: NAME,
   configName: NAME+'file',
   moduleName: NAME,
-  cwdFlag: 'cwd',
-  configPathFlag: NAME+'file',
-  preloadFlag: 'require',
-  completionFlag: 'completion',
-  completion: function() {},
   extensions: {
     '.js': null,
     '.json': null,
@@ -25,27 +25,6 @@ var app = new Liftoff({
 });
 
 describe('Liftoff', function () {
-
-  describe('findCwd', function () {
-    it('should return process.cwd if no special flags are passed', function () {
-      expect(app.findCwd(({}))).to.equal(process.cwd());
-    });
-    it('should return path from cwdFlag if supplied', function () {
-      expect(app.findCwd({cwd:'../'})).to.equal(path.resolve('../'));
-    });
-    it('should return directory of config if configPathFlag defined', function () {
-      expect(app.findCwd({mochafile:'test/fixtures/mochafile.js'})).to.equal(path.resolve('test/fixtures'));
-    });
-    it('should return path from cwdFlag if both it and configPathFlag are defined', function () {
-      expect(app.findCwd({cwd:'../',mochafile:'test/fixtures/mochafile.js'})).to.equal(path.resolve('../'));
-    });
-    it('should ignore cwdFlag if it isn\'t a string', function () {
-      expect(app.findCwd({cwd:true})).to.equal(process.cwd());
-    });
-    it('should ignore configPathFlag if it isn\'t a string', function () {
-      expect(app.findCwd({mochafile:true})).to.equal(process.cwd());
-    });
-  });
 
   describe('buildEnvironment', function () {
 
@@ -58,7 +37,7 @@ describe('Liftoff', function () {
       var env = app.buildEnvironment({require:['coffee-script/register']});
       expect(name).to.equal('coffee-script/register');
       expect(mod).to.equal(require('coffee-script/register'));
-      expect(env.preload).to.deep.equal(['coffee-script/register']);
+      expect(env.require).to.deep.equal(['coffee-script/register']);
     });
 
     it('should attempt pre-loading local modules based on extension option', function () {
@@ -68,38 +47,11 @@ describe('Liftoff', function () {
         mod = module;
       });
       var env = app.buildEnvironment({
-        mochafile: 'test/fixtures/coffee/mochafile.coffee'
+        configPath: 'test/fixtures/coffee/mochafile.coffee'
       });
       expect(name).to.equal('coffee-script/register');
       expect(mod).to.equal(require('coffee-script/register'));
-      expect(env.preload).to.deep.equal(['coffee-script/register']);
-    });
-
-    it('should use configName directly if it is a regex', function () {
-      var test = new Liftoff({
-        processTitle: NAME,
-        configName: /mocha/,
-        moduleName: NAME
-      });
-      expect(test.buildEnvironment().configNameRegex.toString()).to.equal('/mocha/');
-    });
-
-    it('should use configName + extensions', function () {
-      var test = new Liftoff({
-        name: NAME,
-        extensions: {
-          '.js': null,
-          '.json': null
-        }
-      });
-      expect(test.buildEnvironment().configNameRegex.toString()).to.equal('mochafile{.js,.json}');
-    });
-
-    it('should locate config using cwd', function () {
-      var cwdSaved = process.cwd();
-      process.chdir('test/fixtures');
-      expect(app.buildEnvironment({}).configPath).to.equal(path.resolve('mochafile.js'));
-      process.chdir(cwdSaved);
+      expect(env.require).to.deep.equal(['coffee-script/register']);
     });
 
     it('should locate local module using cwd if no config is found', function () {
@@ -110,18 +62,8 @@ describe('Liftoff', function () {
       expect(spy.calledWith('chai', {basedir:path.join(process.cwd(),cwd),paths:[]})).to.be.true;
     });
 
-    it('should locate config using cwdFlag if supplied', function () {
-      expect(app.buildEnvironment({cwd:'test/fixtures'}).configPath).to.equal(path.resolve('test/fixtures/mochafile.js'));
-    });
-
-    it('should return path of provided config, only if it exists', function () {
-      var configPath = path.resolve('test/fixtures/mochafile.js');
-      expect(app.buildEnvironment({mochafile:configPath}).configPath).to.equal(configPath);
-      expect(app.buildEnvironment({mochafile:'path/to/nowhere'}).configPath).to.equal(null);
-    });
-
-    it('should return path of config if found in search paths', function () {
-      expect(app.buildEnvironment().configPath).to.equal(path.resolve('test/fixtures/search_path/mochafile.js'));
+    it('if cwd is explicitly provided, don\'t use search_paths', function () {
+      expect(app.buildEnvironment({cwd:'./'}).configPath).to.equal(null);
     });
 
     it('should find module in the directory next to config', function () {
@@ -136,36 +78,35 @@ describe('Liftoff', function () {
 
   describe('launch', function () {
 
+    it('should set the process.title to the moduleName', function () {
+      app.launch({}, function(){});
+      expect(process.title).to.equal(app.moduleName);
+    });
+
     it('should return early if completions are available and requested', function (done) {
-      var called = false;
       var test = new Liftoff({
         name: 'whatever',
         completions: function () {
           done();
         }
       });
-      test.launch(function(){},{completion:true});
-    });
-
-    it('should set the process.title to the moduleName', function () {
-      app.launch(function(){});
-      expect(process.title).to.equal(app.moduleName);
+      test.launch({completion:true}, function () {});
     });
 
     it('should call launch with liftoff instance as context', function (done) {
-      app.launch(function () {
+      app.launch({}, function () {
         expect(this).to.equal(app);
         done();
       });
     });
 
     it('should pass environment to first argument of launch callback', function (done) {
-      process.argv = [];
-      app.launch(function (env) {
-        expect(env).to.deep.equal(app.buildEnvironment({"_":[]}));
+      app.launch({}, function (env) {
+        expect(env).to.deep.equal(app.buildEnvironment());
         done();
       });
     });
+
   });
 
   describe('requireLocal', function () {
@@ -182,7 +123,7 @@ describe('Liftoff', function () {
 
     it('should emit `requireFail` with an error if a module can\'t be found.', function (done) {
       var requireFailTest = new Liftoff({name:'requireFail'});
-      requireFailTest.on('requireFail', function (name, module) {
+      requireFailTest.on('requireFail', function (name) {
         expect(name).to.equal('badmodule');
         done();
       });
@@ -192,7 +133,3 @@ describe('Liftoff', function () {
   });
 
 });
-
-require('./file_search');
-require('./parse_options');
-require('./silent_require');

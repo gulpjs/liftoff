@@ -1,12 +1,14 @@
 const util = require('util');
 const path = require('path');
 const EE = require('events').EventEmitter;
-const fs = require('fs');
 const extend = require('extend');
 const resolve = require('resolve');
+const findCwd = require('./lib/find_cwd');
+const findConfig = require('./lib/find_config');
 const fileSearch = require('./lib/file_search');
 const parseOptions = require('./lib/parse_options');
 const silentRequire = require('./lib/silent_require');
+const buildConfigNameRegex = require('./lib/build_config_name_regex');
 
 function Liftoff (opts) {
   EE.call(this);
@@ -24,66 +26,47 @@ Liftoff.prototype.requireLocal = function (module, basedir) {
   }
 };
 
-Liftoff.prototype.findCwd = function (argv) {
-  argv = argv||{};
-  var cwd = argv[this.cwdFlag];
-  var configPath = argv[this.configPathFlag];
-  // if a path to the desired config was specified but no cwd
-  // was provided, use the dir of the config.
-  if (typeof configPath === 'string' && !cwd) {
-    cwd = path.dirname(path.resolve(configPath));
-  }
-  if (typeof cwd === 'string') {
-    return path.resolve(cwd);
-  } else {
-    return process.cwd();
-  }
-};
-
-// TODO: break this into smaller methods.
-Liftoff.prototype.buildEnvironment = function (argv) {
-  argv = argv||{};
-
-  // calculate cwd
-  var cwd = this.findCwd(argv);
+Liftoff.prototype.buildEnvironment = function (opts) {
+  opts = opts||{};
 
   // get modules we want to preload
-  var preload = argv[this.preloadFlag]||[];
+  var require = opts.require||[];
 
-  // calculate config file name
-  var configNameRegex = this.configName;
-  var extensions = Object.keys(this.extensions);
-  if (configNameRegex instanceof RegExp) {
-    configNameRegex = configNameRegex.toString();
+  // make a copy of search paths that can be mutated for this run
+  var searchPaths = this.searchPaths.slice();
+
+  // calculate current cwd
+  var cwd = findCwd(opts);
+
+  // if cwd was provided explicitly, only use it
+  if (opts.cwd) {
+    searchPaths = [cwd];
   } else {
-    configNameRegex += '{'+extensions.join(',')+'}';
+    // otherwise just search in cwd first
+    searchPaths.unshift(cwd);
   }
 
-  // get configPath from cli if provided
-  var configPath = argv[this.configPathFlag];
+  // calculate the regex to use for finding the config file
+  var configNameRegex = buildConfigNameRegex({
+    configName: this.configName,
+    extensions: Object.keys(this.extensions)
+  });
+
+  // calculate configPath
+  var configPath = findConfig({
+    configNameRegex: configNameRegex,
+    searchPaths: searchPaths,
+    configPath: opts.configPath
+  });
+
+  // if we have a config path, save the directory it resides in.
+  var configBase;
   if (configPath) {
-    // null out provided configPath if it doesn't exist
-    if (!fs.existsSync(configPath)) {
-      configPath = null;
-    }
-  } else {
-    var searchIn = [cwd];
-    // if cwd hasn't been set explicitly, use global search paths too
-    if (!argv[this.cwdFlag]) {
-      searchIn = searchIn.concat(this.searchPaths)
-    }
-    // if no configPath was provided, go find it
-    configPath = fileSearch(configNameRegex, searchIn);
+    configBase = path.dirname(configPath);
   }
 
-  // if we have a config path, save the directory it resides in
-  // and check to see if the extension requires a preloaded module
-  if (configPath) {
-    configPath = path.resolve(configPath);
-    var configBase = path.dirname(configPath);
-  }
-
-  // locate local module and package in config directory
+  // TODO: break this out into lib/
+  // locate local module and package next to config or explicitly provided cwd
   var modulePath, modulePackage;
   try {
     modulePath = resolve.sync(this.moduleName, {basedir: configBase || cwd});
@@ -92,7 +75,7 @@ Liftoff.prototype.buildEnvironment = function (argv) {
 
   // if we have a configuration but we failed to find a local module, maybe
   // we are developing against ourselves?
-  if (!modulePath && configBase) {
+  if (!modulePath && configPath) {
     // check the package.json sibling to our config to see if its `name`
     // matches the module we're looking for
     modulePackage = silentRequire(fileSearch('package.json', [configBase]));
@@ -107,25 +90,24 @@ Liftoff.prototype.buildEnvironment = function (argv) {
   }
 
   // preload module needed for config if any has been specified.
-  var preloadForExtension = this.extensions[path.extname(configPath)];
-  if (preloadForExtension) {
-    preload.push(preloadForExtension);
+  var requireForExtension = this.extensions[path.extname(configPath)];
+  if (requireForExtension) {
+    require.push(requireForExtension);
   }
 
   // preload modules, if any
-  if (preload.length) {
-    if (!Array.isArray(preload)) {
-      preload = [preload];
+  if (require.length) {
+    if (!Array.isArray(require)) {
+      require = [require];
     }
-    preload.forEach(function (dep) {
-      this.requireLocal(dep, this.findCwd(argv));
+    require.forEach(function (dep) {
+      this.requireLocal(dep, findCwd(opts));
     }, this);
   }
 
   return {
-    argv: argv,
     cwd: cwd,
-    preload: preload,
+    require: require,
     configNameRegex: configNameRegex,
     configPath: configPath,
     configBase: configBase,
@@ -134,23 +116,19 @@ Liftoff.prototype.buildEnvironment = function (argv) {
   };
 };
 
-Liftoff.prototype.launch = function (fn, argv) {
+Liftoff.prototype.launch = function (opts, fn) {
   if (typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
 
-  if (!argv) {
-    argv = require('minimist')(process.argv.slice(2));
-  }
-
   process.title = this.processTitle;
 
-  var completion = argv[this.completionFlag];
+  var completion = opts.completion;
   if (completion && this.completions) {
     return this.completions(completion);
   }
 
-  fn.call(this, this.buildEnvironment(argv));
+  fn.call(this, this.buildEnvironment(opts));
 };
 
 module.exports = Liftoff;
