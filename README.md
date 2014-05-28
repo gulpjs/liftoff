@@ -34,7 +34,7 @@ const Hacker = new Liftoff({
   extensions: {
     '.js': null,
     '.json': null,
-    '.coffee': 'coffee-script/require'
+    '.coffee': 'coffee-script/register'
   }
 });
 ```
@@ -48,14 +48,14 @@ Default: `null`
 
 These are equivalent:
 ```js
-const Liftoff({
+const Hacker = Liftoff({
   processTitle: 'hacker',
   moduleName: 'hacker',
   configName: 'hackerfile'
 });
 ```
 ```js
-const Liftoff({name:'hacker'});
+const Hacker = Liftoff({name:'hacker'});
 ```
 
 #### opts.moduleName
@@ -88,7 +88,7 @@ const MyApp = new Liftoff({
   extensions: {
     '.js': null,
     '.json': null,
-    '.coffee': 'coffee-script/require'
+    '.coffee': 'coffee-script/register'
   }
 });
 ```
