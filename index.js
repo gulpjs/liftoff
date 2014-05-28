@@ -55,6 +55,8 @@ Liftoff.prototype.buildEnvironment = function (argv) {
   var extensions = Object.keys(this.extensions);
   if (configNameRegex instanceof RegExp) {
     configNameRegex = configNameRegex.toString();
+  } else if (extensions.length == 1) {
+    configNameRegex += extensions[0];
   } else {
     configNameRegex += '{'+extensions.join(',')+'}';
   }
