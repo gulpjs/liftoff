@@ -84,7 +84,17 @@ describe('Liftoff', function () {
       expect(test.buildEnvironment().configNameRegex.toString()).to.equal('/mocha/');
     });
 
-    it('should use configName + extensions', function () {
+    it('should use configName + extension for only one extension', function () {
+      var test = new Liftoff({
+        name: NAME,
+        extensions: {
+          '.js': null
+        }
+      });
+      expect(test.buildEnvironment().configNameRegex.toString()).to.equal('mochafile.js');
+    });
+
+    it('should use configName + extensions in brace expansion pattern for 2 or more extensions', function () {
       var test = new Liftoff({
         name: NAME,
         extensions: {
