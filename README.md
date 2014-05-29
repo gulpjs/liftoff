@@ -263,7 +263,10 @@ Hacker.on('requireFail', function (name, err) {
 ```
 
 ## Examples
-Check out [the hacker project](https://github.com/tkellen/node-hacker/blob/master/bin/hacker.js) to see a working example of this tool.
+
+Check out how [gulp](https://github.com/gulpjs/gulp/blob/master/bin/gulp.js) uses Liftoff.
+
+For a bare-bones example, try [the hacker project](https://github.com/tkellen/node-hacker/blob/master/bin/hacker.js).
 
 To try the example, do the following:
 
