@@ -39,8 +39,8 @@
   ],
   "dependencies": {
     "findup-sync": "~0.1.2",
-    "resolve": "~0.6.1",
-    "minimist": "~0.0.5",
+    "resolve": "~0.7.0",
+    "minimist": "~0.1.0",
     "extend": "~1.2.1"
   }
 }
