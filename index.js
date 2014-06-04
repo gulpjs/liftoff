@@ -30,7 +30,12 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   opts = opts||{};
 
   // get modules we want to preload
-  var require = opts.require||[];
+  var preload = opts.require||[];
+
+  // ensure items to preload is an array
+  if (!Array.isArray(preload)) {
+    preload = [preload];
+  }
 
   // make a copy of search paths that can be mutated for this run
   var searchPaths = this.searchPaths.slice();
@@ -92,22 +97,22 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   // preload module needed for config if any has been specified.
   var requireForExtension = this.extensions[path.extname(configPath)];
   if (requireForExtension) {
-    require.push(requireForExtension);
+    preload.push(requireForExtension);
   }
 
   // preload modules, if any
-  if (require.length) {
-    if (!Array.isArray(require)) {
-      require = [require];
-    }
-    require.forEach(function (dep) {
+  if (preload.length) {
+    // unique results first
+    preload.filter(function (value, index, self) {
+      return self.indexOf(value) === index;
+    }).forEach(function (dep) {
       this.requireLocal(dep, findCwd(opts));
     }, this);
   }
 
   return {
     cwd: cwd,
-    require: require,
+    require: preload,
     configNameRegex: configNameRegex,
     configPath: configPath,
     configBase: configBase,
