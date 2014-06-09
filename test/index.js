@@ -74,6 +74,10 @@ describe('Liftoff', function () {
       expect(app.buildEnvironment().modulePackage).to.equal(require('../node_modules/mocha/package.json'));
     });
 
+    it('should set cwd to match the directory of the config file as long as cwd wasn\'t explicitly provided', function () {
+      expect(app.buildEnvironment().cwd).to.equal(path.resolve('test/fixtures/search_path'));
+    });
+
   });
 
   describe('launch', function () {
