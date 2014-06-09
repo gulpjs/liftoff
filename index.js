@@ -43,7 +43,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   // calculate current cwd
   var cwd = findCwd(opts);
 
-  // if cwd was provided explicitly, only use it
+  // if cwd was provided explicitly, only use it for searching config
   if (opts.cwd) {
     searchPaths = [cwd];
   } else {
@@ -68,6 +68,10 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var configBase;
   if (configPath) {
     configBase = path.dirname(configPath);
+    // if cwd wasn't provided explicitly, it should match configBase
+    if (!opts.cwd) {
+      cwd = configBase;
+    }
   }
 
   // TODO: break this out into lib/
