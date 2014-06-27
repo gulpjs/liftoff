@@ -4,7 +4,7 @@ const expect = require('chai').expect;
 const sinon = require('sinon');
 const resolve = require('resolve');
 
-require('./lib/build_config_name_regex');
+require('./lib/build_config_name');
 require('./lib/file_search');
 require('./lib/find_config');
 require('./lib/find_cwd');

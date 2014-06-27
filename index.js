@@ -8,7 +8,7 @@ const findConfig = require('./lib/find_config');
 const fileSearch = require('./lib/file_search');
 const parseOptions = require('./lib/parse_options');
 const silentRequire = require('./lib/silent_require');
-const buildConfigNameRegex = require('./lib/build_config_name_regex');
+const buildConfigName = require('./lib/build_config_name');
 
 function Liftoff (opts) {
   EE.call(this);
@@ -52,14 +52,14 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   }
 
   // calculate the regex to use for finding the config file
-  var configNameRegex = buildConfigNameRegex({
+  var configNameSearch = buildConfigName({
     configName: this.configName,
     extensions: Object.keys(this.extensions)
   });
 
   // calculate configPath
   var configPath = findConfig({
-    configNameRegex: configNameRegex,
+    configNameSearch: configNameSearch,
     searchPaths: searchPaths,
     configPath: opts.configPath
   });
@@ -117,7 +117,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   return {
     cwd: cwd,
     require: preload,
-    configNameRegex: configNameRegex,
+    configNameSearch: configNameSearch,
     configPath: configPath,
     configBase: configBase,
     modulePath: modulePath,

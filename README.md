@@ -228,7 +228,7 @@ A function to start your application.  When invoked, `this` will be your instanc
 
 - `cwd`: the current working directory
 - `require`: an array of modules that liftoff tried to pre-load
-- `configNameRegex`: the regular expression used to find your config file
+- `configNameSearch`: the config files searched for
 - `configPath`: the full path to your configuration file (if found)
 - `configBase`: the base directory of your configuration file (if found)
 - `modulePath`: the full path to the local module your project relies on (if found)
