@@ -18,11 +18,11 @@ describe('findConfig', function () {
 
   it('should return the absolute path to the first config file found in searchPaths', function () {
     expect(findConfig({
-      configNameRegex: 'mochafile{.js,.coffee}',
+      configNameSearch: ['mochafile.js', 'mochafile.coffee'],
       searchPaths: ['test/fixtures']
     })).to.equal(path.resolve('test/fixtures/mochafile.js'));
     expect(findConfig({
-      configNameRegex: 'mochafile{.js,.coffee}',
+      configNameSearch: ['mochafile.js', 'mochafile.coffee'],
       searchPaths: ['test/fixtures/search_path', 'test/fixtures/coffee']
     })).to.equal(path.resolve('test/fixtures/search_path/mochafile.js'));
   });
