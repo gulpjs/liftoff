@@ -1,3 +1,7 @@
+# 0.11 -> 0.12
+In the environment invoked by the `launch` callback, `configNameRegex` has been renamed to `configNameSearch`.  It now returns an array of valid config names instead of a regular expression.
+
+
 # 0.10 -> 0.11
 The method signature for `launch` was changed in this version of Liftoff.
 
