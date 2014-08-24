@@ -19,7 +19,8 @@ var app = new Liftoff({
   extensions: {
     '.js': null,
     '.json': null,
-    '.coffee': 'coffee-script/register'
+    '.coffee': 'coffee-script/register',
+    '.coffee.md': 'coffee-script/register',
   },
   searchPaths: ['test/fixtures/search_path']
 });
@@ -48,6 +49,13 @@ describe('Liftoff', function () {
       });
       var env = app.buildEnvironment({
         configPath: 'test/fixtures/coffee/mochafile.coffee'
+      });
+      expect(name).to.equal('coffee-script/register');
+      expect(mod).to.equal(require('coffee-script/register'));
+      expect(env.require).to.deep.equal(['coffee-script/register']);
+      // testing compound extension
+      env = app.buildEnvironment({
+        configPath: 'test/fixtures/coffee/mochafile.coffee.md'
       });
       expect(name).to.equal('coffee-script/register');
       expect(mod).to.equal(require('coffee-script/register'));
