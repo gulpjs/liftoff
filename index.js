@@ -99,9 +99,14 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   }
 
   // preload module needed for config if any has been specified.
-  var requireForExtension = this.extensions[path.extname(configPath)];
-  if (requireForExtension) {
-    preload.push(requireForExtension);
+  for (var nameSlices = path.basename(configPath).split('.');
+      nameSlices.length > 1; nameSlices.shift()) {
+    nameSlices[0] = '';
+    var requireForExtension = this.extensions[nameSlices.join('.')];
+    if (requireForExtension) {
+      preload.push(requireForExtension);
+      break;
+    }
   }
 
   // preload modules, if any
