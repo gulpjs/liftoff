@@ -3,6 +3,7 @@ const path = require('path');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const resolve = require('resolve');
+const exec = require('child_process').exec;
 
 require('./lib/build_config_name');
 require('./lib/file_search');
@@ -116,6 +117,28 @@ describe('Liftoff', function () {
       app.launch({}, function (env) {
         expect(env).to.deep.equal(app.buildEnvironment());
         done();
+      });
+    });
+
+    it('should use nodeFlags to re-spawn node with defined flags applied', function (done) {
+      exec('node test/fixtures/node_flags.js', function (err, stdout, stderr) {
+        expect(stderr).to.equal('\n');
+        exec('node test/fixtures/node_flags.js --lazy', function (err, stdout, stderr) {
+          expect(stderr).to.equal("--lazy\n");
+          done();
+        });
+      });
+
+    });
+
+    it('should emit a respawn event if a respawn is required', function (done) {
+      exec('node test/fixtures/node_flags.js', function (err, stdout) {
+        expect(stdout).to.be.empty;
+        done();
+        exec('node test/fixtures/node_flags.js --lazy', function (err, stdout) {
+          expect(stdout).to.equal('saw respawn\n');
+          done();
+        });
       });
     });
 

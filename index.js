@@ -1,8 +1,11 @@
 const util = require('util');
 const path = require('path');
 const EE = require('events').EventEmitter;
+
 const extend = require('extend');
 const resolve = require('resolve');
+const flaggedRespawn = require('flagged-respawn');
+
 const findCwd = require('./lib/find_cwd');
 const findConfig = require('./lib/find_config');
 const fileSearch = require('./lib/file_search');
@@ -140,7 +143,21 @@ Liftoff.prototype.launch = function (opts, fn) {
     return this.completions(completion);
   }
 
-  fn.call(this, this.buildEnvironment(opts));
+  var execute = fn.bind(this, this.buildEnvironment(opts));
+
+  if (this.nodeFlags) {
+    flaggedRespawn(this.nodeFlags, process.argv, function (ready, child) {
+      if (child !== process) {
+        this.emit('respawn', child);
+      }
+      if (ready) {
+        execute();
+      }
+    }.bind(this));
+  } else {
+    execute();
+  }
+
 };
 
 module.exports = Liftoff;

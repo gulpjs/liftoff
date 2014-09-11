@@ -1,3 +1,7 @@
+v0.13.0:
+  date: 2014-09-12
+  changes:
+    - Support passing flags to node with `nodeFlags` option.
 v0.12.1:
   date: 2014-06-27
   changes:
