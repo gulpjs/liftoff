@@ -269,7 +269,7 @@ Hacker.on('requireFail', function (name, err) {
 });
 ```
 
-#### respawn(proc)
+#### respawn(flags, child)
 
 Emitted when Liftoff re-spawns your process (when a [`nodeFlag`](#optsnodeflags) is detected).
 
@@ -278,9 +278,9 @@ var Hacker = new Liftoff({
   name: 'hacker',
   nodeFlags: ['--harmony']
 });
-Hacker.on('respawn', function (proc) {
-  console.log('Respawned to PID:', proc.pid);
-  console.log('Node flags:', proc.execArgv);
+Hacker.on('respawn', function (flags, child) {
+  console.log('Detected node flags:', flags);
+  console.log('Respawned to PID:', child.pid);
 });
 ```
 
