@@ -1,3 +1,7 @@
+v0.13.1:
+  date: 2014-09-12
+  changes:
+    - Slight performance tweak.
 v0.13.0:
   date: 2014-09-12
   changes:
