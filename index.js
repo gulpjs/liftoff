@@ -143,19 +143,17 @@ Liftoff.prototype.launch = function (opts, fn) {
     return this.completions(completion);
   }
 
-  var execute = fn.bind(this, this.buildEnvironment(opts));
-
   if (this.nodeFlags) {
     flaggedRespawn(this.nodeFlags, process.argv, function (ready, child) {
       if (child !== process) {
         this.emit('respawn', child);
       }
       if (ready) {
-        execute();
+        fn.call(this, this.buildEnvironment(opts));
       }
     }.bind(this));
   } else {
-    execute();
+    fn.call(this, this.buildEnvironment(opts));
   }
 
 };
