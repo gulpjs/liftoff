@@ -146,7 +146,9 @@ Liftoff.prototype.launch = function (opts, fn) {
   if (this.nodeFlags) {
     flaggedRespawn(this.nodeFlags, process.argv, function (ready, child) {
       if (child !== process) {
-        this.emit('respawn', child);
+        this.emit('respawn', process.argv.filter(function (flag) {
+          return this.nodeFlags.indexOf(flag) !== -1;
+        }.bind(this)), child);
       }
       if (ready) {
         fn.call(this, this.buildEnvironment(opts));
