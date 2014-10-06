@@ -1,3 +1,7 @@
+v0.13.3:
+  date: 2014-10-06
+  changes:
+    - Return the real location of symlinked config files.
 v0.13.2:
   date: 2014-09-12
   changes:
