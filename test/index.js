@@ -87,6 +87,21 @@ describe('Liftoff', function () {
       expect(app.buildEnvironment().cwd).to.equal(path.resolve('test/fixtures/search_path'));
     });
 
+
+    it('should resolve symlinks if config is one', function () {
+      var env = app.buildEnvironment({
+        cwd: 'test/fixtures/symlink'
+      });
+      expect(env.configPath).to.equal(path.resolve('test/fixtures/mochafile.js'));
+    });
+
+    it('should set configBase to the folder of the symlink if configPath is a symlink', function () {
+      var env = app.buildEnvironment({
+        configPath: 'test/fixtures/symlink/mochafile.js'
+      });
+      expect(env.cwd).to.equal(path.resolve('test/fixtures/symlink'));
+    })
+
   });
 
   describe('launch', function () {

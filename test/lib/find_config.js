@@ -27,11 +27,4 @@ describe('findConfig', function () {
     })).to.equal(path.resolve('test/fixtures/search_path/mochafile.js'));
   });
 
-  it('should traverse symlinks', function () {
-    expect(findConfig({
-      configNameSearch: ['mochafile.js'],
-      searchPaths: ['test/fixtures/symlink']
-    })).to.equal(path.resolve('test/fixtures/mochafile.js'));
-  });
-
 });
