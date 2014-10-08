@@ -1,3 +1,4 @@
+const fs = require('fs');
 const util = require('util');
 const path = require('path');
 const EE = require('events').EventEmitter;
@@ -124,7 +125,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     cwd: cwd,
     require: preload,
     configNameSearch: configNameSearch,
-    configPath: configPath,
+    configPath: configPath && fs.realpathSync(configPath), // resolve symlink
     configBase: configBase,
     modulePath: modulePath,
     modulePackage: modulePackage||{}
