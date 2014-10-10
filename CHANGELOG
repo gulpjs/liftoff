@@ -1,5 +1,9 @@
+v0.13.5:
+  date: 2014-10-10
+  changes:
+    - Only attempt to resolve the real path of configFile if it is actually a symlink.
 v0.13.4:
-  date: 2014-10-7
+  date: 2014-10-07
   changes:
     - Set configBase to the directory of the symlink, not the directory of its real location.
 v0.13.3:
