@@ -1,16 +1,10 @@
 const Liftoff = require('../');
+const fs = require('fs');
 const path = require('path');
 const expect = require('chai').expect;
 const sinon = require('sinon');
 const resolve = require('resolve');
 const exec = require('child_process').exec;
-
-require('./lib/build_config_name');
-require('./lib/file_search');
-require('./lib/find_config');
-require('./lib/find_cwd');
-require('./lib/parse_options');
-require('./lib/silent_require');
 
 const NAME = 'mocha';
 var app = new Liftoff({
@@ -27,6 +21,15 @@ var app = new Liftoff({
 });
 
 describe('Liftoff', function () {
+
+  before(function () {
+    if (!fs.existsSync('test/fixtures/symlink/mochafile.js')) {
+      fs.symlinkSync(
+        '../mochafile.js',
+        'test/fixtures/symlink/mochafile.js'
+      );
+    }
+  });
 
   describe('buildEnvironment', function () {
 
@@ -183,3 +186,10 @@ describe('Liftoff', function () {
   });
 
 });
+
+require('./lib/build_config_name');
+require('./lib/file_search');
+require('./lib/find_config');
+require('./lib/find_cwd');
+require('./lib/parse_options');
+require('./lib/silent_require');
