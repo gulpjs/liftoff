@@ -76,6 +76,10 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     if (!opts.cwd) {
       cwd = configBase;
     }
+    // resolve symlink if needed
+    if(fs.lstatSync(configPath).isSymbolicLink()) {
+      configPath = fs.realpathSync(configPath);
+    }
   }
 
   // TODO: break this out into lib/
@@ -125,7 +129,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     cwd: cwd,
     require: preload,
     configNameSearch: configNameSearch,
-    configPath: configPath && fs.realpathSync(configPath), // resolve symlink
+    configPath: configPath,
     configBase: configBase,
     modulePath: modulePath,
     modulePackage: modulePackage||{}
