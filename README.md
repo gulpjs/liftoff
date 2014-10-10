@@ -4,7 +4,8 @@
   </a>
 </p>
 
-# liftoff [![Build Status](https://secure.travis-ci.org/tkellen/node-liftoff.png)](http://travis-ci.org/tkellen/node-liftoff)
+# liftoff [![Build Status](https://secure.travis-ci.org/tkellen/node-liftoff.png)](http://travis-ci.org/tkellen/node-liftoff) [![Build status](https://ci.appveyor.com/api/projects/status/5a6w8xuq8ed1ilc4/branch/master?svg=true)](https://ci.appveyor.com/project/tkellen/node-liftoff/branch/master)
+
 > Launch your command line tool with ease.
 
 [![NPM](https://nodei.co/npm/liftoff.png)](https://nodei.co/npm/liftoff/)
