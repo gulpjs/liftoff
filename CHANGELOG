@@ -1,3 +1,7 @@
+v0.13.6:
+  date: 2014-11-07
+  changes:
+    - Don't include artwork on npm.
 v0.13.5:
   date: 2014-10-10
   changes:
