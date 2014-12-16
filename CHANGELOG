@@ -1,3 +1,7 @@
+v1.0.0:
+  date: 2014-12-16
+  changes:
+    - Update dependencies
 v0.13.6:
   date: 2014-11-07
   changes:
