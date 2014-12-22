@@ -1,7 +1,11 @@
+v1.0.1:
+  date: 2014-12-22
+  changes:
+    - Fix issue where user-specified configName is ignored.
 v1.0.0:
   date: 2014-12-16
   changes:
-    - Update dependencies
+    - Update dependencies.
 v0.13.6:
   date: 2014-11-07
   changes:
