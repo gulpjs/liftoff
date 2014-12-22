@@ -1,3 +1,7 @@
+v1.0.2:
+  date: 2014-12-22
+  changes:
+    - Refactor for simplification of findConfig.
 v1.0.1:
   date: 2014-12-22
   changes:
