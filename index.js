@@ -55,24 +55,17 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     searchPaths.unshift(cwd);
   }
 
-  // a list of possible configuration names
-  var configNameSearch;
-
-  if (opts.configName) {
-    // if a configName has been provided by the user, only look for that
-    configNameSearch = [opts.configName];
-  } else {
-    // otherwise, look for the default configName using all available extensions
-    configNameSearch = buildConfigName({
-      configName: this.configName,
-      extensions: Object.keys(this.extensions)
-    });
-  }
+  // calculate the regex to use for finding the config file
+  var configNameSearch = buildConfigName({
+    configName: this.configName,
+    extensions: Object.keys(this.extensions)
+  });
 
   // calculate configPath
   var configPath = findConfig({
     configNameSearch: configNameSearch,
-    searchPaths: searchPaths
+    searchPaths: searchPaths,
+    configPath: opts.configPath
   });
 
   // if we have a config path, save the directory it resides in.
