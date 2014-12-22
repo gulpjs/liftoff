@@ -72,8 +72,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   // calculate configPath
   var configPath = findConfig({
     configNameSearch: configNameSearch,
-    searchPaths: searchPaths,
-    configPath: opts.configPath
+    searchPaths: searchPaths
   });
 
   // if we have a config path, save the directory it resides in.
