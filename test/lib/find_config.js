@@ -10,6 +10,12 @@ describe('findConfig', function () {
     expect(function(){findConfig({configNameRegex:'dude'});}).to.throw;
   });
 
+  it('if configPath is explicitly provided, return the absolute path to the file or null if it doesn\'t actually exist', function () {
+    var configPath = path.resolve('test/fixtures/mochafile.js');
+    expect(findConfig({configPath:configPath})).to.equal(configPath);
+    expect(findConfig({configPath:'path/to/nowhere'})).to.equal(null);
+  });
+
   it('should return the absolute path to the first config file found in searchPaths', function () {
     expect(findConfig({
       configNameSearch: ['mochafile.js', 'mochafile.coffee'],
