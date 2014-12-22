@@ -90,7 +90,6 @@ describe('Liftoff', function () {
       expect(app.buildEnvironment().cwd).to.equal(path.resolve('test/fixtures/search_path'));
     });
 
-
     it('should resolve symlinks if config is one', function () {
       var env = app.buildEnvironment({
         cwd: 'test/fixtures/symlink'
@@ -103,7 +102,14 @@ describe('Liftoff', function () {
         configPath: 'test/fixtures/symlink/mochafile.js'
       });
       expect(env.cwd).to.equal(path.resolve('test/fixtures/symlink'));
-    })
+    });
+
+    it('should be able to find custom configuration file names', function () {
+      var env = app.buildEnvironment({
+        configName: 'myconfig.js'
+      });
+      expect(env.configNameSearch).to.deep.equal(['myconfig.js']);
+    });
 
   });
 
