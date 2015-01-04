@@ -107,7 +107,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   }
 
   // get extension of config name, taking anything after the -first- dot
-  var configExtension = /(\.[^\/]*)?$/.exec(configPath)[0];
+  var configExtension = /(\.[^\/\\]*)?$/.exec(path.basename(configPath))[0];
 
   // preload module needed for config if any has been specified.
   var requireForExtension = this.extensions[configExtension];
