@@ -37,7 +37,7 @@ const Hacker = new Liftoff({
     '.json': null,
     '.coffee': 'coffee-script/register'
   },
-  nodeFlags: ['--harmony'] // or require('v8flags').fetch();
+  v8flags: ['--harmony'] // or require('v8flags').fetch();
 });
 ```
 
@@ -114,12 +114,14 @@ const MyApp = new Liftoff({
   extensions: require('interpret').jsVariants
 });
 ```
-#### opts.nodeFlags
+#### opts.v8flags
 
 Any flag specified here will be applied to node, not your program.  Useful for supporting invocations like `myapp --harmony command`, where `--harmony` should be passed to node, not your program. This functionality is implemented using [flagged-respawn](http://github.com/tkellen/node-flagged-respawn). To support all v8flags, see [node-v8flags](https://github.com/tkellen/node-v8flags).
 
-Type: `Array`  
+Type: `Array|Function`  
 Default: `null`
+
+If this method is a function, it should take a node-style callback that yields an array of flags.
 
 #### opts.processTitle
 
