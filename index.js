@@ -136,11 +136,26 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   };
 };
 
+Liftoff.prototype.handleFlags = function (cb) {
+  if (typeof this.v8flags === 'function') {
+    this.v8flags(function (err, flags) {
+      if (err) {
+        cb(err);
+      } else {
+        cb(null, flags);
+      }
+    });
+  } else {
+    process.nextTick(function () {
+      cb(null, this.v8flags);
+    }.bind(this));
+  }
+};
+
 Liftoff.prototype.launch = function (opts, fn) {
   if (typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
-
   process.title = this.processTitle;
 
   var completion = opts.completion;
@@ -148,21 +163,28 @@ Liftoff.prototype.launch = function (opts, fn) {
     return this.completions(completion);
   }
 
-  if (this.nodeFlags) {
-    flaggedRespawn(this.nodeFlags, process.argv, function (ready, child) {
-      if (child !== process) {
-        this.emit('respawn', process.argv.filter(function (flag) {
-          return this.nodeFlags.indexOf(flag) !== -1;
-        }.bind(this)), child);
-      }
-      if (ready) {
+  this.handleFlags(function (err, flags) {
+    if (err) {
+      throw new Error(err);
+    } else {
+      if (flags) {
+        flaggedRespawn(flags, process.argv, function (ready, child) {
+          if (child !== process) {
+            this.emit('respawn', process.argv.filter(function (flag) {
+              return flags.indexOf(flag) !== -1;
+            }.bind(this)), child);
+          }
+          if (ready) {
+            fn.call(this, this.buildEnvironment(opts));
+          }
+        }.bind(this));
+      } else {
         fn.call(this, this.buildEnvironment(opts));
       }
-    }.bind(this));
-  } else {
-    fn.call(this, this.buildEnvironment(opts));
-  }
-
+    }
+  }.bind(this));
 };
+
+
 
 module.exports = Liftoff;
