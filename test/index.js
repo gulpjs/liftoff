@@ -90,7 +90,6 @@ describe('Liftoff', function () {
       expect(app.buildEnvironment().cwd).to.equal(path.resolve('test/fixtures/search_path'));
     });
 
-
     it('should resolve symlinks if config is one', function () {
       var env = app.buildEnvironment({
         cwd: 'test/fixtures/symlink'
@@ -138,22 +137,32 @@ describe('Liftoff', function () {
       });
     });
 
-    it('should use nodeFlags to re-spawn node with defined flags applied', function (done) {
-      exec('node test/fixtures/node_flags.js', function (err, stdout, stderr) {
+    it('should skip respawning if process.argv has no values from v8flags in it', function (done) {
+      exec('node test/fixtures/v8flags.js', function (err, stdout, stderr) {
         expect(stderr).to.equal('\n');
-        exec('node test/fixtures/node_flags.js --lazy', function (err, stdout, stderr) {
-          expect(stderr).to.equal("--lazy\n");
+        exec('node test/fixtures/v8flags_function.js', function (err, stdout, stderr) {
+          expect(stderr).to.equal('\n');
           done();
         });
       });
 
     });
 
+    it('should respawn if process.argv has values from v8flags in it', function (done) {
+      exec('node test/fixtures/v8flags.js --lazy', function (err, stdout, stderr) {
+        expect(stderr).to.equal("--lazy\n");
+        exec('node test/fixtures/v8flags_function.js --lazy', function (err, stdout, stderr) {
+          expect(stderr).to.equal("--lazy\n");
+          done();
+        });
+      });
+    });
+
     it('should emit a respawn event if a respawn is required', function (done) {
-      exec('node test/fixtures/node_flags.js', function (err, stdout) {
+      exec('node test/fixtures/v8flags.js', function (err, stdout) {
         expect(stdout).to.be.empty;
         done();
-        exec('node test/fixtures/node_flags.js --lazy', function (err, stdout) {
+        exec('node test/fixtures/v8flags_function.js --lazy', function (err, stdout) {
           expect(stdout).to.equal('saw respawn\n');
           done();
         });
