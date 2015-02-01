@@ -1,3 +1,11 @@
+v2.0.1:
+  date: 2015-02-01
+  changes:
+    - Find modulePath correctly when devving against yourself.
+v2.0.0:
+  date: 2015-01-15
+  changes:
+    - Rename `nodeFlags` to `v8Flags` and make it async.
 v1.0.4:
   date: 2015-01-04
   changes:
