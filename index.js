@@ -95,10 +95,11 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   if (!modulePath && configPath) {
     // check the package.json sibling to our config to see if its `name`
     // matches the module we're looking for
-    modulePackage = silentRequire(fileSearch('package.json', [configBase]));
+    var modulePackagePath = fileSearch('package.json', [configBase]);
+    modulePackage = silentRequire(modulePackagePath);
     if (modulePackage && modulePackage.name === this.moduleName) {
       // if it does, our module path is `main` inside package.json
-      modulePath = path.join(configBase, modulePackage.main||'index.js');
+      modulePath = path.join(path.dirname(modulePackagePath), modulePackage.main||'index.js');
       cwd = configBase;
     } else {
       // clear if we just required a package for some other project
