@@ -25,7 +25,7 @@
     "node": ">= 0.8"
   },
   "scripts": {
-    "test": "mocha -R spec test/index.js"
+    "test": "mocha -R spec test/index.js -t 5000"
   },
   "devDependencies": {
     "chai": "~1.10.0",
