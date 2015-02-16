@@ -13,6 +13,7 @@ const fileSearch = require('./lib/file_search');
 const parseOptions = require('./lib/parse_options');
 const silentRequire = require('./lib/silent_require');
 const buildConfigName = require('./lib/build_config_name');
+const rechoir = require('rechoir');
 
 function Liftoff (opts) {
   EE.call(this);
@@ -22,7 +23,8 @@ util.inherits(Liftoff, EE);
 
 Liftoff.prototype.requireLocal = function (module, basedir) {
   try {
-    var result = require(resolve.sync(module, {basedir: basedir}));
+    rechoir.registerFor(module, basedir);
+    var result = require(resolve.sync(module, {basedir:basedir}));
     this.emit('require', module, result);
     return result;
   } catch (e) {
