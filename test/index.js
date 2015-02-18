@@ -34,35 +34,27 @@ describe('Liftoff', function () {
   describe('buildEnvironment', function () {
 
     it('should attempt pre-loading local modules if they are requested', function () {
-      var name, mod;
       app.on('require', function (moduleName, module) {
-        name = moduleName;
-        mod = module;
+        expect(moduleName).to.equal('coffee-script/register');
+        expect(module).to.equal(require('coffee-script/register'));
       });
       var env = app.buildEnvironment({require:['coffee-script/register']});
-      expect(name).to.equal('coffee-script/register');
-      expect(mod).to.equal(require('coffee-script/register'));
       expect(env.require).to.deep.equal(['coffee-script/register']);
     });
 
     it('should attempt pre-loading local modules based on extension option', function () {
-      var name, mod;
       app.on('require', function (moduleName, module) {
-        name = moduleName;
-        mod = module;
+        expect(moduleName).to.equal('coffee-script/register');
+        expect(module).to.equal(require('coffee-script/register'));
       });
       var env = app.buildEnvironment({
         configPath: 'test/fixtures/coffee/mochafile.coffee'
       });
-      expect(name).to.equal('coffee-script/register');
-      expect(mod).to.equal(require('coffee-script/register'));
       expect(env.require).to.deep.equal(['coffee-script/register']);
       // testing compound extension
       env = app.buildEnvironment({
         configPath: 'test/fixtures/coffee/mochafile.coffee.md'
       });
-      expect(name).to.equal('coffee-script/register');
-      expect(mod).to.equal(require('coffee-script/register'));
       expect(env.require).to.deep.equal(['coffee-script/register']);
     });
 
@@ -161,7 +153,6 @@ describe('Liftoff', function () {
     it('should emit a respawn event if a respawn is required', function (done) {
       exec('node test/fixtures/v8flags.js', function (err, stdout) {
         expect(stdout).to.be.empty;
-        done();
         exec('node test/fixtures/v8flags_function.js --lazy', function (err, stdout) {
           expect(stdout).to.equal('saw respawn\n');
           done();
