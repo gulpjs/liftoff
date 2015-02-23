@@ -64,6 +64,17 @@ describe('Liftoff', function () {
       var spy = sinon.spy(resolve, 'sync');
       test.buildEnvironment({cwd:cwd});
       expect(spy.calledWith('chai', {basedir:path.join(process.cwd(),cwd),paths:[]})).to.be.true;
+      spy.restore();
+    });
+
+    it('should locate global module using NODE_PATH if defined', function () {
+      var test = new Liftoff({name:'dummy'});
+      var cwd = 'explicit/cwd';
+      var spy = sinon.spy(resolve, 'sync');
+      process.env.NODE_PATH = path.join(process.cwd(),cwd)
+      test.buildEnvironment();
+      expect(spy.calledWith('dummy', {basedir:process.cwd(),paths:[path.join(process.cwd(),cwd)]})).to.be.true;
+      spy.restore();
     });
 
     it('if cwd is explicitly provided, don\'t use search_paths', function () {
