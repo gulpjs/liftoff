@@ -1,3 +1,7 @@
+v2.0.2:
+  date: 2015-02-24
+  changes:
+    - Support process.env.NODE_PATH when resolving module.
 v2.0.1:
   date: 2015-02-01
   changes:
