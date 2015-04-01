@@ -168,7 +168,7 @@ Liftoff.prototype.launch = function (opts, fn) {
 
   this.handleFlags(function (err, flags) {
     if (err) {
-      throw new Error(err);
+      throw err;
     } else {
       if (flags) {
         flaggedRespawn(flags, process.argv, function (ready, child) {
