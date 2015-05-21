@@ -37,10 +37,10 @@
     "command line"
   ],
   "dependencies": {
-    "extend": "~2.0.0",
-    "findup-sync": "~0.2.0",
-    "flagged-respawn": "~0.3.0",
-    "minimist": "~1.1.0",
-    "resolve": "~1.1.0"
+    "extend": "^2.0.1",
+    "findup-sync": "^0.2.1",
+    "flagged-respawn": "^0.3.1",
+    "rechoir": "^0.6.0",
+    "resolve": "^1.1.6"
   }
 }
