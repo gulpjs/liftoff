@@ -50,12 +50,6 @@ describe('Liftoff', function () {
       var env = app.buildEnvironment({
         configPath: 'test/fixtures/coffee/mochafile.coffee'
       });
-      expect(env.require).to.deep.equal(['coffee-script/register']);
-      // testing compound extension
-      env = app.buildEnvironment({
-        configPath: 'test/fixtures/coffee/mochafile.coffee.md'
-      });
-      expect(env.require).to.deep.equal(['coffee-script/register']);
     });
 
     it('should locate local module using cwd if no config is found', function () {
