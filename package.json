@@ -25,12 +25,15 @@
     "node": ">= 0.8"
   },
   "scripts": {
-    "test": "mocha -R spec test/index.js -t 5000"
+    "test": "jshint lib index.js && jscs lib index.js && mocha -t 5000 -b -R spec test/index"
   },
   "devDependencies": {
-    "chai": "~1.10.0",
-    "coffee-script": "~1.9.0",
-    "mocha": "~2.1.0",
+    "chai": "^2.3.0",
+    "coffee-script": "^1.9.2",
+    "istanbul": "^0.3.14",
+    "jscs": "^1.13.1",
+    "jshint": "^2.7.0",
+    "mocha": "^2.1.0",
     "sinon": "~1.12.2"
   },
   "keywords": [
