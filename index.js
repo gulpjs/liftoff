@@ -33,10 +33,10 @@ Liftoff.prototype.requireLocal = function (module, basedir) {
 };
 
 Liftoff.prototype.buildEnvironment = function (opts) {
-  opts = opts||{};
+  opts = opts || {};
 
   // get modules we want to preload
-  var preload = opts.require||[];
+  var preload = opts.require || [];
 
   // ensure items to preload is an array
   if (!Array.isArray(preload)) {
@@ -103,26 +103,11 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     modulePackage = silentRequire(modulePackagePath);
     if (modulePackage && modulePackage.name === this.moduleName) {
       // if it does, our module path is `main` inside package.json
-      modulePath = path.join(path.dirname(modulePackagePath), modulePackage.main||'index.js');
+      modulePath = path.join(path.dirname(modulePackagePath), modulePackage.main || 'index.js');
       cwd = configBase;
     } else {
       // clear if we just required a package for some other project
       modulePackage = {};
-    }
-  }
-
-  // use rechoir to autoload any required modules
-  var autoloads;
-  if (configPath) {
-    autoloads = rechoir.prepare(this.extensions, configPath, cwd, true);
-    if (autoloads instanceof Error) {
-      autoloads.failures.forEach(function (attempt) {
-        if (attempt.error) {
-          this.emit('requireFail', attempt.moduleName, attempt.error);
-        } else {
-          this.emit('require', attempt.moduleName, attempt.module);
-        }
-      }, this);
     }
   }
 
@@ -136,6 +121,24 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }, this);
   }
 
+  // use rechoir to autoload any required modules
+  var autoloads;
+  if (configPath) {
+    autoloads = rechoir.prepare(this.extensions, configPath, cwd, true);
+    if (autoloads instanceof Error) {
+      autoloads = autoloads.failures;
+    }
+    if (Array.isArray(autoloads)) {
+      autoloads.forEach(function (attempt) {
+        if (attempt.error) {
+          this.emit('requireFail', attempt.moduleName, attempt.error);
+        } else {
+          this.emit('require', attempt.moduleName, attempt.module);
+        }
+      }, this);
+    }
+  }
+
   return {
     cwd: cwd,
     require: preload,
@@ -143,7 +146,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     configPath: configPath,
     configBase: configBase,
     modulePath: modulePath,
-    modulePackage: modulePackage||{}
+    modulePackage: modulePackage || {}
   };
 };
 
