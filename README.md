@@ -11,9 +11,9 @@
 [![NPM](https://nodei.co/npm/liftoff.png)](https://nodei.co/npm/liftoff/)
 
 ## What is it?
-[See this blog post](http://weblog.bocoup.com/building-command-line-tools-in-node-with-liftoff/), [check out this proof of concept](http://github.com/tkellen/node-hacker), or read on.
+[See this blog post](http://weblog.bocoup.com/building-command-line-tools-in-node-with-liftoff/), [check out this proof of concept](https://github.com/js-cli/js-hacker), or read on.
 
-Say you're writing a CLI tool.  Let's call it [hacker](http://github.com/tkellen/node-hacker).  You want to configure it using a `Hackerfile`.  This is node, so you install `hacker` locally for each project you use it in.  But, in order to get the `hacker` command in your PATH, you also install it globally.
+Say you're writing a CLI tool.  Let's call it [hacker](https://github.com/js-cli/js-hacker).  You want to configure it using a `Hackerfile`.  This is node, so you install `hacker` locally for each project you use it in.  But, in order to get the `hacker` command in your PATH, you also install it globally.
 
 Now, when you run `hacker`, you want to configure what it does using the `Hackerfile` in your current directory, and you want it to execute using the local installation of your tool.  Also, it'd be nice if the `hacker` command was smart enough to traverse up your folders until it finds a `Hackerfile`&mdash;for those times when you're not in the root directory of your project.  Heck, you might even want to launch `hacker` from a folder outside of your project by manually specifying a working directory.  Liftoff manages this for you.
 
@@ -294,7 +294,7 @@ Event will be triggered for this command:
 
 Check out how [gulp](https://github.com/gulpjs/gulp/blob/master/bin/gulp.js) uses Liftoff.
 
-For a bare-bones example, try [the hacker project](https://github.com/tkellen/node-hacker/blob/master/bin/hacker.js).
+For a bare-bones example, try [the hacker project](https://github.com/js-cli/js-hacker/blob/master/bin/hacker.js).
 
 To try the example, do the following:
 
