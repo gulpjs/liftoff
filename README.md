@@ -86,7 +86,7 @@ Default: `{".js":null,".json":null}`
 In this example Liftoff will look for `myappfile{.js,.json,.coffee}`.  If a config with the extension `.coffee` is found, Liftoff will try to require `coffee-script/require` from the current working directory.
 ```js
 const MyApp = new Liftoff({
-  name: 'myapp'
+  name: 'myapp',
   extensions: {
     '.js': null,
     '.json': null,
