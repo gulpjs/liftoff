@@ -37,7 +37,7 @@ const Hacker = new Liftoff({
     '.json': null,
     '.coffee': 'coffee-script/register'
   },
-  v8flags: ['--harmony'] // or v8flags: require('v8flags');
+  v8flags: ['--harmony'] // or v8flags: require('v8flags')
 });
 ```
 
