@@ -184,7 +184,8 @@ Liftoff.prototype.launch = function (opts, fn) {
       if (flags) {
         flaggedRespawn(flags, process.argv, function (ready, child) {
           if (child !== process) {
-            this.emit('respawn', process.argv.filter(function (flag) {
+            this.emit('respawn', process.argv.filter(function (arg) {
+              var flag = arg.split('=')[0];
               return flags.indexOf(flag) !== -1;
             }.bind(this)), child);
           }
