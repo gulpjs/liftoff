@@ -165,6 +165,13 @@ describe('Liftoff', function () {
       });
     });
 
+    it('should respawn if process.argv has v8flags with values in it', function (done) {
+      exec('node test/fixtures/v8flags_value.js --stack_size=2048', function (err, stdout, stderr) {
+        expect(stderr).to.equal("--stack_size=2048\n");
+        done();
+      });
+    });
+
   });
 
   describe('requireLocal', function () {
