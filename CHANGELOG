@@ -1,3 +1,7 @@
+v2.2.1:
+  date: 2016-03-23
+  changes:
+    - Make sure that v8 flags are passed properly through the `respawn` event
 v2.1.0:
   date: 2015-05-20
   changes:
