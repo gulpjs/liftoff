@@ -1,7 +1,7 @@
 {
   "name": "liftoff",
   "description": "Launch your command line tool with ease.",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "homepage": "https://github.com/js-cli/js-liftoff",
   "author": {
     "name": "Tyler Kellen",
@@ -23,22 +23,22 @@
     "test": "jshint lib index.js && jscs lib index.js && mocha -t 5000 -b -R spec test/index"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
-    "coffee-script": "^1.9.2",
-    "istanbul": "^0.3.14",
-    "jscs": "^1.13.1",
-    "jshint": "^2.7.0",
-    "mocha": "^2.1.0",
-    "sinon": "~1.12.2"
+    "chai": "^3.5.0",
+    "coffee-script": "^1.10.0",
+    "istanbul": "^0.4.3",
+    "jscs": "^2.11.0",
+    "jshint": "^2.9.2",
+    "mocha": "^2.4.5",
+    "sinon": "~1.17.4"
   },
   "keywords": [
     "command line"
   ],
   "dependencies": {
-    "extend": "^2.0.1",
-    "findup-sync": "^0.3.0",
+    "extend": "^3.0.0",
+    "findup-sync": "^0.4.1",
     "flagged-respawn": "^0.3.2",
-    "rechoir": "^0.6.0",
-    "resolve": "^1.1.6"
+    "rechoir": "^0.6.2",
+    "resolve": "^1.1.7"
   }
 }
