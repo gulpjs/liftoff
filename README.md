@@ -274,12 +274,12 @@ Hacker.on('requireFail', function (name, err) {
 
 #### respawn(flags, child)
 
-Emitted when Liftoff re-spawns your process (when a [`nodeFlag`](#optsnodeflags) is detected).
+Emitted when Liftoff re-spawns your process (when a [`v8flags`](#optsv8flags) is detected).
 
 ```js
 var Hacker = new Liftoff({
   name: 'hacker',
-  nodeFlags: ['--harmony']
+  v8flags: ['--harmony']
 });
 Hacker.on('respawn', function (flags, child) {
   console.log('Detected node flags:', flags);
