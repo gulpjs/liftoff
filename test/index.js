@@ -56,6 +56,8 @@ describe('Liftoff', function () {
       var test = new Liftoff({name:'chai'});
       var cwd = 'explicit/cwd';
       var spy = sinon.spy(resolve, 'sync');
+      // NODE_PATH might be defined.
+      delete process.env.NODE_PATH;
       test.buildEnvironment({cwd:cwd});
       expect(spy.calledWith('chai', {basedir:path.join(process.cwd(),cwd),paths:[]})).to.be.true;
       spy.restore();
