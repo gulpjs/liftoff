@@ -77,6 +77,11 @@ describe('Liftoff', function () {
       expect(app.buildEnvironment({cwd:'./'}).configPath).to.equal(null);
     });
 
+    it('should find case sensitive configPath', function () {
+      var expected = path.resolve(__dirname, 'fixtures', 'case', (process.platform === 'linux' ? 'Mochafile.js' : 'mochafile.js'));
+      expect(app.buildEnvironment({cwd:path.join(__dirname, 'fixtures', 'case')}).configPath).to.equal(expected);
+    });
+
     it('should find module in the directory next to config', function () {
       expect(app.buildEnvironment().modulePath).to.equal(path.resolve('node_modules/mocha/index.js'));
     });
