@@ -56,6 +56,8 @@ describe('Liftoff', function () {
       var test = new Liftoff({name:'chai'});
       var cwd = 'explicit/cwd';
       var spy = sinon.spy(resolve, 'sync');
+      // NODE_PATH might be defined.
+      delete process.env.NODE_PATH;
       test.buildEnvironment({cwd:cwd});
       expect(spy.calledWith('chai', {basedir:path.join(process.cwd(),cwd),paths:[]})).to.be.true;
       spy.restore();
@@ -73,6 +75,11 @@ describe('Liftoff', function () {
 
     it('if cwd is explicitly provided, don\'t use search_paths', function () {
       expect(app.buildEnvironment({cwd:'./'}).configPath).to.equal(null);
+    });
+
+    it('should find case sensitive configPath', function () {
+      var expected = path.resolve(__dirname, 'fixtures', 'case', (process.platform === 'linux' ? 'Mochafile.js' : 'mochafile.js'));
+      expect(app.buildEnvironment({cwd:path.join(__dirname, 'fixtures', 'case')}).configPath).to.equal(expected);
     });
 
     it('should find module in the directory next to config', function () {
