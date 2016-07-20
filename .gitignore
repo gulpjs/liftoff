@@ -1,2 +1,15 @@
+# Logs
+logs
+*.log
+
+# Coverage direcory used by tools like istanbul
+coverage
+
+# Dependency directory
 node_modules
+
+# Test creations
 test/fixtures/symlink/mochafile.js
+
+.DS_Store
+
