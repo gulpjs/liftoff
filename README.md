@@ -4,7 +4,8 @@
   </a>
 </p>
 
-# liftoff [![Build Status](https://secure.travis-ci.org/js-cli/js-liftoff.svg)](http://travis-ci.org/js-cli/js-liftoff) [![Build status](https://ci.appveyor.com/api/projects/status/5a6w8xuq8ed1ilc4/branch/master?svg=true)](https://ci.appveyor.com/project/js-cli/js-liftoff/branch/master)
+# liftoff [![Build Status](https://secure.travis-ci.org/js-cli/js-liftoff.svg)](http://travis-ci.org/js-cli/js-liftoff) [![Build status](https://ci.appveyor.com/api/projects/status/hpa119iqdg1m7uno/branch/master?svg=true)](https://ci.appveyor.com/project/tkellen/js-liftoff)
+
 
 > Launch your command line tool with ease.
 
