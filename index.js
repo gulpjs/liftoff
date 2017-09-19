@@ -6,8 +6,8 @@ const EE = require('events').EventEmitter;
 const extend = require('extend');
 const resolve = require('resolve');
 const flaggedRespawn = require('flagged-respawn');
-const isPlainObject = require('lodash.isplainobject');
-const mapValues = require('lodash.mapvalues');
+const isPlainObject = require('is-plain-object');
+const mapValues = require('object.map');
 const fined = require('fined');
 
 const findCwd = require('./lib/find_cwd');
