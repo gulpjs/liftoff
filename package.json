@@ -20,7 +20,8 @@
     "node": ">= 0.8"
   },
   "scripts": {
-    "test": "jshint lib index.js && jscs lib index.js && mocha -t 5000 -b -R spec test/index"
+    "test": "jshint lib index.js && jscs lib index.js && mocha -t 5000 -b -R spec test/index",
+    "cover": "nyc --reporter=lcov --reporter=text-summary npm test"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -29,6 +30,7 @@
     "jscs": "^2.11.0",
     "jshint": "^2.9.2",
     "mocha": "^2.4.5",
+    "nyc": "^11.2.1",
     "sinon": "~1.17.4"
   },
   "keywords": [

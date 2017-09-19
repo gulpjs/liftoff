@@ -42,6 +42,15 @@ describe('Liftoff', function () {
       expect(env.require).to.deep.equal(['coffee-script/register']);
     });
 
+    it('should attempt pre-loading a local module if it is requested', function () {
+      app.on('require', function (moduleName, module) {
+        expect(moduleName).to.equal('coffee-script/register');
+        expect(module).to.equal(require('coffee-script/register'));
+      });
+      var env = app.buildEnvironment({require: 'coffee-script/register'});
+      expect(env.require).to.deep.equal(['coffee-script/register']);
+    });
+
     it('should attempt pre-loading local modules based on extension option', function () {
       app.on('require', function (moduleName, module) {
         expect(moduleName).to.equal('coffee-script/register');
@@ -108,6 +117,64 @@ describe('Liftoff', function () {
       expect(env.cwd).to.equal(path.resolve('test/fixtures/symlink'));
     })
 
+    describe('for developing against yourself', function() {
+      it('should find and load package.json', function(done) {
+        const fixturesDir = path.resolve(__dirname, 'fixtures');
+        const cwd = path.resolve(fixturesDir, 'developing_yourself');
+
+        exec('cd ' + cwd + ' && node main.js', cb);
+        function cb(err, stdout, stderr) {
+          expect(err).to.equal(null);
+          expect(stderr).to.equal('');
+          const fp = path.resolve(cwd, 'package.json');
+          expect(stdout).to.equal(
+            JSON.stringify(require(fp)) + '\n' +
+            path.resolve(cwd, 'main.js') + '\n' +
+            cwd + '\n'
+          );
+          done();
+        }
+      });
+
+      it('should clear modulePackage if package.json is of different project',
+      function(done) {
+        const fixturesDir = path.resolve(__dirname, 'fixtures');
+        const cwd = path.resolve(fixturesDir, 'developing_yourself/app1');
+
+        exec('cd ' + cwd + ' && node index.js', cb);
+        function cb(err, stdout, stderr) {
+          expect(err).to.equal(null);
+          expect(stderr).to.equal('');
+          expect(stdout).to.equal(
+            '{}\n' +
+            'undefined\n' +
+            cwd + '\n'
+          );
+          done();
+        }
+      });
+
+      it('should use `index.js` if `main` property in package.json ' +
+      'does not exist', function(done) {
+        const fixturesDir = path.resolve(__dirname, 'fixtures');
+        const cwd = path.resolve(fixturesDir, 'developing_yourself/app2');
+
+        exec('cd test/fixtures/developing_yourself/app2 && node index.js', cb);
+        function cb(err, stdout, stderr) {
+          expect(err).to.equal(null);
+          expect(stderr).to.equal('');
+          const fp = './fixtures/developing_yourself/app2/package.json';
+          expect(stdout).to.equal(
+            JSON.stringify(require(fp)) + '\n' +
+            path.resolve(cwd, 'index.js') + '\n' +
+            cwd + '\n'
+          );
+          done();
+        }
+      });
+
+    });
+
   });
 
   describe('launch', function () {
@@ -141,6 +208,12 @@ describe('Liftoff', function () {
       });
     });
 
+    it('should throw if 2nd arg is not a function', function() {
+      expect(function() {
+        app.launch({});
+      }).to.throw();
+    });
+
     it('should skip respawning if process.argv has no values from v8flags in it', function (done) {
       exec('node test/fixtures/v8flags.js', function (err, stdout, stderr) {
         expect(stderr).to.equal('\n');
@@ -159,6 +232,16 @@ describe('Liftoff', function () {
           expect(stderr).to.equal("--lazy\n");
           done();
         });
+      });
+    });
+
+    it('should throw if v8flags is a function and it causes an error',
+    function(done) {
+      exec('node test/fixtures/v8flags_error.js --lazy', function (err, stdout, stderr) {
+        expect(err).not.to.equal(null);
+        expect(stdout).to.equal('');
+        expect(stderr).to.include('v8flags error!');
+        done();
       });
     });
 
