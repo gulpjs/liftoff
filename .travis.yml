@@ -12,3 +12,9 @@ matrix:
   fast_finish: true
   allow_failures:
     - node_js: "0.10"
+script: if [ $(echo "${TRAVIS_NODE_VERSION}" | cut -d'.' -f1) -ge 4 ]; then
+          npm run cover;
+        else
+          npm test;
+        fi
+
