@@ -91,7 +91,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   // locate local module and package next to config or explicitly provided cwd
   var modulePath, modulePackage;
   try {
-    var delim = (process.platform === 'win32' ? ';' : ':'),
+    var delim = path.delimiter,
         paths = (process.env.NODE_PATH ? process.env.NODE_PATH.split(delim) : []);
     modulePath = resolve.sync(this.moduleName, {basedir: configBase || cwd, paths: paths});
     modulePackage = silentRequire(fileSearch('package.json', [modulePath]));
