@@ -41,9 +41,8 @@
     "findup-sync": "^0.4.2",
     "fined": "^1.0.1",
     "flagged-respawn": "^0.3.2",
-    "lodash.isplainobject": "^4.0.4",
-    "lodash.isstring": "^4.0.1",
-    "lodash.mapvalues": "^4.4.0",
+    "is-plain-object": "^2.0.4",
+    "object.map": "^1.0.0",
     "rechoir": "^0.6.2",
     "resolve": "^1.1.7"
   }
