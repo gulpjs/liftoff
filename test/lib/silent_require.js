@@ -9,7 +9,9 @@ describe('silentRequire', function () {
   });
 
   it('should not throw if file is not found', function () {
-    expect(silentRequire('path/to/nowhere')).to.not.throw;
+    expect(function() {
+      silentRequire('path/to/nowhere');
+    }).to.not.throw();
   });
 
 });
