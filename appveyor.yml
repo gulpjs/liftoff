@@ -7,23 +7,20 @@ environment:
     - nodejs_version: "0.10"
     - nodejs_version: "0.12"
     - nodejs_version: "4"
-    - nodejs_version: "5"
     - nodejs_version: "6"
+    - nodejs_version: "8"
 
 install:
-  - IF %nodejs_version% EQU 0.10 npm -g install npm@2
-  - IF %nodejs_version% EQU 0.10 set PATH=%APPDATA%\npm;%PATH%
+  - npm install -g npm@^3
   - ps: Install-Product node $env:nodejs_version
   - npm install
 
 test_script:
   - node --version
   - npm --version
-  # power shell
-  - ps: "npm test"
-  # standard command line
   - cmd: npm test
 
 build: off
 
+# build version format
 version: "{build}"
