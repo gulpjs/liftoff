@@ -1,27 +1,33 @@
 {
   "name": "liftoff",
-  "description": "Launch your command line tool with ease.",
   "version": "2.3.0",
-  "homepage": "https://github.com/js-cli/js-liftoff",
-  "author": {
-    "name": "Tyler Kellen",
-    "url": "http://goingslowly.com/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/js-cli/js-liftoff.git"
-  },
-  "bugs": {
-    "url": "https://github.com/js-cli/js-liftoff/issues"
-  },
+  "description": "Launch your command line tool with ease.",
+  "author": "Tyler Kellen (http://goingslowly.com/)",
+  "contributors": [],
+  "repository": "js-cli/js-liftoff",
   "license": "MIT",
-  "main": "index.js",
   "engines": {
     "node": ">= 0.8"
   },
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "lib",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "jshint lib index.js && jscs lib index.js && mocha -t 5000 -b -R spec test/index",
     "cover": "nyc --reporter=lcov --reporter=text-summary npm test"
+  },
+  "dependencies": {
+    "extend": "^3.0.0",
+    "findup-sync": "^2.0.0",
+    "fined": "^1.0.1",
+    "flagged-respawn": "^0.3.2",
+    "is-plain-object": "^2.0.4",
+    "object.map": "^1.0.0",
+    "rechoir": "^0.6.2",
+    "resolve": "^1.1.7"
   },
   "devDependencies": {
     "chai": "^3.5.0",
@@ -35,15 +41,5 @@
   },
   "keywords": [
     "command line"
-  ],
-  "dependencies": {
-    "extend": "^3.0.0",
-    "findup-sync": "^2.0.0",
-    "fined": "^1.0.1",
-    "flagged-respawn": "^0.3.2",
-    "is-plain-object": "^2.0.4",
-    "object.map": "^1.0.0",
-    "rechoir": "^0.6.2",
-    "resolve": "^1.1.7"
-  }
+  ]
 }
