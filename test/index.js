@@ -245,6 +245,28 @@ describe('Liftoff', function () {
       });
     });
 
+    it('should respawn if v8flag is set by opts.nodeFlags', function(done) {
+      exec('node test/fixtures/v8flags_config.js', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('--lazy\n');
+        expect(stdout).to.equal('saw respawn\n');
+        done();
+      }
+    });
+
+    it('should respawn if v8flag is set by both cli flag and opts.nodeFlags', function(done) {
+      exec('node test/fixtures/v8flags_config.js --harmony', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr.slice(0, -1).split(' ')).to.have.members(['--lazy', '--harmony']);
+        expect(stdout).to.equal('saw respawn\n');
+        done();
+      }
+    });
+
     it('should emit a respawn event if a respawn is required', function (done) {
       exec('node test/fixtures/v8flags.js', function (err, stdout) {
         expect(stdout).to.be.empty;
@@ -508,3 +530,4 @@ require('./lib/find_cwd');
 require('./lib/parse_options');
 require('./lib/silent_require');
 require('./lib/register_loader');
+require('./lib/get_node_flags');
