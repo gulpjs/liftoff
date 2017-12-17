@@ -245,6 +245,35 @@ describe('Liftoff', function () {
       });
     });
 
+    it('should respawn if v8flag is set by opts.nodeFlags', function(done) {
+      exec('node test/fixtures/v8flags_config.js 123', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal([
+          path.resolve('test/fixtures/v8flags_config.js'),
+          '123',
+        ].join(' ') + '\n');
+        expect(stdout).to.equal('saw respawn [ \'--lazy\' ]\n');
+        done();
+      }
+    });
+
+    it('should respawn if v8flag is set by both cli flag and opts.nodeFlags', function(done) {
+      exec('node test/fixtures/v8flags_config.js 123 --harmony abc', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal([
+          path.resolve('test/fixtures/v8flags_config.js'),
+          '123',
+          'abc',
+        ].join(' ') + '\n');
+        expect(stdout).to.equal('saw respawn [ \'--lazy\', \'--harmony\' ]\n');
+        done();
+      }
+    });
+
     it('should emit a respawn event if a respawn is required', function (done) {
       exec('node test/fixtures/v8flags.js', function (err, stdout) {
         expect(stdout).to.be.empty;
@@ -260,6 +289,21 @@ describe('Liftoff', function () {
         expect(stderr).to.equal("--stack_size=2048\n");
         done();
       });
+    });
+
+    it('should respawn if v8flags is empty but nodeFlags are specified',
+    function(done) {
+      exec('node test/fixtures/nodeflags_only.js 123', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal([
+          path.resolve('test/fixtures/nodeflags_only.js'),
+          '123',
+        ].join(' ') + '\n');
+        expect(stdout).to.equal('saw respawn [ \'--lazy\' ]\n');
+        done();
+      }
     });
 
   });
@@ -508,3 +552,4 @@ require('./lib/find_cwd');
 require('./lib/parse_options');
 require('./lib/silent_require');
 require('./lib/register_loader');
+require('./lib/get_node_flags');
