@@ -191,8 +191,8 @@ Liftoff.prototype.launch = function (opts, fn) {
 
     var env = this.buildEnvironment(opts);
 
-    var nodeFlags = getNodeFlags.arrayOrFunction(this.nodeFlags, env);
-    flaggedRespawn(flags, process.argv, nodeFlags, execute.bind(this));
+    var forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
+    flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
 
     function execute(ready, child, argv) {
       if (child !== process) {
