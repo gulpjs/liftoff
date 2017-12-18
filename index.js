@@ -17,6 +17,7 @@ const parseOptions = require('./lib/parse_options');
 const silentRequire = require('./lib/silent_require');
 const buildConfigName = require('./lib/build_config_name');
 const registerLoader = require('./lib/register_loader');
+const getNodeFlags = require('./lib/get_node_flags');
 
 
 function Liftoff (opts) {
@@ -185,21 +186,21 @@ Liftoff.prototype.launch = function (opts, fn) {
   this.handleFlags(function (err, flags) {
     if (err) {
       throw err;
-    } else {
-      if (flags) {
-        flaggedRespawn(flags, process.argv, function (ready, child) {
-          if (child !== process) {
-            this.emit('respawn', process.argv.filter(function (arg) {
-              var flag = arg.split('=')[0];
-              return flags.indexOf(flag) !== -1;
-            }.bind(this)), child);
-          }
-          if (ready) {
-            fn.call(this, this.buildEnvironment(opts));
-          }
-        }.bind(this));
-      } else {
-        fn.call(this, this.buildEnvironment(opts));
+    }
+    flags = flags || [];
+
+    var env = this.buildEnvironment(opts);
+
+    var nodeFlags = getNodeFlags.arrayOrFunction(this.nodeFlags, env);
+    flaggedRespawn(flags, process.argv, nodeFlags, execute.bind(this));
+
+    function execute(ready, child, argv) {
+      if (child !== process) {
+        var execArgv = getNodeFlags.fromReorderedArgv(argv);
+        this.emit('respawn', execArgv, child);
+      }
+      if (ready) {
+        fn.call(this, env, argv);
       }
     }
   }.bind(this));

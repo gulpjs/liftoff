@@ -23,7 +23,7 @@
     "extend": "^3.0.0",
     "findup-sync": "^2.0.0",
     "fined": "^1.0.1",
-    "flagged-respawn": "^0.3.2",
+    "flagged-respawn": "^1.0.0",
     "is-plain-object": "^2.0.4",
     "object.map": "^1.0.0",
     "rechoir": "^0.6.2",
@@ -31,11 +31,10 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "coffee-script": "^1.10.0",
-    "istanbul": "^0.4.3",
-    "jscs": "^2.11.0",
+    "coffeescript": "^1.10.0",
+    "jscs": "^3.0.7",
     "jshint": "^2.9.2",
-    "mocha": "^2.4.5",
+    "mocha": "^3.5.3",
     "nyc": "^11.2.1",
     "sinon": "~1.17.4"
   },

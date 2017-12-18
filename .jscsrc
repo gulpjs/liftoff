@@ -1,5 +1,4 @@
 {
-  "esnext": true,
   "disallowMixedSpacesAndTabs": true,
   "disallowSpaceAfterObjectKeys": true,
   "disallowSpaceBeforeBinaryOperators": [

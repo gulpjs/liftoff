@@ -4,7 +4,7 @@ const Test = new Liftoff({
   name: 'test',
   v8flags: ['--lazy']
 });
-Test.on('respawn', function (proc) {
+Test.on('respawn', function (flags, proc) {
   console.log('saw respawn');
 });
 
