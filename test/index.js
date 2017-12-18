@@ -245,7 +245,7 @@ describe('Liftoff', function () {
       });
     });
 
-    it('should respawn if v8flag is set by opts.nodeFlags', function(done) {
+    it('should respawn if v8flag is set by opts.forcedFlags', function(done) {
       exec('node test/fixtures/v8flags_config.js 123', cb);
 
       function cb(err, stdout, stderr) {
@@ -259,7 +259,7 @@ describe('Liftoff', function () {
       }
     });
 
-    it('should respawn if v8flag is set by both cli flag and opts.nodeFlags', function(done) {
+    it('should respawn if v8flag is set by both cli flag and opts.forcedFlags', function(done) {
       exec('node test/fixtures/v8flags_config.js 123 --harmony abc', cb);
 
       function cb(err, stdout, stderr) {
@@ -291,7 +291,7 @@ describe('Liftoff', function () {
       });
     });
 
-    it('should respawn if v8flags is empty but nodeFlags are specified',
+    it('should respawn if v8flags is empty but forcedFlags are specified',
     function(done) {
       exec('node test/fixtures/nodeflags_only.js 123', cb);
 
@@ -505,7 +505,7 @@ describe('Liftoff', function () {
         logFailure.push({ moduleName: moduleName, error: error });
       });
       app.on('require', function(moduleName, module) {
-        logRequire.push({ moduleName: moduleName, module: module }); 
+        logRequire.push({ moduleName: moduleName, module: module });
       });
       app.launch({}, function(env) {
         expect(env.configFiles).to.deep.equal({
