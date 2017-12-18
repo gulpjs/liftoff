@@ -187,12 +187,9 @@ Liftoff.prototype.launch = function (opts, fn) {
     if (err) {
       throw err;
     }
+    flags = flags || [];
 
     var env = this.buildEnvironment(opts);
-    if (!flags) {
-      fn.call(this, env, process.argv);
-      return;
-    }
 
     var nodeFlags = getNodeFlags.arrayOrFunction(this.nodeFlags, env);
     flaggedRespawn(flags, process.argv, nodeFlags, execute.bind(this));

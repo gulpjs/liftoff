@@ -246,23 +246,30 @@ describe('Liftoff', function () {
     });
 
     it('should respawn if v8flag is set by opts.nodeFlags', function(done) {
-      exec('node test/fixtures/v8flags_config.js', cb);
+      exec('node test/fixtures/v8flags_config.js 123', cb);
 
       function cb(err, stdout, stderr) {
         expect(err).to.equal(null);
-        expect(stderr).to.equal('--lazy\n');
-        expect(stdout).to.equal('saw respawn\n');
+        expect(stderr).to.equal([
+          path.resolve('test/fixtures/v8flags_config.js'),
+          '123',
+        ].join(' ') + '\n');
+        expect(stdout).to.equal('saw respawn [ \'--lazy\' ]\n');
         done();
       }
     });
 
     it('should respawn if v8flag is set by both cli flag and opts.nodeFlags', function(done) {
-      exec('node test/fixtures/v8flags_config.js --harmony', cb);
+      exec('node test/fixtures/v8flags_config.js 123 --harmony abc', cb);
 
       function cb(err, stdout, stderr) {
         expect(err).to.equal(null);
-        expect(stderr.slice(0, -1).split(' ')).to.have.members(['--lazy', '--harmony']);
-        expect(stdout).to.equal('saw respawn\n');
+        expect(stderr).to.equal([
+          path.resolve('test/fixtures/v8flags_config.js'),
+          '123',
+          'abc',
+        ].join(' ') + '\n');
+        expect(stdout).to.equal('saw respawn [ \'--lazy\', \'--harmony\' ]\n');
         done();
       }
     });
@@ -282,6 +289,21 @@ describe('Liftoff', function () {
         expect(stderr).to.equal("--stack_size=2048\n");
         done();
       });
+    });
+
+    it('should respawn if v8flags is empty but nodeFlags are specified',
+    function(done) {
+      exec('node test/fixtures/nodeflags_only.js 123', cb);
+
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal([
+          path.resolve('test/fixtures/nodeflags_only.js'),
+          '123',
+        ].join(' ') + '\n');
+        expect(stdout).to.equal('saw respawn [ \'--lazy\' ]\n');
+        done();
+      }
     });
 
   });

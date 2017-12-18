@@ -8,7 +8,7 @@ const Test = new Liftoff({
     })
   }
 });
-Test.on('respawn', function (proc) {
+Test.on('respawn', function (flags, proc) {
   console.log('saw respawn');
 });
 

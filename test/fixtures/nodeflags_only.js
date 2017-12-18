@@ -2,12 +2,13 @@ const Liftoff = require('../..');
 
 const Test = new Liftoff({
   name: 'test',
-  v8flags: ['--harmony'],
-  nodeFlags: ['--lazy'],
+  nodeFlags: function(opts, env) {
+    return ['--lazy'];
+  },
 });
 
-Test.on('respawn', function(flags, proc) {
-  console.log('saw respawn', flags);
+Test.on('respawn', function(execArgv) {
+  console.log('saw respawn', execArgv);
 });
 
 Test.launch({}, function(env, argv) {
