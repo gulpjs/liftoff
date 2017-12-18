@@ -357,6 +357,27 @@ MyApp.launch({
 myapp --require coffee-script/register
 ```
 
+#### opts.forcedFlags
+
+Allows you to force node or V8 flags during the launch. This is useful if you need to make sure certain flags will always be enabled or if you need to enable flags that don't show up in `opts.v8flags` (as these flags aren't validated against `opts.v8flags`).
+
+If this is specified as a function, it will receive the built `env` as its only argument and must return a string or array of flags to force.
+
+Type: `String|Array|Function`  
+Default: `null`
+
+**Example Configuration:**
+```js
+MyApp.launch({
+  forcedFlags: ['--trace-deprecation']
+}, invoke);
+```
+
+**Matching CLI Invocation:**
+```js
+myapp --trace-deprecation
+```
+
 #### callback(env)
 
 A function to start your application.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
