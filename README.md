@@ -107,7 +107,7 @@ const MyApp = new Liftoff({
 });
 ```
 
-In this example, Liftoff will automatically attempt to load the correct module for any javascript variant supported by [node-interpret](https://github.com/tkellen/node-interpret) (as long as it does not require a register method).
+In this example, Liftoff will automatically attempt to load the correct module for any javascript variant supported by [interpret](https://github.com/js-cli/js-interpret) (as long as it does not require a register method).
 
 ```js
 const MyApp = new Liftoff({
@@ -117,7 +117,7 @@ const MyApp = new Liftoff({
 ```
 #### opts.v8flags
 
-Any flag specified here will be applied to node, not your program.  Useful for supporting invocations like `myapp --harmony command`, where `--harmony` should be passed to node, not your program. This functionality is implemented using [flagged-respawn](http://github.com/tkellen/node-flagged-respawn). To support all v8flags, see [node-v8flags](https://github.com/tkellen/node-v8flags).
+Any flag specified here will be applied to node, not your program.  Useful for supporting invocations like `myapp --harmony command`, where `--harmony` should be passed to node, not your program. This functionality is implemented using [flagged-respawn](http://github.com/js-cli/js-flagged-respawn). To support all v8flags, see [v8flags](https://github.com/js-cli/js-v8flags).
 
 Type: `Array|Function`  
 Default: `null`
@@ -439,7 +439,7 @@ Event will be triggered for this command:
 
 ## Examples
 
-Check out how [gulp](https://github.com/gulpjs/gulp/blob/master/bin/gulp.js) uses Liftoff.
+Check out how [gulp](https://github.com/gulpjs/gulp-cli/blob/master/index.js) uses Liftoff.
 
 For a bare-bones example, try [the hacker project](https://github.com/js-cli/js-hacker/blob/master/bin/hacker.js).
 
