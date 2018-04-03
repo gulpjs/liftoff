@@ -18,6 +18,7 @@ const silentRequire = require('./lib/silent_require');
 const buildConfigName = require('./lib/build_config_name');
 const registerLoader = require('./lib/register_loader');
 const getNodeFlags = require('./lib/get_node_flags');
+const prepareConfig = require('./lib/prepare_config');
 
 
 function Liftoff (opts) {
@@ -115,19 +116,8 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }
   }
 
-  // load any modules which were requested to be required
-  if (preload.length) {
-    // unique results first
-    preload.filter(function (value, index, self) {
-      return self.indexOf(value) === index;
-    }).forEach(function (dep) {
-      this.requireLocal(dep, findCwd(opts));
-    }, this);
-  }
-
   var exts = this.extensions;
   var eventEmitter = this;
-  registerLoader(eventEmitter, exts, configPath, cwd);
 
   var configFiles = {};
   if (isPlainObject(this.configFiles)) {
@@ -200,12 +190,11 @@ Liftoff.prototype.launch = function (opts, fn) {
         this.emit('respawn', execArgv, child);
       }
       if (ready) {
+        prepareConfig.call(this, env, opts);
         fn.call(this, env, argv);
       }
     }
   }.bind(this));
 };
-
-
 
 module.exports = Liftoff;

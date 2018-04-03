@@ -33,33 +33,6 @@ describe('Liftoff', function () {
 
   describe('buildEnvironment', function () {
 
-    it('should attempt pre-loading local modules if they are requested', function () {
-      app.on('require', function (moduleName, module) {
-        expect(moduleName).to.equal('coffee-script/register');
-        expect(module).to.equal(require('coffee-script/register'));
-      });
-      var env = app.buildEnvironment({require:['coffee-script/register']});
-      expect(env.require).to.deep.equal(['coffee-script/register']);
-    });
-
-    it('should attempt pre-loading a local module if it is requested', function () {
-      app.on('require', function (moduleName, module) {
-        expect(moduleName).to.equal('coffee-script/register');
-        expect(module).to.equal(require('coffee-script/register'));
-      });
-      var env = app.buildEnvironment({require: 'coffee-script/register'});
-      expect(env.require).to.deep.equal(['coffee-script/register']);
-    });
-
-    it('should attempt pre-loading local modules based on extension option', function () {
-      app.on('require', function (moduleName, module) {
-        expect(moduleName).to.equal('coffee-script/register');
-        expect(module).to.equal(require('coffee-script/register'));
-      });
-      var env = app.buildEnvironment({
-        configPath: 'test/fixtures/coffee/mochafile.coffee'
-      });
-    });
 
     it('should locate local module using cwd if no config is found', function () {
       var test = new Liftoff({name:'chai'});
@@ -309,6 +282,76 @@ describe('Liftoff', function () {
   });
 
   describe('requireLocal', function () {
+
+    it('should attempt pre-loading local modules if they are requested', function (done) {
+      var app = new Liftoff({ name: 'test' });
+      var logs = [];
+      app.on('require', function (moduleName, module) {
+        expect(moduleName).to.equal('coffeescript/register');
+        expect(module).to.equal(require('coffeescript/register'));
+        logs.push('require');
+      });
+      app.on('requireFail', function(moduleName, err) {
+        fail(err);
+      });
+      app.launch({ require: ['coffeescript/register'] }, function(env) {
+        expect(env.require).to.deep.equal(['coffeescript/register']);
+        expect(logs).to.deep.equal(['require']);
+        done();
+      });
+    });
+
+    it('should attempt pre-loading a local module if it is requested', function () {
+      var app = new Liftoff({ name: 'test' });
+      var logs = [];
+      app.on('require', function (moduleName, module) {
+        expect(moduleName).to.equal('coffeescript/register');
+        expect(module).to.equal(require('coffeescript/register'));
+        logs.push('require');
+      });
+      app.on('requireFail', function(moduleName, err) {
+        fail(err);
+      });
+      app.launch({ require: 'coffeescript/register' }, function(env) {
+        expect(env.require).to.deep.equal(['coffeescript/register']);
+        expect(logs).to.deep.equal(['require']);
+        done();
+      });
+    });
+
+    it('should attempt pre-loading local modules but fail', function() {
+      var app = new Liftoff({ name: 'test' });
+      var logs = [];
+      app.on('require', function (moduleName, module) {
+        fail();
+      });
+      app.on('requireFail', function(moduleName, err) {
+        expect(moduleName).to.equal('badmodule');
+        expect(err).to.not.equal(null);
+        logs.push('requireFail');
+      });
+      app.launch({ require: 'badmodule' }, function(env) {
+        expect(env.require).to.deep.equal(['coffeescript/register']);
+        expect(logs).to.deep.equal(['requireFail']);
+        done();
+      });
+    });
+
+    it('should pre-load a local module only once even if be respawned', function (done) {
+      const fixturesDir = path.resolve(__dirname, 'fixtures');
+
+      exec('cd ' + fixturesDir + ' && node respawn_and_require.js', cb);
+      function cb(err, stdout, stderr) {
+        expect(err).to.equal(null);
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal(
+          'saw respawn [ \'--lazy\' ]\n' +
+          'require coffeescript/register\n' +
+          'execute\n' +
+        '');
+        done();
+      }
+    });
 
     it('should emit `require` with the name of the module and the required module', function (done) {
       var requireTest = new Liftoff({name:'require'});
