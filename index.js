@@ -18,7 +18,7 @@ var silentRequire = require('./lib/silent_require');
 var buildConfigName = require('./lib/build_config_name');
 var registerLoader = require('./lib/register_loader');
 var getNodeFlags = require('./lib/get_node_flags');
-
+var prepareConfig = require('./lib/prepare_config');
 
 function Liftoff(opts) {
   EE.call(this);
@@ -116,19 +116,8 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     }
   }
 
-  // load any modules which were requested to be required
-  if (preload.length) {
-    // unique results first
-    preload.filter(function(value, index, self) {
-      return self.indexOf(value) === index;
-    }).forEach(function(dep) {
-      this.requireLocal(dep, findCwd(opts));
-    }, this);
-  }
-
   var exts = this.extensions;
   var eventEmitter = this;
-  registerLoader(eventEmitter, exts, configPath, cwd);
 
   var configFiles = {};
   if (isPlainObject(this.configFiles)) {
@@ -201,12 +190,11 @@ Liftoff.prototype.launch = function(opts, fn) {
         this.emit('respawn', execArgv, child);
       }
       if (ready) {
+        prepareConfig(this, env, opts);
         fn.call(this, env, argv);
       }
     }
   }.bind(this));
 };
-
-
 
 module.exports = Liftoff;
