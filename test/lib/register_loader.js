@@ -37,19 +37,48 @@ describe('registerLoader', function() {
       registerLoader(app, extensions, configPath);
     });
 
+    it('Should emit only a "require" event when registering loader ' +
+       'failed and succeeds', function(done) {
+
+      var loaderPath = path.join(testDir, 'require-conf.js');
+      var configPath = path.join(testDir, 'app.conf');
+      var extensions = { '.conf': ['xxx', loaderPath] };
+
+      var app = new App();
+      app.on('require', function(moduleName, module) {
+        console.log('require', moduleName);
+        expect(moduleName).to.be.equal(loaderPath);
+        expect(require(configPath)).to.equal('Load app.conf by require-conf');
+        done();
+      });
+      app.on('requireFail', handlerNotEmit);
+
+      registerLoader(app, extensions, configPath);
+    });
+
     it('Should emit a "requireFail" event when loader is not found',
         function(done) {
 
       var loaderPath = path.join(testDir, 'require-tmp.js');
       var configPath = path.join(testDir, 'app.tmp');
-      var extensions = { '.tmp': loaderPath };
+      var extensions = { '.tmp': ['xxx', loaderPath] };
 
       var app = new App();
+      var index = 0;
       app.on('requireFail', function(moduleName, error) {
-        expect(moduleName).to.be.equal(loaderPath);
-        expect(error).to.be.an('error');
-        expect(error.message).to.contain('Cannot find module');
-        done();
+        if (index === 0) {
+          expect(moduleName).to.be.equal('xxx');
+          expect(error).to.be.an('error');
+          expect(error.message).to.contain('Cannot find module');
+        } else if (index === 1) {
+          expect(moduleName).to.be.equal(loaderPath);
+          expect(error).to.be.an('error');
+          expect(error.message).to.contain('Cannot find module');
+          done();
+        } else {
+          fail();
+        }
+        index ++;
       });
       app.on('require', handlerNotEmit);
 
