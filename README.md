@@ -186,6 +186,25 @@ The [`fined`](https://github.com/js-cli/fined) module accepts a string represent
   Type: `Boolean`  
   Default: `false`
 
+* `onFound`
+
+  The function which is executed after finding the file and requiring its loader, if the file was found. The parameters of the function is as follows:
+
+  | Parameter |  Type  | Description                           |
+  |:----------|:------:|:--------------------------------------|
+  | *name*    | string | The unique name of the found path     |
+  | *path*    | string | The found path                        |
+
+  Type: `Functon`  
+  Default: `null`
+
+* `order`
+
+  The order of finding the file and post-find processing.
+
+  Type: `Number`  
+  Default: `null`
+
 **Examples:**
 
 In this example Liftoff will look for the `.hacker.js` file relative to the `cwd` as declared in `configFiles`.
@@ -257,6 +276,44 @@ const MyApp = new Liftoff({
         path: '.',
         cwd: '~'
       }
+    }
+  }
+});
+```
+
+In this example, Liftoff will find files in specified `order`, and execute `onFound` functions for found paths.
+
+```js
+const MyApp = new Liftoff({
+  name: 'hacker',
+  configFiles: {
+    '.hacker': {
+      home: {
+        path: '~',
+        order: 2,
+        onFound: function(name, path) {
+          // This function be executed second.
+          // name => 'home'
+          // path => '/path/to/home/.hacker.js'
+        },
+      },
+      cwd: {
+        path: '.',
+        order: 1,
+        onFound: function(name, path) {
+          // The function Will be executed first.
+          // name => 'cwd'
+          // path => '/path/to/cwd/.hacker.js'
+        },
+      },
+      default: {
+        path: '/path/to/defaultdir',
+        onFound: function(name, path) {
+          // This function will be executed last when `order` is not specified.
+          // name => 'default'
+          // path => '/path/to/defaultdir/.hacker.js'
+        },
+      },
     }
   }
 });

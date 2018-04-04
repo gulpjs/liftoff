@@ -6,9 +6,6 @@ const EE = require('events').EventEmitter;
 const extend = require('extend');
 const resolve = require('resolve');
 const flaggedRespawn = require('flagged-respawn');
-const isPlainObject = require('is-plain-object');
-const mapValues = require('object.map');
-const fined = require('fined');
 
 const findCwd = require('./lib/find_cwd');
 const findConfig = require('./lib/find_config');
@@ -16,9 +13,9 @@ const fileSearch = require('./lib/file_search');
 const parseOptions = require('./lib/parse_options');
 const silentRequire = require('./lib/silent_require');
 const buildConfigName = require('./lib/build_config_name');
-const registerLoader = require('./lib/register_loader');
 const getNodeFlags = require('./lib/get_node_flags');
 const prepareConfig = require('./lib/prepare_config');
+const processConfigFiles = require('./lib/process_config_files');
 
 
 function Liftoff (opts) {
@@ -116,23 +113,8 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }
   }
 
-  var exts = this.extensions;
-  var eventEmitter = this;
-
-  var configFiles = {};
-  if (isPlainObject(this.configFiles)) {
-    var notfound = { path: null };
-    configFiles = mapValues(this.configFiles, function(prop, name) {
-      var defaultObj = { name: name, cwd: cwd, extensions: exts };
-      return mapValues(prop, function(pathObj) {
-        var found = fined(pathObj, defaultObj) || notfound;
-        if (isPlainObject(found.extension)) {
-          registerLoader(eventEmitter, found.extension, found.path, cwd);
-        }
-        return found.path;
-      });
-    });
-  }
+  var defaults = { cwd: cwd, extensions: this.extensions };
+  var configFiles = processConfigFiles(this.configFiles, defaults, this);
 
   return {
     cwd: cwd,
@@ -168,11 +150,6 @@ Liftoff.prototype.launch = function (opts, fn) {
   }
   process.title = this.processTitle;
 
-  var completion = opts.completion;
-  if (completion && this.completions) {
-    return this.completions(completion);
-  }
-
   this.handleFlags(function (err, flags) {
     if (err) {
       throw err;
@@ -180,6 +157,11 @@ Liftoff.prototype.launch = function (opts, fn) {
     flags = flags || [];
 
     var env = this.buildEnvironment(opts);
+
+    var completion = opts.completion;
+    if (completion && this.completions) {
+      return this.completions(completion);
+    }
 
     var forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
     flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));

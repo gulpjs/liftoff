@@ -20,6 +20,7 @@
     "cover": "nyc --reporter=lcov --reporter=text-summary npm test"
   },
   "dependencies": {
+    "array-sort": "^1.0.0",
     "extend": "^3.0.0",
     "findup-sync": "^2.0.0",
     "fined": "^1.0.1",

@@ -584,6 +584,66 @@ describe('Liftoff', function () {
         done();
       });
     });
+
+    it('should execute `onFound` in specified order if found', function(done) {
+      var logs = [];
+      var app = new Liftoff({
+        extensions: { '.md': null, '.txt': null },
+        name: 'myapp',
+        configFiles: {
+          README: {
+            markdown: {
+              path: '.',
+              order: 3,
+              onFound: function(name, path) {
+                logs.push({ name: name, path: path });
+              },
+            },
+            text: {
+              path: 'test/fixtures/configfiles',
+              onFound: function(name, path) {
+                logs.push({ name: name, path: path });
+              },
+            },
+            markdown2: {
+              path: '.',
+              extensions: [ '.json', '.js' ],
+              order: 2,
+              onFound: function(name, path) {
+                logs.push({ name: name, path: path });
+              },
+            },
+            text2: {
+              name: 'index',
+              path: 'test/fixtures/configfiles',
+              order: 1,
+              extensions: [ '.json', '.js' ],
+              onFound: function(name, path) {
+                logs.push({ name: name, path: path });
+              },
+            },
+          },
+        },
+      });
+      app.launch({}, function(env) {
+        expect(env.configFiles).to.deep.equal({
+          README: {
+            markdown: path.resolve('./README.md'),
+            text: path.resolve('./test/fixtures/configfiles/README.txt'),
+            markdown2: null,
+            text2: path.resolve('./test/fixtures/configfiles/index.json'),
+          },
+        });
+        expect(logs).to.deep.equal([
+          { name: 'text2',
+            path: path.resolve('./test/fixtures/configfiles/index.json') },
+          { name: 'markdown', path: path.resolve('./README.md') },
+          { name: 'text',
+            path: path.resolve('./test/fixtures/configfiles/README.txt') },
+        ]);
+        done();
+      });
+    });
   });
 
 });
