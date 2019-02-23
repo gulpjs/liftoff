@@ -37,8 +37,7 @@ describe('registerLoader', function() {
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit only a "require" event when registering loader ' +
-       'failed and succeeds', function(done) {
+    it('Should emit only a "require" event when registering loader failed and succeeds', function(done) {
 
       var loaderPath = path.join(testDir, 'require-conf.js');
       var configPath = path.join(testDir, 'app.conf');
@@ -75,7 +74,7 @@ describe('registerLoader', function() {
           expect(error.message).to.contain('Cannot find module');
           done();
         } else {
-          expect.fail();
+          done(new Error('Should not call more than two times'));
         }
         index ++;
       });
@@ -226,8 +225,7 @@ describe('registerLoader', function() {
       done();
     });
 
-    it('Should do nothing when configPath ends with one of extensions \n\t' +
-       'of which the loader was already registered', function(done) {
+    it('Should do nothing when configPath ends with one of extensions of which the loader was already registered', function(done) {
 
       var loaderPath = path.join(testDir, 'require-cfg.js');
       var configPath = path.join(testDir, 'app.cfg');

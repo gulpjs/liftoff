@@ -14,6 +14,7 @@
         "ecmaVersion": 2018
     },
     "rules": {
-      "no-empty": ["error", { "allowEmptyCatch": true }]
+        "no-empty": ["error", { "allowEmptyCatch": true }],
+        "comma-dangle": ["error", "only-multiline"]
     }
 }
