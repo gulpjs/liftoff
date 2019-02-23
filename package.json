@@ -21,12 +21,12 @@
   },
   "dependencies": {
     "extend": "^3.0.0",
-    "findup-sync": "^2.0.0",
+    "findup-sync": "^3.0.0",
     "fined": "^1.0.1",
     "flagged-respawn": "^1.0.0",
     "is-plain-object": "^2.0.4",
     "object.map": "^1.0.0",
-    "rechoir": "^0.6.2",
+    "rechoir": "^0.7.0",
     "resolve": "^1.1.7"
   },
   "devDependencies": {
@@ -35,7 +35,7 @@
     "jscs": "^3.0.7",
     "jshint": "^2.9.2",
     "mocha": "^3.5.3",
-    "nyc": "^11.2.1",
+    "nyc": "^13.3.0",
     "sinon": "~1.17.4"
   },
   "keywords": [
