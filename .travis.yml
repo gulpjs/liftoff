@@ -1,5 +1,7 @@
 language: node_js
 node_js:
+  - "10"
+  - "8"
   - "6"
   - "5"
   - "4"
@@ -12,4 +14,6 @@ script: if [ $(echo "${TRAVIS_NODE_VERSION}" | cut -d'.' -f1) -ge 4 ]; then
         else
           npm test;
         fi
-
+os:
+  - linux
+  - osx
