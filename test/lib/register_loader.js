@@ -12,7 +12,7 @@ function App() {
 }
 util.inherits(App, EE);
 
-function handlerNotEmit(moduleName, moduleOrError) {
+function handlerNotEmit(/*moduleName, moduleOrError*/) {
   expect.fail(null, null, 'Should not pass this line.');
 }
 
@@ -27,7 +27,7 @@ describe('registerLoader', function() {
       var extensions = { '.cfg': loaderPath };
 
       var app = new App();
-      app.on('require', function(moduleName, module) {
+      app.on('require', function(moduleName /*, module*/) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load app.cfg by require-cfg');
         done();
@@ -45,8 +45,7 @@ describe('registerLoader', function() {
       var extensions = { '.conf': ['xxx', loaderPath] };
 
       var app = new App();
-      app.on('require', function(moduleName, module) {
-        console.log('require', moduleName);
+      app.on('require', function(moduleName /*, module */) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load app.conf by require-conf');
         done();
@@ -76,7 +75,7 @@ describe('registerLoader', function() {
           expect(error.message).to.contain('Cannot find module');
           done();
         } else {
-          fail();
+          expect.fail();
         }
         index ++;
       });
@@ -113,7 +112,7 @@ describe('registerLoader', function() {
       var extensions = { '.rc': loaderPath };
 
       var app = new App();
-      app.on('require', function(moduleName, module) {
+      app.on('require', function(moduleName /*, module*/) {
         expect(moduleName).to.be.equal(loaderPath);
         var loadedFile = path.join(testDir, configPath);
         expect(require(loadedFile)).to.equal('Load app.rc by require-rc');

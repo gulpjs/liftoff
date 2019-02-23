@@ -16,8 +16,9 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "jshint lib index.js && jscs lib index.js && mocha -t 5000 -b -R spec test/index",
-    "cover": "nyc --reporter=lcov --reporter=text-summary npm test"
+    "lint": "eslint .",
+    "test": "jshint lib index.js && mocha -t 5000 -b -R spec test/index",
+    "cover": "eslint . && nyc --reporter=lcov --reporter=text-summary npm test"
   },
   "dependencies": {
     "extend": "^3.0.0",
@@ -32,7 +33,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coffeescript": "^1.10.0",
-    "jscs": "^3.0.7",
+    "eslint": "^5.14.1",
     "jshint": "^2.9.2",
     "mocha": "^3.5.3",
     "nyc": "^13.3.0",
