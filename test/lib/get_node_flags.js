@@ -16,7 +16,7 @@ describe('getNodeFlags', function() {
 
     it('should return the exection result of the first argument when it is a function', function() {
       var env = { cwd: 'aaa' };
-      expect(getNodeFlags.arrayOrFunction(function(env) {
+      expect(getNodeFlags.arrayOrFunction(function() {
         return [];
       }, env)).to.has.members([]);
       expect(getNodeFlags.arrayOrFunction(function(arg) {

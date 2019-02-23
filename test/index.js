@@ -56,7 +56,7 @@ describe('Liftoff', function () {
         expect(moduleName).to.equal('coffee-script/register');
         expect(module).to.equal(require('coffee-script/register'));
       });
-      var env = app.buildEnvironment({
+      app.buildEnvironment({
         configPath: 'test/fixtures/coffee/mochafile.coffee'
       });
     });
