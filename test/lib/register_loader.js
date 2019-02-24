@@ -1,33 +1,30 @@
-const expect = require('chai').expect;
-const registerLoader = require('../../lib/register_loader');
-const path = require('path');
-const util = require('util');
-const EE = require('events').EventEmitter;
+var expect = require('chai').expect;
+var registerLoader = require('../../lib/register_loader');
+var path = require('path');
+var util = require('util');
+var EE = require('events').EventEmitter;
 
-const testDir = path.resolve(__dirname, '../fixtures/register_loader');
-
+var testDir = path.resolve(__dirname, '../fixtures/register_loader');
 
 function App() {
   EE.call(this);
 }
 util.inherits(App, EE);
 
-function handlerNotEmit(/*moduleName, moduleOrError*/) {
+function handlerNotEmit(/* moduleName, moduleOrError */) {
   expect.fail(null, null, 'Should not pass this line.');
 }
 
-
 describe('registerLoader', function() {
   describe('register loader', function() {
-    it('Should emit a "require" event when registering loader succeeds',
-        function(done) {
+    it('Should emit a "require" event when registering loader succeeds', function(done) {
 
       var loaderPath = path.join(testDir, 'require-cfg.js');
       var configPath = path.join(testDir, 'app.cfg');
       var extensions = { '.cfg': loaderPath };
 
       var app = new App();
-      app.on('require', function(moduleName /*, module*/) {
+      app.on('require', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load app.cfg by require-cfg');
         done();
@@ -44,7 +41,7 @@ describe('registerLoader', function() {
       var extensions = { '.conf': ['xxx', loaderPath] };
 
       var app = new App();
-      app.on('require', function(moduleName /*, module */) {
+      app.on('require', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load app.conf by require-conf');
         done();
@@ -54,8 +51,7 @@ describe('registerLoader', function() {
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit a "requireFail" event when loader is not found',
-        function(done) {
+    it('Should emit a "requireFail" event when loader is not found', function(done) {
 
       var loaderPath = path.join(testDir, 'require-tmp.js');
       var configPath = path.join(testDir, 'app.tmp');
@@ -76,15 +72,14 @@ describe('registerLoader', function() {
         } else {
           done(new Error('Should not call more than two times'));
         }
-        index ++;
+        index++;
       });
       app.on('require', handlerNotEmit);
 
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit a "requireFail" event when registering loader failed',
-        function(done) {
+    it('Should emit a "requireFail" event when registering loader failed', function(done) {
       var loaderPath = path.join(testDir, 'require-fail.js');
       var configPath = path.join(testDir, 'app.tmp');
       var extensions = { '.tmp': loaderPath };
@@ -103,15 +98,14 @@ describe('registerLoader', function() {
   });
 
   describe('cwd', function() {
-    it('Should use "cwd" as a base directory of loaded file path if specified',
-        function(done) {
+    it('Should use "cwd" as a base directory of loaded file path if specified', function(done) {
 
       var loaderPath = path.join(testDir, 'require-rc.js');
       var configPath = 'app.rc';
       var extensions = { '.rc': loaderPath };
 
       var app = new App();
-      app.on('require', function(moduleName /*, module*/) {
+      app.on('require', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         var loadedFile = path.join(testDir, configPath);
         expect(require(loadedFile)).to.equal('Load app.rc by require-rc');
@@ -147,13 +141,13 @@ describe('registerLoader', function() {
 
       registerLoader(app, 123, 'aaa/bbb.cfg');
       registerLoader(app, true, 'aaa/bbb.cfg');
-      registerLoader(app, function(){}, 'aaa/bbb.cfg');
+      registerLoader(app, function() {}, 'aaa/bbb.cfg');
       registerLoader(app, ['.rc', '.cfg'], 'aaa/bbb.cfg');
 
       // .js is one of default extensions
       registerLoader(app, 123, 'aaa/bbb.js');
       registerLoader(app, true, 'aaa/bbb.js');
-      registerLoader(app, function(){}, 'aaa/bbb.js');
+      registerLoader(app, function() {}, 'aaa/bbb.js');
       registerLoader(app, ['.js', '.json'], 'aaa/bbb.js');
       done();
     });
@@ -210,9 +204,7 @@ describe('registerLoader', function() {
       done();
     });
 
-    it('Should do nothing when configPath does not end with one of extensions',
-        function(done) {
-
+    it('Should do nothing when configPath does not end with one of extensions', function(done) {
       var loaderPath = path.join(testDir, 'require-rc.js');
       var configPath = path.join(testDir, 'app.xxx');
       var extensions = { '.cfg': loaderPath };
@@ -226,7 +218,6 @@ describe('registerLoader', function() {
     });
 
     it('Should do nothing when configPath ends with one of extensions of which the loader was already registered', function(done) {
-
       var loaderPath = path.join(testDir, 'require-cfg.js');
       var configPath = path.join(testDir, 'app.cfg');
       var extensions = { '.cfg': loaderPath };
