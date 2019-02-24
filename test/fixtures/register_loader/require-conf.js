@@ -1,6 +1,6 @@
 (function() {
 
-const path = require('path');
+var path = require('path');
 
 require.extensions['.conf'] = function(module, filepath) {
   module.loaded = true;

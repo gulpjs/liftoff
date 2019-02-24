@@ -1,6 +1,6 @@
-const Liftoff = require('../../../..');
+var Liftoff = require('../../../..');
 
-const app2 = new Liftoff({
+var app2 = new Liftoff({
   name: 'app2'
 });
 

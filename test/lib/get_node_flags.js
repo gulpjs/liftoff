@@ -1,5 +1,5 @@
-const expect = require('chai').expect;
-const getNodeFlags = require('../../lib/get_node_flags');
+var expect = require('chai').expect;
+var getNodeFlags = require('../../lib/get_node_flags');
 
 describe('getNodeFlags', function() {
 
@@ -7,11 +7,8 @@ describe('getNodeFlags', function() {
     it('should return the first argument when it is an array', function() {
       var env = { cwd: 'aaa' };
       expect(getNodeFlags.arrayOrFunction([], env)).to.has.members([]);
-      expect(getNodeFlags.arrayOrFunction([
-        '--lazy', '--use_strict', '--harmony'
-      ], env)).to.has.members([
-        '--lazy', '--harmony', '--use_strict'
-      ]);
+      expect(getNodeFlags.arrayOrFunction(['--lazy', '--use_strict', '--harmony'], env))
+        .to.has.members(['--lazy', '--harmony', '--use_strict']);
     });
 
     it('should return the exection result of the first argument when it is a function', function() {

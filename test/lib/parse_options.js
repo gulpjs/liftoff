@@ -1,40 +1,40 @@
-const expect = require('chai').expect;
-const parseOptions = require('../../lib/parse_options');
-const NAME = 'mocha';
+var expect = require('chai').expect;
+var parseOptions = require('../../lib/parse_options');
+var NAME = 'mocha';
 
-describe('parseOptions', function () {
+describe('parseOptions', function() {
 
-  it('should auto-set processTitle, moduleName, & configFile if `name` is provided.', function () {
-    const opts = parseOptions({name:NAME});
+  it('should auto-set processTitle, moduleName, & configFile if `name` is provided.', function() {
+    var opts = parseOptions({ name: NAME });
     expect(opts.processTitle).to.equal(NAME);
-    expect(opts.configName).to.equal(NAME+'file');
+    expect(opts.configName).to.equal(NAME + 'file');
     expect(opts.moduleName).to.equal(NAME);
   });
 
-  it('should set a title to be used for the process at launch', function () {
-    const opts = parseOptions({name:NAME});
+  it('should set a title to be used for the process at launch', function() {
+    var opts = parseOptions({ name: NAME });
     expect(opts.processTitle).to.equal(NAME);
-    expect(function () {
+    expect(function() {
       parseOptions();
     }).to.throw('You must specify a processTitle.');
   });
 
-  it('should set the configuration file to look for at launch', function () {
-    const opts = parseOptions({name:NAME});
-    expect(opts.configName).to.equal(NAME+'file');
-    expect(function () {
-      parseOptions({processTitle:NAME});
+  it('should set the configuration file to look for at launch', function() {
+    var opts = parseOptions({ name: NAME });
+    expect(opts.configName).to.equal(NAME + 'file');
+    expect(function() {
+      parseOptions({ processTitle: NAME });
     }).to.throw('You must specify a configName.');
   });
 
-  it('should set a local module to resolve at launch', function () {
-    const opts = parseOptions({name:NAME});
+  it('should set a local module to resolve at launch', function() {
+    var opts = parseOptions({ name: NAME });
     expect(opts.moduleName).to.equal(NAME);
   });
 
   it('should use .processTitle/.configName/.moduleName preferencially',
   function() {
-    const opts = parseOptions({
+    var opts = parseOptions({
       name: 'a',
       processTitle: 'b',
       configName: 'c',

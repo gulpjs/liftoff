@@ -1,6 +1,6 @@
-const Liftoff = require('../..');
+var Liftoff = require('../..');
 
-const Test = new Liftoff({
+var Test = new Liftoff({
   name: 'test',
   v8flags: ['--harmony'],
 });

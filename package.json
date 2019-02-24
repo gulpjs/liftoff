@@ -34,6 +34,7 @@
     "chai": "^3.5.0",
     "coffeescript": "^1.10.0",
     "eslint": "^2.13.1",
+    "eslint-config-gulp": "^3.0.1",
     "mocha": "^3.5.3",
     "nyc": "^13.3.0",
     "sinon": "~1.17.4"
