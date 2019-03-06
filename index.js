@@ -128,7 +128,7 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     });
   }
 
-  return {
+  var env = {
     cwd: cwd,
     require: preload,
     configNameSearch: configNameSearch,
@@ -137,7 +137,13 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     modulePath: modulePath,
     modulePackage: modulePackage || {},
     configFiles: configFiles,
+    // forcedFlags: forcedFlags,
   };
+
+  // TODO: Does the "prepare" phase allow us to get rid of this normalization?
+  env.forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
+
+  return env;
 };
 
 Liftoff.prototype.handleFlags = function(cb) {
@@ -156,15 +162,26 @@ Liftoff.prototype.handleFlags = function(cb) {
   }
 };
 
-Liftoff.prototype.launch = function(opts, fn) {
+Liftoff.prototype.prepare = function(opts, fn) {
   if (typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
+
   process.title = this.processTitle;
 
   var completion = opts.completion;
   if (completion && this.completions) {
     return this.completions(completion);
+  }
+
+  var env = this.buildEnvironment(opts);
+
+  fn(env);
+};
+
+Liftoff.prototype.execute = function(env, fn) {
+  if (typeof fn !== 'function') {
+    throw new Error('You must provide a callback function.');
   }
 
   this.handleFlags(function(err, flags) {
@@ -173,10 +190,7 @@ Liftoff.prototype.launch = function(opts, fn) {
     }
     flags = flags || [];
 
-    var env = this.buildEnvironment(opts);
-
-    var forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
-    flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
+    flaggedRespawn(flags, process.argv, env.forcedFlags, execute.bind(this));
 
     function execute(ready, child, argv) {
       if (child !== process) {
@@ -184,7 +198,6 @@ Liftoff.prototype.launch = function(opts, fn) {
         this.emit('respawn', execArgv, child);
       }
       if (ready) {
-        this.configure(env);
         preloadModules(this, env);
         registerLoader(this, this.extensions, env.configPath, env.cwd);
         fn.call(this, env, argv);
@@ -193,7 +206,16 @@ Liftoff.prototype.launch = function(opts, fn) {
   }.bind(this));
 };
 
-Liftoff.prototype.configure = function(/* env */) {
+Liftoff.prototype.launch = function(opts, fn) {
+  if (typeof fn !== 'function') {
+    throw new Error('You must provide a callback function.');
+  }
+
+  var self = this;
+
+  self.prepare(opts, function(env) {
+    self.execute(env, fn);
+  });
 };
 
 function preloadModules(inst, env) {
