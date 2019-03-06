@@ -1,5 +1,4 @@
 var Liftoff = require('../');
-var fs = require('fs');
 var path = require('path');
 var expect = require('chai').expect;
 var sinon = require('sinon');
@@ -21,15 +20,6 @@ var app = new Liftoff({
 });
 
 describe('Liftoff', function() {
-
-  before(function() {
-    if (!fs.existsSync('test/fixtures/symlink/mochafile.js')) {
-      fs.symlinkSync(
-        '../mochafile.js',
-        'test/fixtures/symlink/mochafile.js'
-      );
-    }
-  });
 
   describe('buildEnvironment', function() {
 
@@ -73,20 +63,6 @@ describe('Liftoff', function() {
 
     it('should set cwd to match the directory of the config file as long as cwd wasn\'t explicitly provided', function() {
       expect(app.buildEnvironment().cwd).to.equal(path.resolve('test/fixtures/search_path'));
-    });
-
-    it('should resolve symlinks if config is one', function() {
-      var env = app.buildEnvironment({
-        cwd: 'test/fixtures/symlink',
-      });
-      expect(env.configPath).to.equal(path.resolve('test/fixtures/mochafile.js'));
-    });
-
-    it('should set configBase to the folder of the symlink if configPath is a symlink', function() {
-      var env = app.buildEnvironment({
-        configPath: 'test/fixtures/symlink/mochafile.js',
-      });
-      expect(env.cwd).to.equal(path.resolve('test/fixtures/symlink'));
     });
 
     describe('for developing against yourself', function() {

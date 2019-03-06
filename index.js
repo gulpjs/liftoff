@@ -82,10 +82,6 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     if (!opts.cwd) {
       cwd = configBase;
     }
-    // resolve symlink if needed
-    if (fs.lstatSync(configPath).isSymbolicLink()) {
-      configPath = fs.realpathSync(configPath);
-    }
   }
 
   // TODO: break this out into lib/
