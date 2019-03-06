@@ -1,4 +1,3 @@
-var fs = require('fs');
 var util = require('util');
 var path = require('path');
 var EE = require('events').EventEmitter;
@@ -18,7 +17,6 @@ var silentRequire = require('./lib/silent_require');
 var buildConfigName = require('./lib/build_config_name');
 var registerLoader = require('./lib/register_loader');
 var getNodeFlags = require('./lib/get_node_flags');
-var prepareConfig = require('./lib/prepare_config');
 
 function Liftoff(opts) {
   EE.call(this);
@@ -186,11 +184,27 @@ Liftoff.prototype.launch = function(opts, fn) {
         this.emit('respawn', execArgv, child);
       }
       if (ready) {
-        prepareConfig(this, env, opts);
+        this.configure(env);
+        preloadModules(this, env);
+        registerLoader(this, this.extensions, env.configPath, env.cwd);
         fn.call(this, env, argv);
       }
     }
   }.bind(this));
 };
+
+Liftoff.prototype.configure = function(/* env */) {
+};
+
+function preloadModules(inst, env) {
+  var basedir = env.cwd;
+  env.require.filter(toUnique).forEach(function(module) {
+    inst.requireLocal(module, basedir);
+  });
+}
+
+function toUnique(elem, index, array) {
+  return array.indexOf(elem) === index;
+}
 
 module.exports = Liftoff;

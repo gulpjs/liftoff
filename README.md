@@ -262,7 +262,7 @@ const MyApp = new Liftoff({
 });
 ```
 
-## launch(opts, callback(env))
+### launch(opts, callback(env))
 Launches your application with provided options, builds an environment, and invokes your callback, passing the calculated environment as the first argument.
 
 ##### Example Configuration w/ Options Parsing:
@@ -390,6 +390,28 @@ A function to start your application.  When invoked, `this` will be your instanc
 - `modulePath`: the full path to the local module your project relies on (if found)
 - `modulePackage`: the contents of the local module's package.json (if found)
 - `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
+
+### configure(env)
+
+This method gives your application a chance to change the `env` params before loading modules by `opts.require` and `env.configPath`.
+
+```js
+Hacker.configure = function(env) {
+  env.configProps = ['home', 'cwd'].map(function(dirname) {
+    return env.configFiles['.hacker'][dirname]
+  }).filter(function(filePath) {
+    return Boolean(filePath);
+  }).reduce(function(config, filePath) {
+    return mergeDeep(config, require(filePath));
+  }, {});
+
+  if (env.configProps.hackerfile) {
+    env.configPath = path.resolve(env.configProps.hackerfile);
+    env.configBase = path.dirname(env.configPath);
+  }
+};
+```
+
 
 ### events
 
