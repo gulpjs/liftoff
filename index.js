@@ -176,7 +176,7 @@ Liftoff.prototype.prepare = function(opts, fn) {
 
   var env = this.buildEnvironment(opts);
 
-  fn(env);
+  fn.call(this, env);
 };
 
 Liftoff.prototype.execute = function(env, fn) {
