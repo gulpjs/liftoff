@@ -262,25 +262,57 @@ const MyApp = new Liftoff({
 });
 ```
 
-### launch(opts, callback(env))
-Launches your application with provided options, builds an environment, and invokes your callback, passing the calculated environment as the first argument.
+### prepare(opts, callback(env))
 
-##### Example Configuration w/ Options Parsing:
+Prepares the environment for your application with provided options, and invokes your callback with the calculated environment as the first argument.  The environment can be modified before using it as the first argument to `execute`.
+
+**Example Configuration w/ Options Parsing:**
+
 ```js
 const Liftoff = require('liftoff');
 const MyApp = new Liftoff({name:'myapp'});
 const argv = require('minimist')(process.argv.slice(2));
-const invoke = function (env) {
-  console.log('my environment is:', env);
-  console.log('my cli options are:', argv);
-  console.log('my liftoff config is:', this);
+const onExecute = function (env, argv) {
+  // Do post-execute things
 };
-MyApp.launch({
+const onPrepare = function (env) {
+  console.log('my environment is:', env);
+  console.log('my liftoff config is:', this);
+  MyApp.execute(env, onExecute);
+};
+MyApp.prepare({
   cwd: argv.cwd,
   configPath: argv.myappfile,
   require: argv.require,
   completion: argv.completion
-}, invoke);
+}, onPrepare);
+```
+
+**Example w/ modified environment**
+
+```js
+const Liftoff = require('liftoff');
+const MyApp = new Liftoff({name:'myapp'});
+const onExecute = function (env, argv) {
+  // Do post-execute things
+};
+const onPrepare = function (env) {
+   env.configProps = ['home', 'cwd'].map(function(dirname) {
+    return env.configFiles['.hacker'][dirname]
+  }).filter(function(filePath) {
+    return Boolean(filePath);
+  }).reduce(function(config, filePath) {
+    return mergeDeep(config, require(filePath));
+  }, {});
+
+  if (env.configProps.hackerfile) {
+    env.configPath = path.resolve(env.configProps.hackerfile);
+    env.configBase = path.dirname(env.configPath);
+  }
+
+  MyApp.execute(env, onExecute);
+};
+MyApp.prepare({}, onPrepare);
 ```
 
 #### opts.cwd
@@ -380,7 +412,7 @@ myapp --trace-deprecation
 
 #### callback(env)
 
-A function to start your application.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
+A function called after your environment is prepared.  A good place to modify the environment before calling `execute`.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
 
 - `cwd`: the current working directory
 - `require`: an array of modules that liftoff tried to pre-load
@@ -390,28 +422,48 @@ A function to start your application.  When invoked, `this` will be your instanc
 - `modulePath`: the full path to the local module your project relies on (if found)
 - `modulePackage`: the contents of the local module's package.json (if found)
 - `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
+- `forcedFlags`: an array of forced flags for the application
 
-### configure(env)
+### execute(env, callback(env, argv))
 
-This method gives your application a chance to change the `env` params before loading modules by `opts.require` and `env.configPath`.
+A function to start your application, based on the `env` given.  Invokes your callback with the environment and arguments after the application has been executed.
+
+**Example:**
 
 ```js
-Hacker.configure = function(env) {
-  env.configProps = ['home', 'cwd'].map(function(dirname) {
-    return env.configFiles['.hacker'][dirname]
-  }).filter(function(filePath) {
-    return Boolean(filePath);
-  }).reduce(function(config, filePath) {
-    return mergeDeep(config, require(filePath));
-  }, {});
-
-  if (env.configProps.hackerfile) {
-    env.configPath = path.resolve(env.configProps.hackerfile);
-    env.configBase = path.dirname(env.configPath);
-  }
+const Liftoff = require('liftoff');
+const MyApp = new Liftoff({name:'myapp'});
+const onExecute = function (env, argv) {
+  // Do post-execute things
+  console.log('my environment is:', env);
+  console.log('my cli options are:', argv);
+  console.log('my liftoff config is:', this);
 };
+const onPrepare = function (env) {
+  MyApp.execute(env, onExecute);
+};
+MyApp.prepare({}, onPrepare);
 ```
 
+#### callback(env, argv)
+
+A function called after your application is executed.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
+
+- `cwd`: the current working directory
+- `require`: an array of modules that liftoff tried to pre-load
+- `configNameSearch`: the config files searched for
+- `configPath`: the full path to your configuration file (if found)
+- `configBase`: the base directory of your configuration file (if found)
+- `modulePath`: the full path to the local module your project relies on (if found)
+- `modulePackage`: the contents of the local module's package.json (if found)
+- `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
+- `forcedFlags`: an array of forced flags for the application
+
+### launch(opts, callback(env))
+
+**Deprecated:** Please use `prepare` followed by `execute`. That's all this module does internally but those give you more control.
+
+Launches your application with provided options, builds an environment, and invokes your callback, passing the calculated environment as the first argument. Accepts any options that `prepare` allows.
 
 ### events
 
