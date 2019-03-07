@@ -21,7 +21,7 @@
     "cover": "nyc --reporter=lcov --reporter=text-summary npm test"
   },
   "dependencies": {
-    "extend": "^3.0.0",
+    "extend": "~3.0.2",
     "findup-sync": "^3.0.0",
     "fined": "^1.0.1",
     "flagged-respawn": "^1.0.0",
