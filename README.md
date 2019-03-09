@@ -433,7 +433,7 @@ MyApp.prepare({}, onPrepare);
 
 #### callback(env, argv)
 
-A function called after your application is executed.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
+A function called after your application is executed.  When invoked, `this` will be your instance of Liftoff, `argv` will be all command-line arguments (minus node & v8 flags), and `env` will contain the following keys:
 
 - `cwd`: the current working directory
 - `require`: an array of modules that liftoff tried to pre-load
