@@ -292,7 +292,14 @@ MyApp.prepare({
 
 ```js
 const Liftoff = require('liftoff');
-const MyApp = new Liftoff({name:'myapp'});
+const Hacker = new Liftoff({
+  name: 'hacker',
+  configFiles: {
+    '.hacker': {
+      home: { home: { path: '.', cwd: '~' } }
+    }
+  }
+});
 const onExecute = function (env, argv) {
   // Do post-execute things
 };
@@ -310,9 +317,9 @@ const onPrepare = function (env) {
     env.configBase = path.dirname(env.configPath);
   }
 
-  MyApp.execute(env, onExecute);
+  Hacker.execute(env, onExecute);
 };
-MyApp.prepare({}, onPrepare);
+Hacker.prepare({}, onPrepare);
 ```
 
 #### opts.cwd
@@ -389,7 +396,65 @@ MyApp.launch({
 myapp --require coffee-script/register
 ```
 
+#### callback(env)
+
+A function called after your environment is prepared.  A good place to modify the environment before calling `execute`.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
+
+- `cwd`: the current working directory
+- `require`: an array of modules that liftoff tried to pre-load
+- `configNameSearch`: the config files searched for
+- `configPath`: the full path to your configuration file (if found)
+- `configBase`: the base directory of your configuration file (if found)
+- `modulePath`: the full path to the local module your project relies on (if found)
+- `modulePackage`: the contents of the local module's package.json (if found)
+- `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
+
+### execute(env, [forcedFlags], callback(env, argv))
+
+A function to start your application, based on the `env` given.  Optionally takes an array of `forcedFlags`, which will force a respawn with those node or V8 flags during startup.  Invokes your callback with the environment and command-line arguments (minus node & v8 flags) after the application has been executed.
+
+**Example:**
+
+```js
+const Liftoff = require('liftoff');
+const MyApp = new Liftoff({name:'myapp'});
+const onExecute = function (env, argv) {
+  // Do post-execute things
+  console.log('my environment is:', env);
+  console.log('my cli options are:', argv);
+  console.log('my liftoff config is:', this);
+};
+const onPrepare = function (env) {
+  var forcedFlags = ['--trace-deprecation'];
+  MyApp.execute(env, forcedFlags, onExecute);
+};
+MyApp.prepare({}, onPrepare);
+```
+
+#### callback(env, argv)
+
+A function called after your application is executed.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
+
+- `cwd`: the current working directory
+- `require`: an array of modules that liftoff tried to pre-load
+- `configNameSearch`: the config files searched for
+- `configPath`: the full path to your configuration file (if found)
+- `configBase`: the base directory of your configuration file (if found)
+- `modulePath`: the full path to the local module your project relies on (if found)
+- `modulePackage`: the contents of the local module's package.json (if found)
+- `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
+
+### launch(opts, callback(env, argv))
+
+**Deprecated:** Please use `prepare` followed by `execute`. That's all this module does internally but those give you more control.
+
+Launches your application with provided options, builds an environment, and invokes your callback, passing the calculated environment and command-line arguments (minus node & v8 flags) as the arguments.
+
+Accepts any options that `prepare` allows, plus `opt.forcedFlags`.
+
 #### opts.forcedFlags
+
+**Deprecated:** If using `prepare`/`execute`, pass forcedFlags as the 2nd argument instead of using this option.
 
 Allows you to force node or V8 flags during the launch. This is useful if you need to make sure certain flags will always be enabled or if you need to enable flags that don't show up in `opts.v8flags` (as these flags aren't validated against `opts.v8flags`).
 
@@ -409,61 +474,6 @@ MyApp.launch({
 ```js
 myapp --trace-deprecation
 ```
-
-#### callback(env)
-
-A function called after your environment is prepared.  A good place to modify the environment before calling `execute`.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
-
-- `cwd`: the current working directory
-- `require`: an array of modules that liftoff tried to pre-load
-- `configNameSearch`: the config files searched for
-- `configPath`: the full path to your configuration file (if found)
-- `configBase`: the base directory of your configuration file (if found)
-- `modulePath`: the full path to the local module your project relies on (if found)
-- `modulePackage`: the contents of the local module's package.json (if found)
-- `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
-- `forcedFlags`: an array of forced flags for the application
-
-### execute(env, callback(env, argv))
-
-A function to start your application, based on the `env` given.  Invokes your callback with the environment and arguments after the application has been executed.
-
-**Example:**
-
-```js
-const Liftoff = require('liftoff');
-const MyApp = new Liftoff({name:'myapp'});
-const onExecute = function (env, argv) {
-  // Do post-execute things
-  console.log('my environment is:', env);
-  console.log('my cli options are:', argv);
-  console.log('my liftoff config is:', this);
-};
-const onPrepare = function (env) {
-  MyApp.execute(env, onExecute);
-};
-MyApp.prepare({}, onPrepare);
-```
-
-#### callback(env, argv)
-
-A function called after your application is executed.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
-
-- `cwd`: the current working directory
-- `require`: an array of modules that liftoff tried to pre-load
-- `configNameSearch`: the config files searched for
-- `configPath`: the full path to your configuration file (if found)
-- `configBase`: the base directory of your configuration file (if found)
-- `modulePath`: the full path to the local module your project relies on (if found)
-- `modulePackage`: the contents of the local module's package.json (if found)
-- `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
-- `forcedFlags`: an array of forced flags for the application
-
-### launch(opts, callback(env))
-
-**Deprecated:** Please use `prepare` followed by `execute`. That's all this module does internally but those give you more control.
-
-Launches your application with provided options, builds an environment, and invokes your callback, passing the calculated environment as the first argument. Accepts any options that `prepare` allows.
 
 ### events
 

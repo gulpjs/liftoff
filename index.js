@@ -128,7 +128,7 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     });
   }
 
-  var env = {
+  return {
     cwd: cwd,
     require: preload,
     configNameSearch: configNameSearch,
@@ -137,13 +137,7 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     modulePath: modulePath,
     modulePackage: modulePackage || {},
     configFiles: configFiles,
-    // forcedFlags: forcedFlags,
   };
-
-  // TODO: Does the "prepare" phase allow us to get rid of this normalization?
-  env.forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
-
-  return env;
 };
 
 Liftoff.prototype.handleFlags = function(cb) {
@@ -179,7 +173,11 @@ Liftoff.prototype.prepare = function(opts, fn) {
   fn.call(this, env);
 };
 
-Liftoff.prototype.execute = function(env, fn) {
+Liftoff.prototype.execute = function(env, forcedFlags, fn) {
+  if (typeof forcedFlags === 'function') {
+    fn = forcedFlags;
+    forcedFlags = undefined;
+  }
   if (typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
@@ -190,7 +188,7 @@ Liftoff.prototype.execute = function(env, fn) {
     }
     flags = flags || [];
 
-    flaggedRespawn(flags, process.argv, env.forcedFlags, execute.bind(this));
+    flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
 
     function execute(ready, child, argv) {
       if (child !== process) {
@@ -214,7 +212,8 @@ Liftoff.prototype.launch = function(opts, fn) {
   var self = this;
 
   self.prepare(opts, function(env) {
-    self.execute(env, fn);
+    var forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
+    self.execute(env, forcedFlags, fn);
   });
 };
 

@@ -208,7 +208,7 @@ describe('Liftoff', function() {
       });
     });
 
-    it('should respawn if v8flag is set by opts.forcedFlags', function(done) {
+    it('should respawn if v8flag is set by forcedFlags', function(done) {
       exec('node test/fixtures/prepare-execute/v8flags_config.js 123', cb);
 
       function cb(err, stdout, stderr) {
@@ -222,7 +222,7 @@ describe('Liftoff', function() {
       }
     });
 
-    it('should respawn if v8flag is set by both cli flag and opts.forcedFlags', function(done) {
+    it('should respawn if v8flag is set by both cli flag and forcedFlags', function(done) {
       exec('node test/fixtures/prepare-execute/v8flags_config.js 123 --harmony abc', cb);
 
       function cb(err, stdout, stderr) {
