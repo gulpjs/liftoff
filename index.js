@@ -1,4 +1,3 @@
-var fs = require('fs');
 var util = require('util');
 var path = require('path');
 var EE = require('events').EventEmitter;
@@ -18,7 +17,6 @@ var silentRequire = require('./lib/silent_require');
 var buildConfigName = require('./lib/build_config_name');
 var registerLoader = require('./lib/register_loader');
 var getNodeFlags = require('./lib/get_node_flags');
-var prepareConfig = require('./lib/prepare_config');
 
 function Liftoff(opts) {
   EE.call(this);
@@ -81,10 +79,6 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     // if cwd wasn't provided explicitly, it should match configBase
     if (!opts.cwd) {
       cwd = configBase;
-    }
-    // resolve symlink if needed
-    if (fs.lstatSync(configPath).isSymbolicLink()) {
-      configPath = fs.realpathSync(configPath);
     }
   }
 
@@ -162,15 +156,30 @@ Liftoff.prototype.handleFlags = function(cb) {
   }
 };
 
-Liftoff.prototype.launch = function(opts, fn) {
+Liftoff.prototype.prepare = function(opts, fn) {
   if (typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
+
   process.title = this.processTitle;
 
   var completion = opts.completion;
   if (completion && this.completions) {
     return this.completions(completion);
+  }
+
+  var env = this.buildEnvironment(opts);
+
+  fn.call(this, env);
+};
+
+Liftoff.prototype.execute = function(env, forcedFlags, fn) {
+  if (typeof forcedFlags === 'function') {
+    fn = forcedFlags;
+    forcedFlags = undefined;
+  }
+  if (typeof fn !== 'function') {
+    throw new Error('You must provide a callback function.');
   }
 
   this.handleFlags(function(err, flags) {
@@ -179,9 +188,6 @@ Liftoff.prototype.launch = function(opts, fn) {
     }
     flags = flags || [];
 
-    var env = this.buildEnvironment(opts);
-
-    var forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
     flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
 
     function execute(ready, child, argv) {
@@ -190,11 +196,36 @@ Liftoff.prototype.launch = function(opts, fn) {
         this.emit('respawn', execArgv, child);
       }
       if (ready) {
-        prepareConfig(this, env, opts);
+        preloadModules(this, env);
+        registerLoader(this, this.extensions, env.configPath, env.cwd);
         fn.call(this, env, argv);
       }
     }
   }.bind(this));
 };
+
+Liftoff.prototype.launch = function(opts, fn) {
+  if (typeof fn !== 'function') {
+    throw new Error('You must provide a callback function.');
+  }
+
+  var self = this;
+
+  self.prepare(opts, function(env) {
+    var forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
+    self.execute(env, forcedFlags, fn);
+  });
+};
+
+function preloadModules(inst, env) {
+  var basedir = env.cwd;
+  env.require.filter(toUnique).forEach(function(module) {
+    inst.requireLocal(module, basedir);
+  });
+}
+
+function toUnique(elem, index, array) {
+  return array.indexOf(elem) === index;
+}
 
 module.exports = Liftoff;
