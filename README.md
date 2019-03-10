@@ -296,7 +296,7 @@ const Hacker = new Liftoff({
   name: 'hacker',
   configFiles: {
     '.hacker': {
-      home: { home: { path: '.', cwd: '~' } }
+      home: { path: '.', cwd: '~' }
     }
   }
 });
