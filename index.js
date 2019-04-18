@@ -16,6 +16,7 @@ var buildConfigName = require('./lib/build_config_name');
 var registerLoader = require('./lib/register_loader');
 var getNodeFlags = require('./lib/get_node_flags');
 var findModule = require('./lib/find_module');
+var preloadModules = require('./lib/preload_modules');
 
 function Liftoff(opts) {
   EE.call(this);
@@ -170,22 +171,10 @@ Liftoff.prototype.execute = function(env, forcedFlags, fn) {
       }
       if (ready) {
         preloadModules(this, env);
-        registerLoader(this, this.extensions, env.configPath, env.cwd);
         fn.call(this, env, argv);
       }
     }
   }.bind(this));
 };
-
-function preloadModules(inst, env) {
-  var basedir = env.cwd;
-  env.require.filter(toUnique).forEach(function(module) {
-    inst.requireLocal(module, basedir);
-  });
-}
-
-function toUnique(elem, index, array) {
-  return array.indexOf(elem) === index;
-}
 
 module.exports = Liftoff;
