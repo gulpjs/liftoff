@@ -5,16 +5,14 @@ var EE = require('events').EventEmitter;
 var extend = require('extend');
 var resolve = require('resolve');
 var flaggedRespawn = require('flagged-respawn');
-var isPlainObject = require('is-plain-object');
-var mapValues = require('object.map');
-var fined = require('fined');
 
 var findCwd = require('./lib/find_cwd');
 var findConfig = require('./lib/find_config');
 var parseOptions = require('./lib/parse_options');
 var buildConfigName = require('./lib/build_config_name');
-var registerLoader = require('./lib/register_loader');
 var getNodeFlags = require('./lib/get_node_flags');
+
+var findConfigFiles = require('./lib/find_config_files');
 var findModule = require('./lib/find_module');
 var preloadModules = require('./lib/preload_modules');
 
@@ -83,24 +81,7 @@ Liftoff.prototype.buildEnvironment = function(opts) {
   }
 
   var mod = findModule(this.moduleName, configBase, cwd);
-
-  var exts = this.extensions;
-  var eventEmitter = this;
-
-  var configFiles = {};
-  if (isPlainObject(this.configFiles)) {
-    var notfound = { path: null };
-    configFiles = mapValues(this.configFiles, function(prop, name) {
-      var defaultObj = { name: name, cwd: cwd, extensions: exts };
-      return mapValues(prop, function(pathObj) {
-        var found = fined(pathObj, defaultObj) || notfound;
-        if (isPlainObject(found.extension)) {
-          registerLoader(eventEmitter, found.extension, found.path, cwd);
-        }
-        return found.path;
-      });
-    });
-  }
+  var configFiles = findConfigFiles(this.configFiles, cwd, this.extensions, this);
 
   return {
     cwd: cwd,
