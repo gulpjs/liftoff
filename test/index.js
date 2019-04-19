@@ -584,9 +584,8 @@ describe('Liftoff', function() {
 
 require('./lib/build_config_name');
 require('./lib/file_search');
-require('./lib/find_config');
-require('./lib/find_cwd');
 require('./lib/parse_options');
 require('./lib/silent_require');
 require('./lib/register_loader');
 require('./lib/get_node_flags');
+require('./lib/change_env_paths');

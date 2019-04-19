@@ -1,17 +1,17 @@
+'use strict';
+
 var util = require('util');
-var path = require('path');
 var EE = require('events').EventEmitter;
 
 var extend = require('extend');
 var resolve = require('resolve');
 var flaggedRespawn = require('flagged-respawn');
 
-var findCwd = require('./lib/find_cwd');
-var findConfig = require('./lib/find_config');
 var parseOptions = require('./lib/parse_options');
 var buildConfigName = require('./lib/build_config_name');
 var getNodeFlags = require('./lib/get_node_flags');
 
+var changeEnvPaths = require('./lib/change_env_paths');
 var findConfigFiles = require('./lib/find_config_files');
 var findModule = require('./lib/find_module');
 var preloadModules = require('./lib/preload_modules');
@@ -43,52 +43,22 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     preload = [preload];
   }
 
-  // make a copy of search paths that can be mutated for this run
-  var searchPaths = this.searchPaths.slice();
-
-  // calculate current cwd
-  var cwd = findCwd(opts);
-
-  // if cwd was provided explicitly, only use it for searching config
-  if (opts.cwd) {
-    searchPaths = [cwd];
-  } else {
-    // otherwise just search in cwd first
-    searchPaths.unshift(cwd);
-  }
-
   // calculate the regex to use for finding the config file
   var configNameSearch = buildConfigName({
     configName: this.configName,
     extensions: Object.keys(this.extensions),
   });
 
-  // calculate configPath
-  var configPath = findConfig({
-    configNameSearch: configNameSearch,
-    searchPaths: searchPaths,
-    configPath: opts.configPath,
-  });
-
-  // if we have a config path, save the directory it resides in.
-  var configBase;
-  if (configPath) {
-    configBase = path.dirname(configPath);
-    // if cwd wasn't provided explicitly, it should match configBase
-    if (!opts.cwd) {
-      cwd = configBase;
-    }
-  }
-
-  var mod = findModule(this.moduleName, configBase, cwd);
-  var configFiles = findConfigFiles(this.configFiles, cwd, this.extensions, this);
+  var env = changeEnvPaths(opts, configNameSearch, this.searchPaths);
+  var mod = findModule(this.moduleName, env.configBase, env.cwd);
+  var configFiles = findConfigFiles(this.configFiles, env.cwd, this.extensions, this);
 
   return {
-    cwd: cwd,
+    cwd: env.cwd,
     require: preload,
-    configNameSearch: configNameSearch,
-    configPath: configPath,
-    configBase: configBase,
+    configNameSearch: env.configNameSearch,
+    configPath: env.configPath,
+    configBase: env.configBase,
     modulePath: mod.modulePath,
     modulePackage: mod.modulePackage,
     configFiles: configFiles,
