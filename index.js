@@ -6,6 +6,7 @@ var EE = require('events').EventEmitter;
 var extend = require('extend');
 var resolve = require('resolve');
 var flaggedRespawn = require('flagged-respawn');
+var assign = require('object-assign');
 
 var parseOptions = require('./lib/parse_options');
 var buildConfigName = require('./lib/build_config_name');
@@ -32,39 +33,6 @@ Liftoff.prototype.requireLocal = function(module, basedir) {
   }
 };
 
-Liftoff.prototype.buildEnvironment = function(opts) {
-  opts = opts || {};
-
-  // get modules we want to preload
-  var preload = opts.require || [];
-
-  // ensure items to preload is an array
-  if (!Array.isArray(preload)) {
-    preload = [preload];
-  }
-
-  // calculate the regex to use for finding the config file
-  var configNameSearch = buildConfigName({
-    configName: this.configName,
-    extensions: Object.keys(this.extensions),
-  });
-
-  var env = changeEnvPaths(opts, configNameSearch, this.searchPaths);
-  var mod = findModule(this.moduleName, env.configBase, env.cwd);
-  var configFiles = findConfigFiles(this.configFiles, env.cwd, this.extensions, this);
-
-  return {
-    cwd: env.cwd,
-    require: preload,
-    configNameSearch: env.configNameSearch,
-    configPath: env.configPath,
-    configBase: env.configBase,
-    modulePath: mod.modulePath,
-    modulePackage: mod.modulePackage,
-    configFiles: configFiles,
-  };
-};
-
 Liftoff.prototype.handleFlags = function(cb) {
   if (typeof this.v8flags === 'function') {
     this.v8flags(function(err, flags) {
@@ -88,12 +56,26 @@ Liftoff.prototype.prepare = function(opts, fn) {
 
   process.title = this.processTitle;
 
+  opts = opts || {};
+
   var completion = opts.completion;
   if (completion && this.completions) {
     return this.completions(completion);
   }
 
-  var env = this.buildEnvironment(opts);
+  // calculate the regex to use for finding the config file
+  var configNameSearch = buildConfigName({
+    configName: this.configName,
+    extensions: Object.keys(this.extensions),
+  });
+
+  var env = {
+    require: [].concat(opts.require || []),
+  };
+
+  assign(env, changeEnvPaths(opts, configNameSearch, this.searchPaths));
+  env.configFiles = findConfigFiles(this.configFiles, env.cwd, this.extensions, this);
+  assign(env, findModule(this.moduleName, env.configBase, env.cwd));
 
   fn.call(this, env);
 };
