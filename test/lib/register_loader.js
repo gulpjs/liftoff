@@ -231,5 +231,88 @@ describe('registerLoader', function() {
     });
   });
 
+  describe('Multiple extensions', function() {
+    it('should detect the shortest extension in extension candidates', function(done) {
+      var loaderPath = path.join(testDir, 'require-file-b.js');
+      var configPath = path.join(testDir, 'file.a.b');
+      var extensions = { '.b': loaderPath };
+
+      var app = new App();
+      app.on('requireFail', handlerNotEmit);
+      app.on('require', function(moduleName /* , module */) {
+        expect(moduleName).to.be.equal(loaderPath);
+        expect(require(configPath)).to.equal('Load file.a.b by require-file-b');
+        done();
+      });
+
+      registerLoader(app, extensions, configPath);
+    });
+
+    it('should detect not shortest extension in extension candidates', function(done) {
+      var loaderPath = path.join(testDir, 'require-file-bc.js');
+      var configPath = path.join(testDir, 'file.a.b.c');
+      var extensions = { '.b.c': loaderPath };
+
+      var app = new App();
+      app.on('requireFail', handlerNotEmit);
+      app.on('require', function(moduleName /* , module */) {
+        expect(moduleName).to.be.equal(loaderPath);
+        expect(require(configPath)).to.equal('Load file.a.b.c by require-file-bc');
+        done();
+      });
+
+      registerLoader(app, extensions, configPath);
+    });
+
+    it('Should update a loader of a longer extension but not update a loader of a shorter extension', function(done) {
+      var loaderPathD = path.join(testDir, 'require-file-d.js');
+      var loaderPathCD = path.join(testDir, 'require-file-cd.js');
+      var loaderPathECD = path.join(testDir, 'require-file-ecd.js');
+      var loaderPathFCD = path.join(testDir, 'require-file-fcd.js');
+
+      var configPathD = path.join(testDir, 'file.a.b.d');
+      var configPathCD = path.join(testDir, 'file.a.b.c.d');
+      var configPathECD = path.join(testDir, 'file.a.e.c.d');
+      var configPathFCD = path.join(testDir, 'file.a.f.c.d');
+
+      var extensions = {
+        '.d': loaderPathD,
+        '.c.d': loaderPathCD,
+        '.e.c.d': loaderPathECD,
+        '.f.c.d': loaderPathFCD,
+      };
+
+      var count = 0;
+      var app = new App();
+      app.on('requireFail', handlerNotEmit);
+      app.on('require', function(moduleName /* , module */) {
+        switch (count) {
+          case 0: {
+            expect(moduleName).to.be.equal(loaderPathCD);
+            expect(require(configPathCD)).to.equal('Load file.a.b.c.d by require-file-cd');
+            break;
+          }
+          case 1: {
+            expect(moduleName).to.be.equal(loaderPathECD);
+            expect(require(configPathECD)).to.equal('Load file.a.e.c.d by require-file-ecd');
+            break;
+          }
+          case 2: {
+            expect(moduleName).to.be.equal(loaderPathFCD);
+            expect(require(configPathFCD)).to.equal('Load file.a.f.c.d by require-file-fcd');
+            done();
+            break;
+          }
+        }
+        count++;
+      });
+
+      registerLoader(app, extensions, configPathCD);
+      registerLoader(app, extensions, configPathECD);
+      registerLoader(app, extensions, configPathD); // Don't register loader.
+      registerLoader(app, extensions, configPathFCD);
+    });
+  });
+
 });
 
