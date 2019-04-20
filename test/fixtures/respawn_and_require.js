@@ -13,9 +13,11 @@ Test.on('require', function(name) {
   console.log('require', name);
 });
 
-Test.launch({
+Test.prepare({
   require: 'coffeescript/register',
-  forcedFlags: ['--lazy'],
-}, function(env, argv) {
-  console.log('execute');
+}, function(env) {
+  var forcedFlags = ['--lazy'];
+  Test.execute(env, forcedFlags, function() {
+    console.log('execute');
+  });
 });
