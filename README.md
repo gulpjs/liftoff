@@ -444,37 +444,6 @@ A function called after your application is executed.  When invoked, `this` will
 - `modulePackage`: the contents of the local module's package.json (if found)
 - `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
 
-### launch(opts, callback(env, argv))
-
-**Deprecated:** Please use `prepare` followed by `execute`. That's all this module does internally but those give you more control.
-
-Launches your application with provided options, builds an environment, and invokes your callback, passing the calculated environment and command-line arguments (minus node & v8 flags) as the arguments.
-
-Accepts any options that `prepare` allows, plus `opt.forcedFlags`.
-
-#### opts.forcedFlags
-
-**Deprecated:** If using `prepare`/`execute`, pass forcedFlags as the 2nd argument instead of using this option.
-
-Allows you to force node or V8 flags during the launch. This is useful if you need to make sure certain flags will always be enabled or if you need to enable flags that don't show up in `opts.v8flags` (as these flags aren't validated against `opts.v8flags`).
-
-If this is specified as a function, it will receive the built `env` as its only argument and must return a string or array of flags to force.
-
-Type: `String|Array|Function`  
-Default: `null`
-
-**Example Configuration:**
-```js
-MyApp.launch({
-  forcedFlags: ['--trace-deprecation']
-}, invoke);
-```
-
-**Matching CLI Invocation:**
-```js
-myapp --trace-deprecation
-```
-
 ### events
 
 #### require(name, module)

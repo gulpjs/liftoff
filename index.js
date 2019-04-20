@@ -204,19 +204,6 @@ Liftoff.prototype.execute = function(env, forcedFlags, fn) {
   }.bind(this));
 };
 
-Liftoff.prototype.launch = function(opts, fn) {
-  if (typeof fn !== 'function') {
-    throw new Error('You must provide a callback function.');
-  }
-
-  var self = this;
-
-  self.prepare(opts, function(env) {
-    var forcedFlags = getNodeFlags.arrayOrFunction(opts.forcedFlags, env);
-    self.execute(env, forcedFlags, fn);
-  });
-};
-
 function preloadModules(inst, env) {
   var basedir = env.cwd;
   env.require.filter(toUnique).forEach(function(module) {
