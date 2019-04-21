@@ -52,6 +52,87 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   // calculate current cwd
   var cwd = findCwd(opts);
 
+  var exts = this.extensions;
+  var eventEmitter = this;
+
+  var visited = {};
+
+  function getModulePath(cwd, xtends) {
+    if (typeof xtends === 'string') {
+      xtends = { path: xtends };
+    }
+
+    // TODO: is-relative
+    if (xtends.path[0] === '.') {
+      var defaultObj = { cwd: cwd, extensions: exts };
+      // Using `xtends` like this should allow people to use a string or any object that fined accepts
+      var found = fined(xtends, defaultObj);
+      if (!found) {
+        // TODO: Should this actually error on not found?
+        throw new Error('Unable to find extends file: ' + xtends.path);
+      }
+      if (isPlainObject(found.extension)) {
+        registerLoader(eventEmitter, found.extension, found.path, cwd);
+      }
+      return found.path;
+    }
+
+    return xtends.path;
+  }
+
+  function loadConfig(cwd, xtends, prev) {
+    var configFilePath = getModulePath(cwd, xtends);
+    if (visited[configFilePath]) {
+      // TODO: should this error on recursive or just exit with the current result??
+      throw new Error('We encountered a recursive extend for file: ' + configFilePath + '. Please remove the recursive extends.');
+    }
+    // TODO: should this error if the module could not be required?
+    var configFile = silentRequire(configFilePath);
+    visited[configFilePath] = true;
+    if (configFile && configFile.extends) {
+      return loadConfig(path.dirname(configFilePath), configFile.extends, configFile);
+    }
+    return extend(true /* deep */, prev, configFile || {});
+  }
+
+  var configFiles = {};
+  var config = {};
+  if (isPlainObject(this.configFiles)) {
+    configFiles = mapValues(this.configFiles, function (searchPaths, name /* key */) {
+      var defaultObj = { name: name, cwd: cwd, extensions: exts };
+      var found = searchPaths.reduce(function (result, pathObj) {
+        // Short circuit once found.
+        // TODO: `find` utility?
+        if (result) {
+          return result;
+        }
+
+        return fined(pathObj, defaultObj);
+      }, undefined);
+
+      if (!found) {
+        // TODO: what here?
+        return;
+      }
+      if (isPlainObject(found.extension)) {
+        registerLoader(eventEmitter, found.extension, found.path, cwd);
+      }
+      return found.path;
+    });
+
+    config = mapValues(configFiles, function (startingLocation) {
+      var defaultConfig = {};
+      if (!startingLocation) {
+        return defaultConfig;
+      }
+
+      var config = loadConfig(cwd, startingLocation, defaultConfig);
+      // TODO: better filter?
+      delete config.extends;
+      return config;
+    });
+  }
+
   // if cwd was provided explicitly, only use it for searching config
   if (opts.cwd) {
     searchPaths = [cwd];
@@ -95,7 +176,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       paths: paths,
     });
     modulePackage = silentRequire(fileSearch('package.json', [modulePath]));
-  } catch (e) {}
+  } catch (e) { }
 
   // if we have a configuration but we failed to find a local module, maybe
   // we are developing against ourselves?
@@ -117,24 +198,6 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }
   }
 
-  var exts = this.extensions;
-  var eventEmitter = this;
-
-  var configFiles = {};
-  if (isPlainObject(this.configFiles)) {
-    var notfound = { path: null };
-    configFiles = mapValues(this.configFiles, function (prop, name) {
-      var defaultObj = { name: name, cwd: cwd, extensions: exts };
-      return mapValues(prop, function (pathObj) {
-        var found = fined(pathObj, defaultObj) || notfound;
-        if (isPlainObject(found.extension)) {
-          registerLoader(eventEmitter, found.extension, found.path, cwd);
-        }
-        return found.path;
-      });
-    });
-  }
-
   return {
     cwd: cwd,
     preload: preload,
@@ -145,6 +208,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     modulePath: modulePath,
     modulePackage: modulePackage || {},
     configFiles: configFiles,
+    config: config,
   };
 };
 
