@@ -23,6 +23,15 @@ function Liftoff(opts) {
 }
 util.inherits(Liftoff, EE);
 
+Liftoff.prototype.changeEnvPaths = function(env, opts) {
+  var changed = changeEnvPaths(opts, env.configNameSearch, this.searchPaths);
+  return assign(env, changed);
+};
+
+Liftoff.prototype.findConfigFiles = function(env, configFiles) {
+  return findConfigFiles(configFiles, env, this.extensions, this);
+};
+
 Liftoff.prototype.requireLocal = function(module, basedir) {
   try {
     var result = require(resolve.sync(module, { basedir: basedir }));
@@ -71,10 +80,10 @@ Liftoff.prototype.prepare = function(opts, fn) {
 
   var env = {
     require: [].concat(opts.require || []),
+    configNameSearch: configNameSearch,
   };
-
-  assign(env, changeEnvPaths(opts, configNameSearch, this.searchPaths));
-  env.configFiles = findConfigFiles(this.configFiles, env.cwd, this.extensions, this);
+  assign(env, this.changeEnvPaths(env, opts));
+  env.configFiles = this.findConfigFiles(env, this.configFiles);
   assign(env, findModule(this.moduleName, env.configBase, env.cwd));
 
   fn.call(this, env);
