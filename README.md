@@ -446,14 +446,25 @@ A function called after your application is executed.  When invoked, `this` will
 
 ### events
 
+#### beforeRequire(name)
+
+Emitted before a module is pre-load. (But for only a module which is specified by `opts.require`.)
+
+```js
+var Hacker = new Liftoff({name:'hacker', require:'coffee-script'});
+Hacker.on('beforeRequire', function (name) {
+  console.log('Requiring external module: '+name+'...');
+});
+```
+
 #### require(name, module)
 
-Emitted when a module is pre-loaded.
+Emitted when a module has been pre-loaded.
 
 ```js
 var Hacker = new Liftoff({name:'hacker'});
 Hacker.on('require', function (name, module) {
-  console.log('Requiring external module: '+name+'...');
+  console.log('Required external module: '+name+'...');
   // automatically register coffee-script extensions
   if (name === 'coffee-script') {
     module.register();

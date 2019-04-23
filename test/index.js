@@ -347,20 +347,32 @@ describe('Liftoff', function() {
       }
     });
 
-    it('should emit `require` with the name of the module and the required module', function(done) {
+    it('should emit `beforeRequire` and `require` with the name of the module and the required module', function(done) {
       var requireTest = new Liftoff({ name: 'require' });
+      var isEmittedBeforeRequired = false;
+      requireTest.on('beforeRequire', function(name) {
+        expect(name).to.equal('mocha');
+        isEmittedBeforeRequired = true;
+      });
       requireTest.on('require', function(name, module) {
         expect(name).to.equal('mocha');
         expect(module).to.equal(require('mocha'));
+        expect(isEmittedBeforeRequired).to.equal(true);
         done();
       });
       requireTest.requireLocal('mocha', __dirname);
     });
 
-    it('should emit `requireFail` with an error if a module can\'t be found.', function(done) {
+    it('should emit `beforeRequire` and `requireFail` with an error if a module can\'t be found.', function(done) {
       var requireFailTest = new Liftoff({ name: 'requireFail' });
+      var isEmittedBeforeRequired = false;
+      requireFailTest.on('beforeRequire', function(name) {
+        expect(name).to.equal('badmodule');
+        isEmittedBeforeRequired = true;
+      });
       requireFailTest.on('requireFail', function(name) {
         expect(name).to.equal('badmodule');
+        expect(isEmittedBeforeRequired).to.equal(true);
         done();
       });
       requireFailTest.requireLocal('badmodule', __dirname);
