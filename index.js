@@ -94,11 +94,11 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       return prev;
     }
     // TODO: this should emit a warning if the configFile could not be loaded
-    var configFile = this.requireLocal(configFilePath, cwd);
+    var configFile = silentRequire(configFilePath);
     visited[configFilePath] = true;
     if (configFile && configFile.extends) {
-      var cwd = path.dirname(configFilePath);
-      return loadConfig(cwd, configFile.extends, configFile);
+      var nextCwd = path.dirname(configFilePath);
+      return loadConfig(nextCwd, configFile.extends, configFile);
     }
     return extend(true /* deep */, prev, configFile || {});
   }
