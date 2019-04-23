@@ -10,8 +10,10 @@ var mapValues = require('object.map');
 var fined = require('fined');
 
 var findCwd = require('./lib/find_cwd');
+var arrayFind = require('./lib/array_find');
 var findConfig = require('./lib/find_config');
 var fileSearch = require('./lib/file_search');
+var needsLookup = require('./lib/needs_lookup');
 var parseOptions = require('./lib/parse_options');
 var silentRequire = require('./lib/silent_require');
 var buildConfigName = require('./lib/build_config_name');
@@ -55,83 +57,76 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var exts = this.extensions;
   var eventEmitter = this;
 
-  var visited = {};
-
-  function getModulePath(cwd, xtends) {
-    if (typeof xtends === 'string') {
-      xtends = { path: xtends };
+  function findAndRegisterLoader(pathObj, defaultObj) {
+    var found = fined(pathObj, defaultObj);
+    if (!found) {
+      // TODO: Should this actually error on not found?
+      // throw new Error('Unable to find extends file: ' + xtends.path);
+      return;
     }
-
-    // TODO: is-relative
-    if (xtends.path[0] === '.') {
-      var defaultObj = { cwd: cwd, extensions: exts };
-      // Using `xtends` like this should allow people to use a string or any object that fined accepts
-      var found = fined(xtends, defaultObj);
-      if (!found) {
-        // TODO: Should this actually error on not found?
-        throw new Error('Unable to find extends file: ' + xtends.path);
-      }
-      if (isPlainObject(found.extension)) {
-        registerLoader(eventEmitter, found.extension, found.path, cwd);
-      }
-      return found.path;
+    if (isPlainObject(found.extension)) {
+      registerLoader(eventEmitter, found.extension, found.path, cwd);
     }
-
-    return xtends.path;
+    return found.path;
   }
 
+  function getModulePath(cwd, xtends) {
+    // If relative, we need to use fined to look up the file. If not, assume a node_module
+    if (needsLookup(xtends)) {
+      var defaultObj = { cwd: cwd, extensions: exts };
+      // Using `xtends` like this should allow people to use a string or any object that fined accepts
+      return findAndRegisterLoader(xtends, defaultObj);
+    }
+
+    return xtends;
+  }
+
+  var visited = {};
   function loadConfig(cwd, xtends, prev) {
     var configFilePath = getModulePath(cwd, xtends);
-    if (visited[configFilePath]) {
-      // TODO: should this error on recursive or just exit with the current result??
-      throw new Error('We encountered a recursive extend for file: ' + configFilePath + '. Please remove the recursive extends.');
+    if (!configFilePath) {
+      return prev;
     }
-    // TODO: should this error if the module could not be required?
-    var configFile = silentRequire(configFilePath);
+
+    if (visited[configFilePath]) {
+      // TODO: emit warning about recursion
+      // throw new Error('We encountered a recursive extend for file: ' + configFilePath + '. Please remove the recursive extends.');
+      return prev;
+    }
+    // TODO: this should emit a warning if the configFile could not be loaded
+    var configFile = this.requireLocal(configFilePath, cwd);
     visited[configFilePath] = true;
     if (configFile && configFile.extends) {
-      return loadConfig(path.dirname(configFilePath), configFile.extends, configFile);
+      var cwd = path.dirname(configFilePath);
+      return loadConfig(cwd, configFile.extends, configFile);
     }
     return extend(true /* deep */, prev, configFile || {});
   }
 
   var configFiles = {};
-  var config = {};
   if (isPlainObject(this.configFiles)) {
-    configFiles = mapValues(this.configFiles, function (searchPaths, name /* key */) {
-      var defaultObj = { name: name, cwd: cwd, extensions: exts };
-      var found = searchPaths.reduce(function (result, pathObj) {
-        // Short circuit once found.
-        // TODO: `find` utility?
-        if (result) {
-          return result;
-        }
+    configFiles = mapValues(this.configFiles, function (searchPaths, fileStem) {
+      var defaultObj = { name: fileStem, cwd: cwd, extensions: exts };
 
-        return fined(pathObj, defaultObj);
-      }, undefined);
+      var foundPath = arrayFind(searchPaths, function (pathObj) {
+        return findAndRegisterLoader(pathObj, defaultObj);
+      });
 
-      if (!found) {
-        // TODO: what here?
-        return;
-      }
-      if (isPlainObject(found.extension)) {
-        registerLoader(eventEmitter, found.extension, found.path, cwd);
-      }
-      return found.path;
-    });
-
-    config = mapValues(configFiles, function (startingLocation) {
-      var defaultConfig = {};
-      if (!startingLocation) {
-        return defaultConfig;
-      }
-
-      var config = loadConfig(cwd, startingLocation, defaultConfig);
-      // TODO: better filter?
-      delete config.extends;
-      return config;
+      return foundPath;
     });
   }
+
+  var config = mapValues(configFiles, function (startingLocation) {
+    var defaultConfig = {};
+    if (!startingLocation) {
+      return defaultConfig;
+    }
+
+    var config = loadConfig(cwd, startingLocation, defaultConfig);
+    // TODO: better filter?
+    delete config.extends;
+    return config;
+  });
 
   // if cwd was provided explicitly, only use it for searching config
   if (opts.cwd) {
