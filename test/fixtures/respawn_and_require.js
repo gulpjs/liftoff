@@ -9,8 +9,8 @@ Test.on('respawn', function(flags, proc) {
   console.log('saw respawn', flags);
 });
 
-Test.on('require', function(name) {
-  console.log('require', name);
+Test.on('preload:success', function(name) {
+  console.log('preload:success', name);
 });
 
 Test.prepare({

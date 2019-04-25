@@ -24,34 +24,34 @@ describe('registerLoader', function() {
       var extensions = { '.cfg': loaderPath };
 
       var app = new App();
-      app.on('require', function(moduleName /* , module */) {
+      app.on('loader:success', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load app.cfg by require-cfg');
         done();
       });
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit only a "require" event when registering loader failed and succeeds', function(done) {
+    it('Should emit only a "loader:success" event when registering loader failed and succeeds', function(done) {
 
       var loaderPath = path.join(testDir, 'require-conf.js');
       var configPath = path.join(testDir, 'app.conf');
       var extensions = { '.conf': ['xxx', loaderPath] };
 
       var app = new App();
-      app.on('require', function(moduleName /* , module */) {
+      app.on('loader:success', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load app.conf by require-conf');
         done();
       });
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit a "requireFail" event when loader is not found', function(done) {
+    it('Should emit a "loader:failure" event when loader is not found', function(done) {
 
       var loaderPath = path.join(testDir, 'require-tmp.js');
       var configPath = path.join(testDir, 'app.tmp');
@@ -59,7 +59,7 @@ describe('registerLoader', function() {
 
       var app = new App();
       var index = 0;
-      app.on('requireFail', function(moduleName, error) {
+      app.on('loader:failure', function(moduleName, error) {
         if (index === 0) {
           expect(moduleName).to.be.equal('xxx');
           expect(error).to.be.an('error');
@@ -74,24 +74,24 @@ describe('registerLoader', function() {
         }
         index++;
       });
-      app.on('require', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
 
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit a "requireFail" event when registering loader failed', function(done) {
+    it('Should emit a "loader:failure" event when registering loader failed', function(done) {
       var loaderPath = path.join(testDir, 'require-fail.js');
       var configPath = path.join(testDir, 'app.tmp');
       var extensions = { '.tmp': loaderPath };
 
       var app = new App();
-      app.on('requireFail', function(moduleName, error) {
+      app.on('loader:failure', function(moduleName, error) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(error).to.be.an('error');
         expect(error.message).to.contain('Fail to register!');
         done();
       });
-      app.on('require', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
 
       registerLoader(app, extensions, configPath);
     });
@@ -105,13 +105,13 @@ describe('registerLoader', function() {
       var extensions = { '.rc': loaderPath };
 
       var app = new App();
-      app.on('require', function(moduleName /* , module */) {
+      app.on('loader:success', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         var loadedFile = path.join(testDir, configPath);
         expect(require(loadedFile)).to.equal('Load app.rc by require-rc');
         done();
       });
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, extensions, configPath, testDir);
     });
@@ -120,8 +120,8 @@ describe('registerLoader', function() {
   describe('extensions', function() {
     it('Should do nothing when extensions is null', function(done) {
       var app = new App();
-      app.on('require', handlerNotEmit);
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app);
 
@@ -136,8 +136,8 @@ describe('registerLoader', function() {
 
     it('Should do nothing when extensions is illegal type', function(done) {
       var app = new App();
-      app.on('require', handlerNotEmit);
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, 123, 'aaa/bbb.cfg');
       registerLoader(app, true, 'aaa/bbb.cfg');
@@ -154,8 +154,8 @@ describe('registerLoader', function() {
 
     it('Should do nothing when extensions is a string', function(done) {
       var app = new App();
-      app.on('require', handlerNotEmit);
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, '.cfg', 'aaa/bbb.cfg');
       registerLoader(app, '.js', 'aaa/bbb.js');
@@ -174,8 +174,8 @@ describe('registerLoader', function() {
       };
 
       var app = new App();
-      app.on('require', handlerNotEmit);
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, extensions0);
       registerLoader(app, extensions1);
@@ -194,8 +194,8 @@ describe('registerLoader', function() {
       };
 
       var app = new App();
-      app.on('require', handlerNotEmit);
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, extensions0, 123);
       registerLoader(app, extensions0, ['aaa', 'bbb']);
@@ -210,8 +210,8 @@ describe('registerLoader', function() {
       var extensions = { '.cfg': loaderPath };
 
       var app = new App();
-      app.on('require', handlerNotEmit);
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, extensions, configPath);
       done();
@@ -223,8 +223,8 @@ describe('registerLoader', function() {
       var extensions = { '.cfg': loaderPath };
 
       var app = new App();
-      app.on('require', handlerNotEmit);
-      app.on('requireFail', handlerNotEmit);
+      app.on('loader:success', handlerNotEmit);
+      app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, extensions, configPath);
       done();
@@ -238,8 +238,8 @@ describe('registerLoader', function() {
       var extensions = { '.b': loaderPath };
 
       var app = new App();
-      app.on('requireFail', handlerNotEmit);
-      app.on('require', function(moduleName /* , module */) {
+      app.on('loader:failure', handlerNotEmit);
+      app.on('loader:success', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load file.a.b by require-file-b');
         done();
@@ -254,8 +254,8 @@ describe('registerLoader', function() {
       var extensions = { '.b.c': loaderPath };
 
       var app = new App();
-      app.on('requireFail', handlerNotEmit);
-      app.on('require', function(moduleName /* , module */) {
+      app.on('loader:failure', handlerNotEmit);
+      app.on('loader:success', function(moduleName /* , module */) {
         expect(moduleName).to.be.equal(loaderPath);
         expect(require(configPath)).to.equal('Load file.a.b.c by require-file-bc');
         done();
@@ -284,8 +284,8 @@ describe('registerLoader', function() {
 
       var count = 0;
       var app = new App();
-      app.on('requireFail', handlerNotEmit);
-      app.on('require', function(moduleName /* , module */) {
+      app.on('loader:failure', handlerNotEmit);
+      app.on('loader:success', function(moduleName /* , module */) {
         switch (count) {
           case 0: {
             expect(moduleName).to.be.equal(loaderPathCD);
