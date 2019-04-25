@@ -274,18 +274,18 @@ describe('Liftoff', function() {
     it('should attempt pre-loading local modules if they are requested', function(done) {
       var app = new Liftoff({ name: 'test' });
       var logs = [];
-      app.on('require', function(moduleName, module) {
+      app.on('preload:success', function(moduleName, module) {
         expect(moduleName).to.equal('coffeescript/register');
         expect(module).to.equal(require('coffeescript/register'));
-        logs.push('require');
+        logs.push('preload:success');
       });
-      app.on('requireFail', function(moduleName, err) {
+      app.on('preload:failure', function(moduleName, err) {
         done(err);
       });
       app.prepare({ require: ['coffeescript/register'] }, function(env) {
         app.execute(env, function(env) {
           expect(env.require).to.deep.equal(['coffeescript/register']);
-          expect(logs).to.deep.equal(['require']);
+          expect(logs).to.deep.equal(['preload:success']);
           done();
         });
       });
@@ -294,18 +294,18 @@ describe('Liftoff', function() {
     it('should attempt pre-loading a local module if it is requested', function(done) {
       var app = new Liftoff({ name: 'test' });
       var logs = [];
-      app.on('require', function(moduleName, module) {
+      app.on('preload:success', function(moduleName, module) {
         expect(moduleName).to.equal('coffeescript/register');
         expect(module).to.equal(require('coffeescript/register'));
-        logs.push('require');
+        logs.push('preload:success');
       });
-      app.on('requireFail', function(moduleName, err) {
+      app.on('preload:failure', function(moduleName, err) {
         done(err);
       });
       app.prepare({ require: 'coffeescript/register' }, function(env) {
         app.execute(env, function(env) {
           expect(env.require).to.deep.equal(['coffeescript/register']);
-          expect(logs).to.deep.equal(['require']);
+          expect(logs).to.deep.equal(['preload:success']);
           done();
         });
       });
@@ -314,18 +314,15 @@ describe('Liftoff', function() {
     it('should attempt pre-loading local modules but fail', function(done) {
       var app = new Liftoff({ name: 'test' });
       var logs = [];
-      app.on('require', function(/* moduleName, module */) {
-        done();
-      });
-      app.on('requireFail', function(moduleName, err) {
+      app.on('preload:failure', function(moduleName, err) {
         expect(moduleName).to.equal('badmodule');
         expect(err).to.not.equal(null);
-        logs.push('requireFail');
+        logs.push('preload:failure');
       });
       app.prepare({ require: 'badmodule' }, function(env) {
         app.execute(env, function(env) {
           expect(env.require).to.deep.equal(['badmodule']);
-          expect(logs).to.deep.equal(['requireFail']);
+          expect(logs).to.deep.equal(['preload:failure']);
           done();
         });
       });
@@ -340,21 +337,21 @@ describe('Liftoff', function() {
         expect(stderr).to.equal('');
         expect(stdout).to.equal(
           'saw respawn [ \'--lazy\' ]\n' +
-          'require coffeescript/register\n' +
+          'preload:success coffeescript/register\n' +
           'execute\n' +
         '');
         done();
       }
     });
 
-    it('should emit `beforeRequire` and `require` with the name of the module and the required module', function(done) {
+    it('should emit `preload:before` and `preload:success` with the name of the module and the required module', function(done) {
       var requireTest = new Liftoff({ name: 'require' });
       var isEmittedBeforeRequired = false;
-      requireTest.on('beforeRequire', function(name) {
+      requireTest.on('preload:before', function(name) {
         expect(name).to.equal('mocha');
         isEmittedBeforeRequired = true;
       });
-      requireTest.on('require', function(name, module) {
+      requireTest.on('preload:success', function(name, module) {
         expect(name).to.equal('mocha');
         expect(module).to.equal(require('mocha'));
         expect(isEmittedBeforeRequired).to.equal(true);
@@ -363,14 +360,14 @@ describe('Liftoff', function() {
       requireTest.requireLocal('mocha', __dirname);
     });
 
-    it('should emit `beforeRequire` and `requireFail` with an error if a module can\'t be found.', function(done) {
-      var requireFailTest = new Liftoff({ name: 'requireFail' });
+    it('should emit `preload:before` and `preload:failure` with an error if a module can\'t be found.', function(done) {
+      var requireFailTest = new Liftoff({ name: 'preload:failure' });
       var isEmittedBeforeRequired = false;
-      requireFailTest.on('beforeRequire', function(name) {
+      requireFailTest.on('preload:before', function(name) {
         expect(name).to.equal('badmodule');
         isEmittedBeforeRequired = true;
       });
-      requireFailTest.on('requireFail', function(name) {
+      requireFailTest.on('preload:failure', function(name) {
         expect(name).to.equal('badmodule');
         expect(isEmittedBeforeRequired).to.equal(true);
         done();
@@ -550,10 +547,10 @@ describe('Liftoff', function() {
           },
         },
       });
-      app.on('requireFail', function(moduleName, error) {
+      app.on('loader:failure', function(moduleName, error) {
         logFailure.push({ moduleName: moduleName, error: error });
       });
-      app.on('require', function(moduleName, module) {
+      app.on('loader:success', function(moduleName, module) {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function(env) {

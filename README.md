@@ -446,24 +446,24 @@ A function called after your application is executed.  When invoked, `this` will
 
 ### events
 
-#### beforeRequire(name)
+#### `on('preload:before', function(name) {})`
 
 Emitted before a module is pre-load. (But for only a module which is specified by `opts.require`.)
 
 ```js
 var Hacker = new Liftoff({name:'hacker', require:'coffee-script'});
-Hacker.on('beforeRequire', function (name) {
+Hacker.on('preload:before', function (name) {
   console.log('Requiring external module: '+name+'...');
 });
 ```
 
-#### require(name, module)
+#### `on('preload:success', function(name, module) {})`
 
 Emitted when a module has been pre-loaded.
 
 ```js
 var Hacker = new Liftoff({name:'hacker'});
-Hacker.on('require', function (name, module) {
+Hacker.on('preload:success', function (name, module) {
   console.log('Required external module: '+name+'...');
   // automatically register coffee-script extensions
   if (name === 'coffee-script') {
@@ -472,18 +472,50 @@ Hacker.on('require', function (name, module) {
 });
 ```
 
-#### requireFail(name, err)
+#### `on('preload:failure', function(name, err) {})`
 
 Emitted when a requested module cannot be preloaded.
 
 ```js
 var Hacker = new Liftoff({name:'hacker'});
-Hacker.on('requireFail', function (name, err) {
+Hacker.on('preload:failure', function (name, err) {
   console.log('Unable to load:', name, err);
 });
 ```
 
-#### respawn(flags, child)
+#### `on('loader:success, function(name, module) {})`
+
+Emitted when a loader that matches an extension has been loaded.
+
+```js
+var Hacker = new Liftoff({
+  name: 'hacker',
+  extensions: {
+    '.ts': 'ts-node/register'
+  }
+});
+Hacker.on('loader:success', function (name, module) {
+  console.log('Required external module: '+name+'...');
+});
+```
+
+#### `on('loader:failure', function(name, err) {})`
+
+Emitted when no loader for an extension can be loaded. Emits an error for each failed loader.
+
+```js
+var Hacker = new Liftoff({
+  name: 'hacker',
+  extensions: {
+    '.ts': 'ts-node/register'
+  }
+});
+Hacker.on('loader:failure', function (name, err) {
+  console.log('Unable to load:', name, err);
+});
+```
+
+#### `on('respawn', function(flags, child) {})`
 
 Emitted when Liftoff re-spawns your process (when a [`v8flags`](#optsv8flags) is detected).
 
