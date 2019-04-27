@@ -14,7 +14,7 @@ Test.on('preload:success', function(name) {
 });
 
 Test.prepare({
-  require: 'coffeescript/register',
+  preload: 'coffeescript/register',
 }, function(env) {
   var forcedFlags = ['--lazy'];
   Test.execute(env, forcedFlags, function() {
