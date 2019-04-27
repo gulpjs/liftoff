@@ -39,7 +39,7 @@ Liftoff.prototype.buildEnvironment = function(opts) {
   opts = opts || {};
 
   // get modules we want to preload
-  var preload = opts.require || [];
+  var preload = opts.preload || [];
 
   // ensure items to preload is an array
   if (!Array.isArray(preload)) {
@@ -131,7 +131,7 @@ Liftoff.prototype.buildEnvironment = function(opts) {
 
   return {
     cwd: cwd,
-    require: preload,
+    preload: preload,
     configNameSearch: configNameSearch,
     configPath: configPath,
     configBase: configBase,
@@ -207,7 +207,7 @@ Liftoff.prototype.execute = function(env, forcedFlags, fn) {
 
 function preloadModules(inst, env) {
   var basedir = env.cwd;
-  env.require.filter(toUnique).forEach(function(module) {
+  env.preload.filter(toUnique).forEach(function(module) {
     inst.requireLocal(module, basedir);
   });
 }

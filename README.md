@@ -283,7 +283,7 @@ const onPrepare = function (env) {
 MyApp.prepare({
   cwd: argv.cwd,
   configPath: argv.myappfile,
-  require: argv.require,
+  preload: argv.preload,
   completion: argv.completion
 }, onPrepare);
 ```
@@ -376,7 +376,7 @@ myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project1
 myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
 ```
 
-#### opts.require
+#### opts.preload
 
 A string or array of modules to attempt requiring from the local working directory before invoking the launch callback.
 
@@ -387,13 +387,13 @@ Default: `null`
 ```js
 var argv = require('minimist')(process.argv.slice(2));
 MyApp.launch({
-  require: argv.require
+  preload: argv.preload
 }, invoke);
 ```
 
 **Matching CLI Invocation:**
 ```js
-myapp --require coffee-script/register
+myapp --preload coffee-script/register
 ```
 
 #### callback(env)
@@ -401,7 +401,7 @@ myapp --require coffee-script/register
 A function called after your environment is prepared.  A good place to modify the environment before calling `execute`.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
 
 - `cwd`: the current working directory
-- `require`: an array of modules that liftoff tried to pre-load
+- `preload`: an array of modules that liftoff tried to pre-load
 - `configNameSearch`: the config files searched for
 - `configPath`: the full path to your configuration file (if found)
 - `configBase`: the base directory of your configuration file (if found)
@@ -436,7 +436,7 @@ MyApp.prepare({}, onPrepare);
 A function called after your application is executed.  When invoked, `this` will be your instance of Liftoff, `argv` will be all command-line arguments (minus node & v8 flags), and `env` will contain the following keys:
 
 - `cwd`: the current working directory
-- `require`: an array of modules that liftoff tried to pre-load
+- `preload`: an array of modules that liftoff tried to pre-load
 - `configNameSearch`: the config files searched for
 - `configPath`: the full path to your configuration file (if found)
 - `configBase`: the base directory of your configuration file (if found)
@@ -448,10 +448,10 @@ A function called after your application is executed.  When invoked, `this` will
 
 #### `on('preload:before', function(name) {})`
 
-Emitted before a module is pre-load. (But for only a module which is specified by `opts.require`.)
+Emitted before a module is pre-load. (But for only a module which is specified by `opts.preload`.)
 
 ```js
-var Hacker = new Liftoff({name:'hacker', require:'coffee-script'});
+var Hacker = new Liftoff({name:'hacker', preload:'coffee-script'});
 Hacker.on('preload:before', function (name) {
   console.log('Requiring external module: '+name+'...');
 });

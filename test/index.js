@@ -282,9 +282,9 @@ describe('Liftoff', function() {
       app.on('preload:failure', function(moduleName, err) {
         done(err);
       });
-      app.prepare({ require: ['coffeescript/register'] }, function(env) {
+      app.prepare({ preload: ['coffeescript/register'] }, function(env) {
         app.execute(env, function(env) {
-          expect(env.require).to.deep.equal(['coffeescript/register']);
+          expect(env.preload).to.deep.equal(['coffeescript/register']);
           expect(logs).to.deep.equal(['preload:success']);
           done();
         });
@@ -302,9 +302,9 @@ describe('Liftoff', function() {
       app.on('preload:failure', function(moduleName, err) {
         done(err);
       });
-      app.prepare({ require: 'coffeescript/register' }, function(env) {
+      app.prepare({ preload: 'coffeescript/register' }, function(env) {
         app.execute(env, function(env) {
-          expect(env.require).to.deep.equal(['coffeescript/register']);
+          expect(env.preload).to.deep.equal(['coffeescript/register']);
           expect(logs).to.deep.equal(['preload:success']);
           done();
         });
@@ -319,9 +319,9 @@ describe('Liftoff', function() {
         expect(err).to.not.equal(null);
         logs.push('preload:failure');
       });
-      app.prepare({ require: 'badmodule' }, function(env) {
+      app.prepare({ preload: 'badmodule' }, function(env) {
         app.execute(env, function(env) {
-          expect(env.require).to.deep.equal(['badmodule']);
+          expect(env.preload).to.deep.equal(['badmodule']);
           expect(logs).to.deep.equal(['preload:failure']);
           done();
         });
