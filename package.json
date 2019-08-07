@@ -7,7 +7,7 @@
   "repository": "js-cli/js-liftoff",
   "license": "MIT",
   "engines": {
-    "node": ">= 0.8"
+    "node": ">=8"
   },
   "main": "index.js",
   "files": [
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "extend": "^3.0.0",
-    "findup-sync": "^3.0.0",
+    "findup-sync": "^4.0.0",
     "fined": "^1.0.1",
     "flagged-respawn": "^1.0.0",
     "is-plain-object": "^2.0.4",
