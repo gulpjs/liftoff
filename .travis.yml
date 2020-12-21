@@ -1,14 +1,21 @@
 language: node_js
 node_js:
+  - "14"
+  - "12"
   - "10"
   - "8"
   - "6"
-  - "5"
-  - "4"
-  - "0.12"
-  - "0.10"
+
+arch:
+  - amd64
+  - ppc64le
+
 matrix:
   fast_finish: true
+  exclude:
+   - arch: ppc64le
+     os: osx
+     
 script: if [ $(echo "${TRAVIS_NODE_VERSION}" | cut -d'.' -f1) -ge 6 ]; then
           npm run cover;
         else
