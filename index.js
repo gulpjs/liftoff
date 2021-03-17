@@ -132,6 +132,7 @@ Liftoff.prototype.buildEnvironment = function(opts) {
   return {
     cwd: cwd,
     preload: preload,
+    completion: opts.completion,
     configNameSearch: configNameSearch,
     configPath: configPath,
     configBase: configBase,
@@ -164,17 +165,17 @@ Liftoff.prototype.prepare = function(opts, fn) {
 
   process.title = this.processTitle;
 
-  var completion = opts.completion;
-  if (completion && this.completions) {
-    return this.completions(completion);
-  }
-
   var env = this.buildEnvironment(opts);
 
   fn.call(this, env);
 };
 
 Liftoff.prototype.execute = function(env, forcedFlags, fn) {
+  var completion = env.completion;
+  if (completion && this.completions) {
+    return this.completions(completion);
+  }
+
   if (typeof forcedFlags === 'function') {
     fn = forcedFlags;
     forcedFlags = undefined;
