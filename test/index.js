@@ -132,16 +132,6 @@ describe('Liftoff', function() {
       expect(process.title).to.equal(app.moduleName);
     });
 
-    it('should return early if completions are available and requested', function(done) {
-      var test = new Liftoff({
-        name: 'whatever',
-        completions: function() {
-          done();
-        },
-      });
-      test.prepare({ completion: true }, function() {});
-    });
-
     it('should call prepare with liftoff instance as context', function(done) {
       app.prepare({}, function() {
         expect(this).to.equal(app);
@@ -177,6 +167,18 @@ describe('Liftoff', function() {
       expect(function() {
         app.execute({});
       }).to.throw();
+    });
+
+    it('should return early if completions are available and requested', function(done) {
+      var test = new Liftoff({
+        name: 'whatever',
+        completions: function() {
+          done();
+        },
+      });
+      test.prepare({ completion: true }, function(env) {
+        test.execute(env);
+      });
     });
 
     it('should skip respawning if process.argv has no values from v8flags in it', function(done) {
