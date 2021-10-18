@@ -2,12 +2,16 @@
   "name": "liftoff",
   "version": "3.1.0",
   "description": "Launch your command line tool with ease.",
-  "author": "Tyler Kellen (http://goingslowly.com/)",
-  "contributors": [],
-  "repository": "js-cli/js-liftoff",
+  "author": "Gulp Team <team@gulpjs.com> (https://gulpjs.com/)",
+  "contributors": [
+    "Blaine Bublitz <blaine.bublitz@gmail.com> (https://github.com/phated)",
+    "Tyler Kellen <tyler@sleekcode.net> (https://github.com/tkellen)",
+    "Takayuki Sato (https://github.com/sttk)"
+  ],
+  "repository": "gulpjs/liftoff",
   "license": "MIT",
   "engines": {
-    "node": ">= 0.8"
+    "node": ">=10.13.0"
   },
   "main": "index.js",
   "files": [
@@ -16,28 +20,39 @@
     "LICENSE"
   ],
   "scripts": {
-    "pretest": "eslint .",
-    "test": "mocha -t 5000 -b -R spec test/index",
-    "cover": "nyc --reporter=lcov --reporter=text-summary npm test"
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "nyc mocha --async-only"
   },
   "dependencies": {
-    "extend": "^3.0.0",
-    "findup-sync": "^3.0.0",
-    "fined": "^1.0.1",
-    "flagged-respawn": "^1.0.0",
-    "is-plain-object": "^2.0.4",
-    "object.map": "^1.0.0",
-    "rechoir": "^0.7.0",
-    "resolve": "^1.1.7"
+    "extend": "^3.0.2",
+    "findup-sync": "^4.0.0",
+    "fined": "^1.2.0",
+    "flagged-respawn": "^1.0.1",
+    "is-plain-object": "^5.0.0",
+    "object.map": "^1.0.1",
+    "rechoir": "^0.8.0",
+    "resolve": "^1.20.0"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "coffeescript": "^1.10.0",
-    "eslint": "^2.13.1",
-    "eslint-config-gulp": "^3.0.1",
-    "mocha": "^3.5.3",
-    "nyc": "^13.3.0",
-    "sinon": "~1.17.4"
+    "coffeescript": "^2.6.1",
+    "eslint": "^7.0.0",
+    "eslint-config-gulp": "^5.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-node": "^11.1.0",
+    "expect": "^27.0.0",
+    "mocha": "^8.0.0",
+    "nyc": "^15.0.0",
+    "sinon": "^11.0.0"
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
+  },
+  "prettier": {
+    "singleQuote": true
   },
   "keywords": [
     "command line"

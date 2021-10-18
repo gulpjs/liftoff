@@ -5,7 +5,7 @@ var EE = require('events').EventEmitter;
 var extend = require('extend');
 var resolve = require('resolve');
 var flaggedRespawn = require('flagged-respawn');
-var isPlainObject = require('is-plain-object');
+var isPlainObject = require('is-plain-object').isPlainObject;
 var mapValues = require('object.map');
 var fined = require('fined');
 
@@ -24,7 +24,7 @@ function Liftoff(opts) {
 }
 util.inherits(Liftoff, EE);
 
-Liftoff.prototype.requireLocal = function(module, basedir) {
+Liftoff.prototype.requireLocal = function (module, basedir) {
   try {
     this.emit('preload:before', module);
     var result = require(resolve.sync(module, { basedir: basedir }));
@@ -35,7 +35,7 @@ Liftoff.prototype.requireLocal = function(module, basedir) {
   }
 };
 
-Liftoff.prototype.buildEnvironment = function(opts) {
+Liftoff.prototype.buildEnvironment = function (opts) {
   opts = opts || {};
 
   // get modules we want to preload
@@ -89,8 +89,11 @@ Liftoff.prototype.buildEnvironment = function(opts) {
   var modulePath, modulePackage;
   try {
     var delim = path.delimiter;
-    var paths = (process.env.NODE_PATH ? process.env.NODE_PATH.split(delim) : []);
-    modulePath = resolve.sync(this.moduleName, { basedir: configBase || cwd, paths: paths });
+    var paths = process.env.NODE_PATH ? process.env.NODE_PATH.split(delim) : [];
+    modulePath = resolve.sync(this.moduleName, {
+      basedir: configBase || cwd,
+      paths: paths,
+    });
     modulePackage = silentRequire(fileSearch('package.json', [modulePath]));
   } catch (e) {}
 
@@ -103,7 +106,10 @@ Liftoff.prototype.buildEnvironment = function(opts) {
     modulePackage = silentRequire(modulePackagePath);
     if (modulePackage && modulePackage.name === this.moduleName) {
       // if it does, our module path is `main` inside package.json
-      modulePath = path.join(path.dirname(modulePackagePath), modulePackage.main || 'index.js');
+      modulePath = path.join(
+        path.dirname(modulePackagePath),
+        modulePackage.main || 'index.js'
+      );
       cwd = configBase;
     } else {
       // clear if we just required a package for some other project
@@ -117,9 +123,9 @@ Liftoff.prototype.buildEnvironment = function(opts) {
   var configFiles = {};
   if (isPlainObject(this.configFiles)) {
     var notfound = { path: null };
-    configFiles = mapValues(this.configFiles, function(prop, name) {
+    configFiles = mapValues(this.configFiles, function (prop, name) {
       var defaultObj = { name: name, cwd: cwd, extensions: exts };
-      return mapValues(prop, function(pathObj) {
+      return mapValues(prop, function (pathObj) {
         var found = fined(pathObj, defaultObj) || notfound;
         if (isPlainObject(found.extension)) {
           registerLoader(eventEmitter, found.extension, found.path, cwd);
@@ -142,9 +148,9 @@ Liftoff.prototype.buildEnvironment = function(opts) {
   };
 };
 
-Liftoff.prototype.handleFlags = function(cb) {
+Liftoff.prototype.handleFlags = function (cb) {
   if (typeof this.v8flags === 'function') {
-    this.v8flags(function(err, flags) {
+    this.v8flags(function (err, flags) {
       if (err) {
         cb(err);
       } else {
@@ -152,13 +158,15 @@ Liftoff.prototype.handleFlags = function(cb) {
       }
     });
   } else {
-    process.nextTick(function() {
-      cb(null, this.v8flags);
-    }.bind(this));
+    process.nextTick(
+      function () {
+        cb(null, this.v8flags);
+      }.bind(this)
+    );
   }
 };
 
-Liftoff.prototype.prepare = function(opts, fn) {
+Liftoff.prototype.prepare = function (opts, fn) {
   if (typeof fn !== 'function') {
     throw new Error('You must provide a callback function.');
   }
@@ -170,7 +178,7 @@ Liftoff.prototype.prepare = function(opts, fn) {
   fn.call(this, env);
 };
 
-Liftoff.prototype.execute = function(env, forcedFlags, fn) {
+Liftoff.prototype.execute = function (env, forcedFlags, fn) {
   var completion = env.completion;
   if (completion && this.completions) {
     return this.completions(completion);
@@ -184,31 +192,33 @@ Liftoff.prototype.execute = function(env, forcedFlags, fn) {
     throw new Error('You must provide a callback function.');
   }
 
-  this.handleFlags(function(err, flags) {
-    if (err) {
-      throw err;
-    }
-    flags = flags || [];
-
-    flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
-
-    function execute(ready, child, argv) {
-      if (child !== process) {
-        var execArgv = getNodeFlags.fromReorderedArgv(argv);
-        this.emit('respawn', execArgv, child);
+  this.handleFlags(
+    function (err, flags) {
+      if (err) {
+        throw err;
       }
-      if (ready) {
-        preloadModules(this, env);
-        registerLoader(this, this.extensions, env.configPath, env.cwd);
-        fn.call(this, env, argv);
+      flags = flags || [];
+
+      flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
+
+      function execute(ready, child, argv) {
+        if (child !== process) {
+          var execArgv = getNodeFlags.fromReorderedArgv(argv);
+          this.emit('respawn', execArgv, child);
+        }
+        if (ready) {
+          preloadModules(this, env);
+          registerLoader(this, this.extensions, env.configPath, env.cwd);
+          fn.call(this, env, argv);
+        }
       }
-    }
-  }.bind(this));
+    }.bind(this)
+  );
 };
 
 function preloadModules(inst, env) {
   var basedir = env.cwd;
-  env.preload.filter(toUnique).forEach(function(module) {
+  env.preload.filter(toUnique).forEach(function (module) {
     inst.requireLocal(module, basedir);
   });
 }
