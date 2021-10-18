@@ -171,7 +171,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       paths: paths,
     });
     modulePackage = silentRequire(fileSearch('package.json', [modulePath]));
-  } catch (e) { }
+  } catch (e) {}
 
   // if we have a configuration but we failed to find a local module, maybe
   // we are developing against ourselves?
