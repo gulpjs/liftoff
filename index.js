@@ -96,9 +96,6 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var visited = {};
   function loadConfig(cwd, xtends, prev) {
     var configFilePath = getModulePath(cwd, xtends);
-    if (!configFilePath) {
-      return prev;
-    }
 
     if (visited[configFilePath]) {
       throw new Error(

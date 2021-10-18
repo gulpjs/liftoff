@@ -896,7 +896,7 @@ describe('Liftoff', function () {
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
-        app.prepare({}, function () { });
+        app.prepare({}, function () {});
       }).toThrow(circPath);
       done();
     });
@@ -913,7 +913,7 @@ describe('Liftoff', function () {
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
-        app.prepare({}, function () { });
+        app.prepare({}, function () {});
       }).toThrow(circPath);
       done();
     });
@@ -930,7 +930,7 @@ describe('Liftoff', function () {
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
-        app.prepare({}, function () { });
+        app.prepare({}, function () {});
       }).toThrow(circPath);
       done();
     });
@@ -947,7 +947,7 @@ describe('Liftoff', function () {
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
-        app.prepare({}, function () { });
+        app.prepare({}, function () {});
       }).toThrow(circPath);
       done();
     });
@@ -960,7 +960,7 @@ describe('Liftoff', function () {
         },
       });
       expect(function () {
-        app.prepare({}, function () { });
+        app.prepare({}, function () {});
       }).toThrow(/^Unable to locate one of your extends\.$/); // Ensure the error doesn't contain path
       done();
     });
