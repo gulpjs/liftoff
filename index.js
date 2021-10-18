@@ -60,8 +60,6 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   function findAndRegisterLoader(pathObj, defaultObj) {
     var found = fined(pathObj, defaultObj);
     if (!found) {
-      // TODO: Should this actually error on not found?
-      // throw new Error('Unable to find extends file: ' + xtends.path);
       return;
     }
     if (isPlainObject(found.extension)) {
@@ -75,7 +73,21 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     if (needsLookup(xtends)) {
       var defaultObj = { cwd: cwd, extensions: exts };
       // Using `xtends` like this should allow people to use a string or any object that fined accepts
-      return findAndRegisterLoader(xtends, defaultObj);
+      var foundPath = findAndRegisterLoader(xtends, defaultObj);
+      if (!foundPath) {
+        var name;
+        if (typeof xtends === 'string') {
+          name = xtends;
+        } else {
+          name = xtends.path || xtends.name;
+        }
+        var msg = 'Unable to locate one of your extends.';
+        if (name) {
+          msg += ' Looking for file: ' + path.resolve(cwd, name);
+        }
+        throw new Error(msg);
+      }
+      return foundPath;
     }
 
     return xtends;

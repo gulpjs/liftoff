@@ -883,5 +883,86 @@ describe('Liftoff', function () {
         done();
       });
     });
+
+    it('throws upon extends of missing local file', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'local-missing': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      var circPath = path.resolve(
+        __dirname,
+        './fixtures/configfiles-extends/not-exists'
+      );
+      expect(function () {
+        app.prepare({}, function () { });
+      }).toThrow(circPath);
+      done();
+    });
+
+    it('throws (with correct path) upon extends of missing deep in tree', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'extend-missing': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      var circPath = path.resolve(
+        __dirname,
+        './fixtures/configfiles-extends/not-exists'
+      );
+      expect(function () {
+        app.prepare({}, function () { });
+      }).toThrow(circPath);
+      done();
+    });
+
+    it('throws (with correct path) upon extends using `fined` object with `path`', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'missing-path-obj': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      var circPath = path.resolve(
+        __dirname,
+        './fixtures/configfiles-extends/not-exists'
+      );
+      expect(function () {
+        app.prepare({}, function () { });
+      }).toThrow(circPath);
+      done();
+    });
+
+    it('throws (with correct path) upon extends using `fined` object with `name`', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'missing-name-obj': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      var circPath = path.resolve(
+        __dirname,
+        './fixtures/configfiles-extends/not-exists'
+      );
+      expect(function () {
+        app.prepare({}, function () { });
+      }).toThrow(circPath);
+      done();
+    });
+
+    it('throws (without path) upon extends using invalid `fined` object', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'missing-invalid-obj': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      expect(function () {
+        app.prepare({}, function () { });
+      }).toThrow(/^Unable to locate one of your extends\.$/); // Ensure the error doesn't contain path
+      done();
+    });
   });
 });
