@@ -5,15 +5,20 @@ var expect = require('expect');
 var findConfig = require('../lib/find_config');
 
 describe('findConfig', function () {
-
-  it('should throw if searchPaths or configNameRegex are empty when configName isn\'t explicltly provided', function (done) {
-    expect(function () { findConfig(); }).toThrow();
-    expect(function () { findConfig({ searchPaths: ['../'] }); }).toThrow();
-    expect(function () { findConfig({ configNameRegex: 'dude' }); }).toThrow();
+  it("should throw if searchPaths or configNameRegex are empty when configName isn't explicltly provided", function (done) {
+    expect(function () {
+      findConfig();
+    }).toThrow();
+    expect(function () {
+      findConfig({ searchPaths: ['../'] });
+    }).toThrow();
+    expect(function () {
+      findConfig({ configNameRegex: 'dude' });
+    }).toThrow();
     done();
   });
 
-  it('if configPath is explicitly provided, return the absolute path to the file or null if it doesn\'t actually exist', function (done) {
+  it("if configPath is explicitly provided, return the absolute path to the file or null if it doesn't actually exist", function (done) {
     var configPath = path.resolve('test/fixtures/mochafile.js');
     expect(findConfig({ configPath: configPath })).toEqual(configPath);
     expect(findConfig({ configPath: 'path/to/nowhere' })).toEqual(null);
@@ -21,18 +26,24 @@ describe('findConfig', function () {
   });
 
   it('should return the absolute path to the first config file found in searchPaths', function (done) {
-    expect(findConfig({
-      configNameSearch: ['mochafile.js', 'mochafile.coffee'],
-      searchPaths: ['test/fixtures'],
-    })).toEqual(path.resolve('test/fixtures/mochafile.js'));
-    expect(findConfig({
-      configNameSearch: ['mochafile.js', 'mochafile.coffee'],
-      searchPaths: ['test/fixtures/search_path', 'test/fixtures/coffee'],
-    })).toEqual(path.resolve('test/fixtures/search_path/mochafile.js'));
-    expect(findConfig({
-      configNameSearch: 'mochafile.js',
-      searchPaths: ['test/fixtures/search_path', 'test/fixtures/coffee'],
-    })).toEqual(path.resolve('test/fixtures/search_path/mochafile.js'));
+    expect(
+      findConfig({
+        configNameSearch: ['mochafile.js', 'mochafile.coffee'],
+        searchPaths: ['test/fixtures'],
+      })
+    ).toEqual(path.resolve('test/fixtures/mochafile.js'));
+    expect(
+      findConfig({
+        configNameSearch: ['mochafile.js', 'mochafile.coffee'],
+        searchPaths: ['test/fixtures/search_path', 'test/fixtures/coffee'],
+      })
+    ).toEqual(path.resolve('test/fixtures/search_path/mochafile.js'));
+    expect(
+      findConfig({
+        configNameSearch: 'mochafile.js',
+        searchPaths: ['test/fixtures/search_path', 'test/fixtures/coffee'],
+      })
+    ).toEqual(path.resolve('test/fixtures/search_path/mochafile.js'));
     done();
   });
 

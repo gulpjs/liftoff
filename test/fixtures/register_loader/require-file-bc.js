@@ -1,10 +1,8 @@
-(function() {
+(function () {
+  var path = require('path');
 
-var path = require('path');
-
-require.extensions['.c'] = function(module, filepath) {
-  module.loaded = true;
-  module.exports = 'Load ' + path.basename(filepath) + ' by require-file-bc';
-};
-
-}());
+  require.extensions['.c'] = function (module, filepath) {
+    module.loaded = true;
+    module.exports = 'Load ' + path.basename(filepath) + ' by require-file-bc';
+  };
+})();

@@ -5,7 +5,6 @@ var parseOptions = require('../lib/parse_options');
 var NAME = 'mocha';
 
 describe('parseOptions', function () {
-
   it('should auto-set processTitle, moduleName, & configFile if `name` is provided', function (done) {
     var opts = parseOptions({ name: NAME });
     expect(opts.processTitle).toEqual(NAME);
@@ -38,35 +37,39 @@ describe('parseOptions', function () {
     done();
   });
 
-  it('should use .processTitle/.configName/.moduleName preferencially',
-    function (done) {
-      var opts = parseOptions({
-        name: 'a',
-        processTitle: 'b',
-        configName: 'c',
-        moduleName: 'd',
-      });
-      expect(opts.processTitle).toEqual('b');
-      expect(opts.configName).toEqual('c');
-      expect(opts.moduleName).toEqual('d');
-      done();
+  it('should use .processTitle/.configName/.moduleName preferencially', function (done) {
+    var opts = parseOptions({
+      name: 'a',
+      processTitle: 'b',
+      configName: 'c',
+      moduleName: 'd',
     });
+    expect(opts.processTitle).toEqual('b');
+    expect(opts.configName).toEqual('c');
+    expect(opts.moduleName).toEqual('d');
+    done();
+  });
 
-  it('should throw error if opts does not have .name and .moduleName',
-    function (done) {
-      expect(function () {
-        parseOptions({
-          processTitle: 'a',
-          configName: 'b',
-        });
-      }).toThrow();
-      done();
-    });
+  it('should throw error if opts does not have .name and .moduleName', function (done) {
+    expect(function () {
+      parseOptions({
+        processTitle: 'a',
+        configName: 'b',
+      });
+    }).toThrow();
+    done();
+  });
 
   it('should throw error if opts is null or empty', function (done) {
-    expect(function () { parseOptions(null); }).toThrow();
-    expect(function () { parseOptions(undefined); }).toThrow();
-    expect(function () { parseOptions({}); }).toThrow();
+    expect(function () {
+      parseOptions(null);
+    }).toThrow();
+    expect(function () {
+      parseOptions(undefined);
+    }).toThrow();
+    expect(function () {
+      parseOptions({});
+    }).toThrow();
     done();
   });
 });

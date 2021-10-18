@@ -18,11 +18,8 @@ function handlerNotEmit() {
 }
 
 describe('registerLoader', function () {
-
   describe('register loader', function () {
-
     it('Should emit a `loader:success` event when registering loader succeeds', function (done) {
-
       var loaderPath = path.join(testDir, 'require-cfg.js');
       var configPath = path.join(testDir, 'app.cfg');
       var extensions = { '.cfg': loaderPath };
@@ -39,7 +36,6 @@ describe('registerLoader', function () {
     });
 
     it('Should emit only a `loader:success` event when registering loader failed and succeeds', function (done) {
-
       var loaderPath = path.join(testDir, 'require-conf.js');
       var configPath = path.join(testDir, 'app.conf');
       var extensions = { '.conf': ['xxx', loaderPath] };
@@ -56,7 +52,6 @@ describe('registerLoader', function () {
     });
 
     it('Should emit a `loader:failure` event when loader is not found', function (done) {
-
       var loaderPath = path.join(testDir, 'require-tmp.js');
       var configPath = path.join(testDir, 'app.tmp');
       var extensions = { '.tmp': ['xxx', loaderPath] };
@@ -103,7 +98,6 @@ describe('registerLoader', function () {
 
   describe('cwd', function () {
     it('Should use "cwd" as a base directory of loaded file path if specified', function (done) {
-
       var loaderPath = path.join(testDir, 'require-rc.js');
       var configPath = 'app.rc';
       var extensions = { '.rc': loaderPath };
@@ -145,13 +139,13 @@ describe('registerLoader', function () {
 
       registerLoader(app, 123, 'aaa/bbb.cfg');
       registerLoader(app, true, 'aaa/bbb.cfg');
-      registerLoader(app, function () { }, 'aaa/bbb.cfg');
+      registerLoader(app, function () {}, 'aaa/bbb.cfg');
       registerLoader(app, ['.rc', '.cfg'], 'aaa/bbb.cfg');
 
       // .js is one of default extensions
       registerLoader(app, 123, 'aaa/bbb.js');
       registerLoader(app, true, 'aaa/bbb.js');
-      registerLoader(app, function () { }, 'aaa/bbb.js');
+      registerLoader(app, function () {}, 'aaa/bbb.js');
       registerLoader(app, ['.js', '.json'], 'aaa/bbb.js');
       done();
     });
@@ -204,7 +198,7 @@ describe('registerLoader', function () {
       registerLoader(app, extensions0, 123);
       registerLoader(app, extensions0, ['aaa', 'bbb']);
       registerLoader(app, extensions1, {});
-      registerLoader(app, extensions1, function () { });
+      registerLoader(app, extensions1, function () {});
       done();
     });
 
@@ -261,7 +255,9 @@ describe('registerLoader', function () {
       app.on('loader:failure', handlerNotEmit);
       app.on('loader:success', function (moduleName /* , module */) {
         expect(moduleName).toEqual(loaderPath);
-        expect(require(configPath)).toEqual('Load file.a.b.c by require-file-bc');
+        expect(require(configPath)).toEqual(
+          'Load file.a.b.c by require-file-bc'
+        );
         done();
       });
 
@@ -293,17 +289,23 @@ describe('registerLoader', function () {
         switch (count) {
           case 0: {
             expect(moduleName).toEqual(loaderPathCD);
-            expect(require(configPathCD)).toEqual('Load file.a.b.c.d by require-file-cd');
+            expect(require(configPathCD)).toEqual(
+              'Load file.a.b.c.d by require-file-cd'
+            );
             break;
           }
           case 1: {
             expect(moduleName).toEqual(loaderPathECD);
-            expect(require(configPathECD)).toEqual('Load file.a.e.c.d by require-file-ecd');
+            expect(require(configPathECD)).toEqual(
+              'Load file.a.e.c.d by require-file-ecd'
+            );
             break;
           }
           case 2: {
             expect(moduleName).toEqual(loaderPathFCD);
-            expect(require(configPathFCD)).toEqual('Load file.a.f.c.d by require-file-fcd');
+            expect(require(configPathFCD)).toEqual(
+              'Load file.a.f.c.d by require-file-fcd'
+            );
             done();
             break;
           }
@@ -317,6 +319,4 @@ describe('registerLoader', function () {
       registerLoader(app, extensions, configPathFCD);
     });
   });
-
 });
-

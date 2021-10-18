@@ -89,10 +89,13 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var modulePath, modulePackage;
   try {
     var delim = path.delimiter;
-    var paths = (process.env.NODE_PATH ? process.env.NODE_PATH.split(delim) : []);
-    modulePath = resolve.sync(this.moduleName, { basedir: configBase || cwd, paths: paths });
+    var paths = process.env.NODE_PATH ? process.env.NODE_PATH.split(delim) : [];
+    modulePath = resolve.sync(this.moduleName, {
+      basedir: configBase || cwd,
+      paths: paths,
+    });
     modulePackage = silentRequire(fileSearch('package.json', [modulePath]));
-  } catch (e) { }
+  } catch (e) {}
 
   // if we have a configuration but we failed to find a local module, maybe
   // we are developing against ourselves?
@@ -103,7 +106,10 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     modulePackage = silentRequire(modulePackagePath);
     if (modulePackage && modulePackage.name === this.moduleName) {
       // if it does, our module path is `main` inside package.json
-      modulePath = path.join(path.dirname(modulePackagePath), modulePackage.main || 'index.js');
+      modulePath = path.join(
+        path.dirname(modulePackagePath),
+        modulePackage.main || 'index.js'
+      );
       cwd = configBase;
     } else {
       // clear if we just required a package for some other project
@@ -152,9 +158,11 @@ Liftoff.prototype.handleFlags = function (cb) {
       }
     });
   } else {
-    process.nextTick(function () {
-      cb(null, this.v8flags);
-    }.bind(this));
+    process.nextTick(
+      function () {
+        cb(null, this.v8flags);
+      }.bind(this)
+    );
   }
 };
 
@@ -184,26 +192,28 @@ Liftoff.prototype.execute = function (env, forcedFlags, fn) {
     throw new Error('You must provide a callback function.');
   }
 
-  this.handleFlags(function (err, flags) {
-    if (err) {
-      throw err;
-    }
-    flags = flags || [];
-
-    flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
-
-    function execute(ready, child, argv) {
-      if (child !== process) {
-        var execArgv = getNodeFlags.fromReorderedArgv(argv);
-        this.emit('respawn', execArgv, child);
+  this.handleFlags(
+    function (err, flags) {
+      if (err) {
+        throw err;
       }
-      if (ready) {
-        preloadModules(this, env);
-        registerLoader(this, this.extensions, env.configPath, env.cwd);
-        fn.call(this, env, argv);
+      flags = flags || [];
+
+      flaggedRespawn(flags, process.argv, forcedFlags, execute.bind(this));
+
+      function execute(ready, child, argv) {
+        if (child !== process) {
+          var execArgv = getNodeFlags.fromReorderedArgv(argv);
+          this.emit('respawn', execArgv, child);
+        }
+        if (ready) {
+          preloadModules(this, env);
+          registerLoader(this, this.extensions, env.configPath, env.cwd);
+          fn.call(this, env, argv);
+        }
       }
-    }
-  }.bind(this));
+    }.bind(this)
+  );
 };
 
 function preloadModules(inst, env) {

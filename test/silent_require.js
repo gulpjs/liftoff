@@ -5,9 +5,10 @@ var expect = require('expect');
 var silentRequire = require('../lib/silent_require');
 
 describe('silentRequire', function () {
-
   it('should require a file', function (done) {
-    expect(silentRequire(path.resolve('./package'))).toEqual(require('../package'));
+    expect(silentRequire(path.resolve('./package'))).toEqual(
+      require('../package')
+    );
     done();
   });
 
