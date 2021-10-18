@@ -1005,7 +1005,7 @@ describe('Liftoff', function () {
       });
       var errModulePath = path.resolve(
         __dirname,
-        './fixtures/configfiles-extends/throws.json'
+        './fixtures/configfiles-extends/throws.js'
       );
       expect(function () {
         app.prepare({}, function () {});
