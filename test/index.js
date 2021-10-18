@@ -1,4 +1,5 @@
 var path = require('path');
+var Module = require('module');
 var exec = require('child_process').exec;
 
 var expect = require('expect');
@@ -21,11 +22,48 @@ var app = new Liftoff({
   searchPaths: ['test/fixtures/search_path'],
 });
 
+// TODO: Consolidate between rechoir & liftoff
+// save the original Module._extensions
+var originalExtensions = Object.keys(Module._extensions);
+var original = originalExtensions.reduce(function (result, key) {
+  result[key] = require.extensions[key];
+  return result;
+}, {});
+// save the original cache keys
+var originalCacheKeys = Object.keys(require.cache);
+
+function cleanupCache(key) {
+  if (originalCacheKeys.indexOf(key) === -1) {
+    delete require.cache[key];
+  }
+}
+
+function cleanupExtensions(ext) {
+  if (originalExtensions.indexOf(ext) === -1) {
+    delete Module._extensions[ext];
+  } else {
+    Module._extensions[ext] = original[ext];
+  }
+}
+
+function cleanup(done) {
+  // restore the require.cache to startup state
+  Object.keys(require.cache).forEach(cleanupCache);
+  // restore the original Module._extensions
+  Object.keys(Module._extensions).forEach(cleanupExtensions);
+
+  done();
+}
+
 describe('Liftoff', function () {
+
   this.timeout(5000);
 
+  beforeEach(cleanup);
+
   describe('buildEnvironment', function () {
-    it('should locate local module using cwd if no config is found', function (done) {
+
+    it('should locate local module using cwd if no config is found', function () {
       var test = new Liftoff({ name: 'chai' });
       var cwd = 'explicit/cwd';
       var spy = sinon.spy(resolve, 'sync');
