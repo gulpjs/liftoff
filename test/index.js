@@ -649,7 +649,7 @@ describe('Liftoff', function () {
           ],
         },
       });
-      app.on('require', function (moduleName, module) {
+      app.on('loader:success', function (moduleName, module) {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
@@ -667,8 +667,7 @@ describe('Liftoff', function () {
       });
     });
 
-    // TODO: whyyyyyy doesn't this work?
-    it.skip('should use specified loaders (.txt)', function (done) {
+    it('should use specified loaders (.txt)', function (done) {
       var logRequire = [];
 
       var app = new Liftoff({
@@ -682,7 +681,7 @@ describe('Liftoff', function () {
           ],
         },
       });
-      app.on('require', function (moduleName, module) {
+      app.on('loader:success', function (moduleName, module) {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
@@ -700,7 +699,7 @@ describe('Liftoff', function () {
       });
     });
 
-    it('emits requireFail but still resolves with invalid loaders', function (done) {
+    it('emits `loader:failure` but still resolves with invalid loaders', function (done) {
       var logFailure = [];
 
       var app = new Liftoff({
@@ -714,7 +713,7 @@ describe('Liftoff', function () {
           ],
         },
       });
-      app.on('requireFail', function (moduleName, error) {
+      app.on('loader:failure', function (moduleName, error) {
         logFailure.push({ moduleName: moduleName, error: error });
       });
       app.prepare({}, function (env) {
@@ -748,10 +747,10 @@ describe('Liftoff', function () {
           ],
         },
       });
-      app.on('requireFail', function (moduleName, error) {
+      app.on('loader:failure', function (moduleName, error) {
         logFailure.push({ moduleName: moduleName, error: error });
       });
-      app.on('require', function (moduleName, module) {
+      app.on('loader:success', function (moduleName, module) {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
