@@ -507,6 +507,19 @@ describe('Liftoff', function () {
       });
     });
 
+    it('excludes files if value is not an array', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          foo: 'bar',
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.configFiles).toEqual({});
+        done();
+      });
+    });
+
     it('should find multiple files if specified', function (done) {
       var app = new Liftoff({
         name: 'myapp',
