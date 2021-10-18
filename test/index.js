@@ -599,7 +599,7 @@ describe('Liftoff', function () {
       });
     });
 
-    it('use does not use default extensions if specified (.js)', function (done) {
+    it('does not use default extensions if specified (.js)', function (done) {
       var app = new Liftoff({
         extensions: { '.md': null, '.txt': null },
         name: 'myapp',
@@ -617,7 +617,7 @@ describe('Liftoff', function () {
       });
     });
 
-    it('use does not use default extensions if specified (.json)', function (done) {
+    it('does not use default extensions if specified (.json)', function (done) {
       var app = new Liftoff({
         extensions: { '.md': null, '.txt': null },
         name: 'myapp',
