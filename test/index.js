@@ -833,5 +833,22 @@ describe('Liftoff', function () {
         done();
       });
     });
+
+    it('throws error on circular extends', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          circular1: ['test/fixtures/configfiles-extends'],
+        },
+      });
+      var circPath = path.resolve(
+        __dirname,
+        './fixtures/configfiles-extends/circular1.json'
+      );
+      expect(function () {
+        app.prepare({}, function () {});
+      }).toThrow(circPath); // Ensure that the error includes the circular path
+      done();
+    });
   });
 });

@@ -89,9 +89,11 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }
 
     if (visited[configFilePath]) {
-      // TODO: emit warning about recursion
-      // throw new Error('We encountered a recursive extend for file: ' + configFilePath + '. Please remove the recursive extends.');
-      return prev;
+      throw new Error(
+        'We encountered a circular extend for file: ' +
+          configFilePath +
+          '. Please remove the recursive extends.'
+      );
     }
     // TODO: this should emit a warning if the configFile could not be loaded
     var configFile = silentRequire(configFilePath);
