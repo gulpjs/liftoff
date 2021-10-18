@@ -850,5 +850,38 @@ describe('Liftoff', function () {
       }).toThrow(circPath); // Ensure that the error includes the circular path
       done();
     });
+
+    it('gracefully handles a null-ish extends', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          null: ['test/fixtures/configfiles-extends'],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.config).toEqual({
+          null: {},
+        });
+        done();
+      });
+    });
+
+    it('stops processing extends on an empty (or null-ish) extends', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'load-empty': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.config).toEqual({
+          'load-empty': {
+            aaa: 'bbb',
+            ccc: 'ddd',
+          },
+        });
+        done();
+      });
+    });
   });
 });
