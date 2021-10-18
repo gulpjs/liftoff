@@ -1,32 +1,36 @@
-var expect = require('chai').expect;
-var registerLoader = require('../../lib/register_loader');
 var path = require('path');
 var util = require('util');
 var EE = require('events').EventEmitter;
 
-var testDir = path.resolve(__dirname, '../fixtures/register_loader');
+var expect = require('expect');
+
+var registerLoader = require('../lib/register_loader');
+
+var testDir = path.resolve(__dirname, './fixtures/register_loader');
 
 function App() {
   EE.call(this);
 }
 util.inherits(App, EE);
 
-function handlerNotEmit(/* moduleName, moduleOrError */) {
-  expect.fail(null, null, 'Should not pass this line.');
+function handlerNotEmit() {
+  throw new Error('Should not have emitted');
 }
 
-describe('registerLoader', function() {
-  describe('register loader', function() {
-    it('Should emit a "require" event when registering loader succeeds', function(done) {
+describe('registerLoader', function () {
+
+  describe('register loader', function () {
+
+    it('Should emit a `loader:success` event when registering loader succeeds', function (done) {
 
       var loaderPath = path.join(testDir, 'require-cfg.js');
       var configPath = path.join(testDir, 'app.cfg');
       var extensions = { '.cfg': loaderPath };
 
       var app = new App();
-      app.on('loader:success', function(moduleName /* , module */) {
-        expect(moduleName).to.be.equal(loaderPath);
-        expect(require(configPath)).to.equal('Load app.cfg by require-cfg');
+      app.on('loader:success', function (moduleName /* , module */) {
+        expect(moduleName).toEqual(loaderPath);
+        expect(require(configPath)).toEqual('Load app.cfg by require-cfg');
         done();
       });
       app.on('loader:failure', handlerNotEmit);
@@ -34,16 +38,16 @@ describe('registerLoader', function() {
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit only a "loader:success" event when registering loader failed and succeeds', function(done) {
+    it('Should emit only a `loader:success` event when registering loader failed and succeeds', function (done) {
 
       var loaderPath = path.join(testDir, 'require-conf.js');
       var configPath = path.join(testDir, 'app.conf');
       var extensions = { '.conf': ['xxx', loaderPath] };
 
       var app = new App();
-      app.on('loader:success', function(moduleName /* , module */) {
-        expect(moduleName).to.be.equal(loaderPath);
-        expect(require(configPath)).to.equal('Load app.conf by require-conf');
+      app.on('loader:success', function (moduleName /* , module */) {
+        expect(moduleName).toEqual(loaderPath);
+        expect(require(configPath)).toEqual('Load app.conf by require-conf');
         done();
       });
       app.on('loader:failure', handlerNotEmit);
@@ -51,7 +55,7 @@ describe('registerLoader', function() {
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit a "loader:failure" event when loader is not found', function(done) {
+    it('Should emit a `loader:failure` event when loader is not found', function (done) {
 
       var loaderPath = path.join(testDir, 'require-tmp.js');
       var configPath = path.join(testDir, 'app.tmp');
@@ -59,15 +63,15 @@ describe('registerLoader', function() {
 
       var app = new App();
       var index = 0;
-      app.on('loader:failure', function(moduleName, error) {
+      app.on('loader:failure', function (moduleName, error) {
         if (index === 0) {
-          expect(moduleName).to.be.equal('xxx');
-          expect(error).to.be.an('error');
-          expect(error.message).to.contain('Cannot find module');
+          expect(moduleName).toEqual('xxx');
+          expect(error).toBeInstanceOf(Error);
+          expect(error.message).toMatch('Cannot find module');
         } else if (index === 1) {
-          expect(moduleName).to.be.equal(loaderPath);
-          expect(error).to.be.an('error');
-          expect(error.message).to.contain('Cannot find module');
+          expect(moduleName).toEqual(loaderPath);
+          expect(error).toBeInstanceOf(Error);
+          expect(error.message).toMatch('Cannot find module');
           done();
         } else {
           done(new Error('Should not call more than two times'));
@@ -79,16 +83,16 @@ describe('registerLoader', function() {
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should emit a "loader:failure" event when registering loader failed', function(done) {
+    it('Should emit a `loader:failure` event when registering loader failed', function (done) {
       var loaderPath = path.join(testDir, 'require-fail.js');
       var configPath = path.join(testDir, 'app.tmp');
       var extensions = { '.tmp': loaderPath };
 
       var app = new App();
-      app.on('loader:failure', function(moduleName, error) {
-        expect(moduleName).to.be.equal(loaderPath);
-        expect(error).to.be.an('error');
-        expect(error.message).to.contain('Fail to register!');
+      app.on('loader:failure', function (moduleName, error) {
+        expect(moduleName).toEqual(loaderPath);
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toMatch('Fail to register!');
         done();
       });
       app.on('loader:success', handlerNotEmit);
@@ -97,18 +101,18 @@ describe('registerLoader', function() {
     });
   });
 
-  describe('cwd', function() {
-    it('Should use "cwd" as a base directory of loaded file path if specified', function(done) {
+  describe('cwd', function () {
+    it('Should use "cwd" as a base directory of loaded file path if specified', function (done) {
 
       var loaderPath = path.join(testDir, 'require-rc.js');
       var configPath = 'app.rc';
       var extensions = { '.rc': loaderPath };
 
       var app = new App();
-      app.on('loader:success', function(moduleName /* , module */) {
-        expect(moduleName).to.be.equal(loaderPath);
+      app.on('loader:success', function (moduleName /* , module */) {
+        expect(moduleName).toEqual(loaderPath);
         var loadedFile = path.join(testDir, configPath);
-        expect(require(loadedFile)).to.equal('Load app.rc by require-rc');
+        expect(require(loadedFile)).toEqual('Load app.rc by require-rc');
         done();
       });
       app.on('loader:failure', handlerNotEmit);
@@ -117,8 +121,8 @@ describe('registerLoader', function() {
     });
   });
 
-  describe('extensions', function() {
-    it('Should do nothing when extensions is null', function(done) {
+  describe('extensions', function () {
+    it('Should do nothing when extensions is null', function (done) {
       var app = new App();
       app.on('loader:success', handlerNotEmit);
       app.on('loader:failure', handlerNotEmit);
@@ -134,25 +138,25 @@ describe('registerLoader', function() {
       done();
     });
 
-    it('Should do nothing when extensions is illegal type', function(done) {
+    it('Should do nothing when extensions is illegal type', function (done) {
       var app = new App();
       app.on('loader:success', handlerNotEmit);
       app.on('loader:failure', handlerNotEmit);
 
       registerLoader(app, 123, 'aaa/bbb.cfg');
       registerLoader(app, true, 'aaa/bbb.cfg');
-      registerLoader(app, function() {}, 'aaa/bbb.cfg');
+      registerLoader(app, function () { }, 'aaa/bbb.cfg');
       registerLoader(app, ['.rc', '.cfg'], 'aaa/bbb.cfg');
 
       // .js is one of default extensions
       registerLoader(app, 123, 'aaa/bbb.js');
       registerLoader(app, true, 'aaa/bbb.js');
-      registerLoader(app, function() {}, 'aaa/bbb.js');
+      registerLoader(app, function () { }, 'aaa/bbb.js');
       registerLoader(app, ['.js', '.json'], 'aaa/bbb.js');
       done();
     });
 
-    it('Should do nothing when extensions is a string', function(done) {
+    it('Should do nothing when extensions is a string', function (done) {
       var app = new App();
       app.on('loader:success', handlerNotEmit);
       app.on('loader:failure', handlerNotEmit);
@@ -163,8 +167,8 @@ describe('registerLoader', function() {
     });
   });
 
-  describe('configPath', function() {
-    it('Should do nothing when configPath is null', function(done) {
+  describe('configPath', function () {
+    it('Should do nothing when configPath is null', function (done) {
       var extensions0 = ['.js', '.json', '.coffee', '.coffee.md'];
       var extensions1 = {
         '.js': null,
@@ -184,7 +188,7 @@ describe('registerLoader', function() {
       done();
     });
 
-    it('Should do nothing when configPath is illegal type', function(done) {
+    it('Should do nothing when configPath is illegal type', function (done) {
       var extensions0 = ['.js', '.json', '.coffee', '.coffee.md'];
       var extensions1 = {
         '.js': null,
@@ -200,11 +204,11 @@ describe('registerLoader', function() {
       registerLoader(app, extensions0, 123);
       registerLoader(app, extensions0, ['aaa', 'bbb']);
       registerLoader(app, extensions1, {});
-      registerLoader(app, extensions1, function() {});
+      registerLoader(app, extensions1, function () { });
       done();
     });
 
-    it('Should do nothing when configPath does not end with one of extensions', function(done) {
+    it('Should do nothing when configPath does not end with one of extensions', function (done) {
       var loaderPath = path.join(testDir, 'require-rc.js');
       var configPath = path.join(testDir, 'app.xxx');
       var extensions = { '.cfg': loaderPath };
@@ -217,7 +221,7 @@ describe('registerLoader', function() {
       done();
     });
 
-    it('Should do nothing when configPath ends with one of extensions of which the loader was already registered', function(done) {
+    it('Should do nothing when configPath ends with one of extensions of which the loader was already registered', function (done) {
       var loaderPath = path.join(testDir, 'require-cfg.js');
       var configPath = path.join(testDir, 'app.cfg');
       var extensions = { '.cfg': loaderPath };
@@ -231,40 +235,40 @@ describe('registerLoader', function() {
     });
   });
 
-  describe('Multiple extensions', function() {
-    it('should detect the shortest extension in extension candidates', function(done) {
+  describe('Multiple extensions', function () {
+    it('should detect the shortest extension in extension candidates', function (done) {
       var loaderPath = path.join(testDir, 'require-file-b.js');
       var configPath = path.join(testDir, 'file.a.b');
       var extensions = { '.b': loaderPath };
 
       var app = new App();
       app.on('loader:failure', handlerNotEmit);
-      app.on('loader:success', function(moduleName /* , module */) {
-        expect(moduleName).to.be.equal(loaderPath);
-        expect(require(configPath)).to.equal('Load file.a.b by require-file-b');
+      app.on('loader:success', function (moduleName /* , module */) {
+        expect(moduleName).toEqual(loaderPath);
+        expect(require(configPath)).toEqual('Load file.a.b by require-file-b');
         done();
       });
 
       registerLoader(app, extensions, configPath);
     });
 
-    it('should detect not shortest extension in extension candidates', function(done) {
+    it('should detect not shortest extension in extension candidates', function (done) {
       var loaderPath = path.join(testDir, 'require-file-bc.js');
       var configPath = path.join(testDir, 'file.a.b.c');
       var extensions = { '.b.c': loaderPath };
 
       var app = new App();
       app.on('loader:failure', handlerNotEmit);
-      app.on('loader:success', function(moduleName /* , module */) {
-        expect(moduleName).to.be.equal(loaderPath);
-        expect(require(configPath)).to.equal('Load file.a.b.c by require-file-bc');
+      app.on('loader:success', function (moduleName /* , module */) {
+        expect(moduleName).toEqual(loaderPath);
+        expect(require(configPath)).toEqual('Load file.a.b.c by require-file-bc');
         done();
       });
 
       registerLoader(app, extensions, configPath);
     });
 
-    it('Should update a loader of a longer extension but not update a loader of a shorter extension', function(done) {
+    it('Should update a loader of a longer extension but not update a loader of a shorter extension', function (done) {
       var loaderPathD = path.join(testDir, 'require-file-d.js');
       var loaderPathCD = path.join(testDir, 'require-file-cd.js');
       var loaderPathECD = path.join(testDir, 'require-file-ecd.js');
@@ -285,21 +289,21 @@ describe('registerLoader', function() {
       var count = 0;
       var app = new App();
       app.on('loader:failure', handlerNotEmit);
-      app.on('loader:success', function(moduleName /* , module */) {
+      app.on('loader:success', function (moduleName /* , module */) {
         switch (count) {
           case 0: {
-            expect(moduleName).to.be.equal(loaderPathCD);
-            expect(require(configPathCD)).to.equal('Load file.a.b.c.d by require-file-cd');
+            expect(moduleName).toEqual(loaderPathCD);
+            expect(require(configPathCD)).toEqual('Load file.a.b.c.d by require-file-cd');
             break;
           }
           case 1: {
-            expect(moduleName).to.be.equal(loaderPathECD);
-            expect(require(configPathECD)).to.equal('Load file.a.e.c.d by require-file-ecd');
+            expect(moduleName).toEqual(loaderPathECD);
+            expect(require(configPathECD)).toEqual('Load file.a.e.c.d by require-file-ecd');
             break;
           }
           case 2: {
-            expect(moduleName).to.be.equal(loaderPathFCD);
-            expect(require(configPathFCD)).to.equal('Load file.a.f.c.d by require-file-fcd');
+            expect(moduleName).toEqual(loaderPathFCD);
+            expect(require(configPathFCD)).toEqual('Load file.a.f.c.d by require-file-fcd');
             done();
             break;
           }

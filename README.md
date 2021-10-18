@@ -4,30 +4,33 @@
   </a>
 </p>
 
-# liftoff [![Build Status](http://img.shields.io/travis/js-cli/js-liftoff.svg?label=travis-ci)](http://travis-ci.org/js-cli/js-liftoff) [![Build status](https://img.shields.io/appveyor/ci/phated/js-liftoff.svg?label=appveyor)](https://ci.appveyor.com/project/phated/js-liftoff)
+<p align="center">
+  <a href="http://gulpjs.com">
+    <img height="257" width="114" src="https://raw.githubusercontent.com/gulpjs/artwork/master/gulp-2x.png">
+  </a>
+</p>
 
+# liftoff
 
-> Launch your command line tool with ease.
+[![NPM version][npm-image]][npm-url] [![Downloads][downloads-image]][npm-url] [![Build Status][ci-image]][ci-url] [![Coveralls Status][coveralls-image]][coveralls-url]
 
-[![NPM](https://nodei.co/npm/liftoff.png)](https://nodei.co/npm/liftoff/)
+Launch your command line tool with ease.
 
 ## What is it?
-[See this blog post](http://weblog.bocoup.com/building-command-line-tools-in-node-with-liftoff/), [check out this proof of concept](https://github.com/js-cli/js-hacker), or read on.
 
-Say you're writing a CLI tool.  Let's call it [hacker](https://github.com/js-cli/js-hacker).  You want to configure it using a `Hackerfile`.  This is node, so you install `hacker` locally for each project you use it in.  But, in order to get the `hacker` command in your PATH, you also install it globally.
+[See this blog post][liftoff-blog], [check out this proof of concept][hacker], or read on.
 
-Now, when you run `hacker`, you want to configure what it does using the `Hackerfile` in your current directory, and you want it to execute using the local installation of your tool.  Also, it'd be nice if the `hacker` command was smart enough to traverse up your folders until it finds a `Hackerfile`&mdash;for those times when you're not in the root directory of your project.  Heck, you might even want to launch `hacker` from a folder outside of your project by manually specifying a working directory.  Liftoff manages this for you.
+Say you're writing a CLI tool. Let's call it [hacker]. You want to configure it using a `Hackerfile`. This is node, so you install `hacker` locally for each project you use it in. But, in order to get the `hacker` command in your PATH, you also install it globally.
 
-So, everything is working great.  Now you can find your local `hacker` and `Hackerfile` with ease.  Unfortunately, it turns out you've authored your `Hackerfile` in coffee-script, or some other JS variant.  In order to support *that*, you have to load the compiler for it, and then register the extension for it with node.  Good news, Liftoff can do that, and a whole lot more, too.
+Now, when you run `hacker`, you want to configure what it does using the `Hackerfile` in your current directory, and you want it to execute using the local installation of your tool. Also, it'd be nice if the `hacker` command was smart enough to traverse up your folders until it finds a `Hackerfile`&mdash;for those times when you're not in the root directory of your project. Heck, you might even want to launch `hacker` from a folder outside of your project by manually specifying a working directory. Liftoff manages this for you.
 
-## API
+So, everything is working great. Now you can find your local `hacker` and `Hackerfile` with ease. Unfortunately, it turns out you've authored your `Hackerfile` in coffee-script, or some other JS variant. In order to support _that_, you have to load the compiler for it, and then register the extension for it with node. Good news, Liftoff can do that, and a whole lot more, too.
 
-### constructor(opts)
+## Usage
 
-Create an instance of Liftoff to invoke your application.
-
-An example utilizing all options:
 ```js
+const Liftoff = require('liftoff');
+
 const Hacker = new Liftoff({
   name: 'hacker',
   processTitle: 'hacker',
@@ -36,171 +39,198 @@ const Hacker = new Liftoff({
   extensions: {
     '.js': null,
     '.json': null,
-    '.coffee': 'coffee-script/register'
+    '.coffee': 'coffee-script/register',
   },
-  v8flags: ['--harmony'] // or v8flags: require('v8flags')
+  v8flags: ['--harmony'], // or v8flags: require('v8flags')
+});
+
+Hacker.prepare({}, function (env) {
+  Hacker.execute(env, function (env) {
+    // Do post-execute things
+  });
 });
 ```
+
+## API
+
+### constructor(opts)
+
+Create an instance of Liftoff to invoke your application.
 
 #### opts.name
 
 Sugar for setting `processTitle`, `moduleName`, `configName` automatically.
 
-Type: `String`  
+Type: `String`
+
 Default: `null`
 
 These are equivalent:
+
 ```js
 const Hacker = Liftoff({
   processTitle: 'hacker',
   moduleName: 'hacker',
-  configName: 'hackerfile'
+  configName: 'hackerfile',
 });
 ```
+
 ```js
-const Hacker = Liftoff({name:'hacker'});
+const Hacker = Liftoff({ name: 'hacker' });
 ```
 
-#### opts.moduleName
+Type: `String`
 
-Sets which module your application expects to find locally when being run.
-
-Type: `String`  
 Default: `null`
 
 #### opts.configName
 
-Sets the name of the configuration file Liftoff will attempt to find.  Case-insensitive.
+Sets the name of the configuration file Liftoff will attempt to find. Case-insensitive.
 
-Type: `String`  
+Type: `String`
+
 Default: `null`
 
 #### opts.extensions
 
-Set extensions to include when searching for a configuration file.  If an external module is needed to load a given extension (e.g. `.coffee`), the module name should be specified as the value for the key.
+Set extensions to include when searching for a configuration file. If an external module is needed to load a given extension (e.g. `.coffee`), the module name should be specified as the value for the key.
 
-Type: `Object`  
+Type: `Object`
+
 Default: `{".js":null,".json":null}`
 
 **Examples:**
 
-In this example Liftoff will look for `myappfile{.js,.json,.coffee}`.  If a config with the extension `.coffee` is found, Liftoff will try to require `coffee-script/require` from the current working directory.
+In this example Liftoff will look for `myappfile{.js,.json,.coffee}`. If a config with the extension `.coffee` is found, Liftoff will try to require `coffee-script/require` from the current working directory.
+
 ```js
 const MyApp = new Liftoff({
   name: 'myapp',
   extensions: {
     '.js': null,
     '.json': null,
-    '.coffee': 'coffee-script/register'
-  }
+    '.coffee': 'coffee-script/register',
+  },
 });
 ```
 
 In this example, Liftoff will look for `.myapp{rc}`.
+
 ```js
 const MyApp = new Liftoff({
   name: 'myapp',
   configName: '.myapp',
   extensions: {
-    'rc': null
-  }
+    rc: null,
+  },
 });
 ```
 
-In this example, Liftoff will automatically attempt to load the correct module for any javascript variant supported by [interpret](https://github.com/js-cli/js-interpret) (as long as it does not require a register method).
+In this example, Liftoff will automatically attempt to load the correct module for any javascript variant supported by [interpret] (as long as it does not require a register method).
 
 ```js
 const MyApp = new Liftoff({
   name: 'myapp',
-  extensions: require('interpret').jsVariants
+  extensions: require('interpret').jsVariants,
 });
 ```
+
 #### opts.v8flags
 
-Any flag specified here will be applied to node, not your program.  Useful for supporting invocations like `myapp --harmony command`, where `--harmony` should be passed to node, not your program. This functionality is implemented using [flagged-respawn](http://github.com/js-cli/js-flagged-respawn). To support all v8flags, see [v8flags](https://github.com/js-cli/js-v8flags).
+Any flag specified here will be applied to node, not your program. Useful for supporting invocations like `myapp --harmony command`, where `--harmony` should be passed to node, not your program. This functionality is implemented using [flagged-respawn]. To support all v8flags, see [v8flags].
 
-Type: `Array|Function`  
+Type: `Array` or `Function`
+
 Default: `null`
 
 If this method is a function, it should take a node-style callback that yields an array of flags.
 
 #### opts.processTitle
 
-Sets what the [process title](http://nodejs.org/api/process.html#process_process_title) will be.
+Sets what the [process title][process-title] will be.
 
-Type: `String`  
+Type: `String`
+
 Default: `null`
 
 #### opts.completions(type)
 
 A method to handle bash/zsh/whatever completions.
 
-Type: `Function`  
+Type: `Function`
+
 Default: `null`
 
 #### opts.configFiles
 
 An object of configuration files to find. Each property is keyed by the default basename of the file being found, and the value is an object of [path arguments](#path-arguments) keyed by unique names.
 
-__Note:__ This option is useful if, for example, you want to support an `.apprc` file in addition to an `appfile.js`. If you only need a single configuration file, you probably don't need this. In addition to letting you find multiple files, this option allows more fine-grained control over how configuration files are located.
+**Note:** This option is useful if, for example, you want to support an `.apprc` file in addition to an `appfile.js`. If you only need a single configuration file, you probably don't need this. In addition to letting you find multiple files, this option allows more fine-grained control over how configuration files are located.
 
-Type: `Object`  
+Type: `Object`
+
 Default: `null`
 
 #### Path arguments
 
-The [`fined`](https://github.com/js-cli/fined) module accepts a string representing the path to search or an object with the following keys:
+The [`fined`][fined] module accepts a string representing the path to search or an object with the following keys:
 
-* `path` __(required)__
+- `path` **(required)**
 
   The path to search. Using only a string expands to this property.
 
-  Type: `String`  
+  Type: `String`
+
   Default: `null`
 
-* `name`
+- `name`
 
   The basename of the file to find. Extensions are appended during lookup.
 
-  Type: `String`  
+  Type: `String`
+
   Default: Top-level key in `configFiles`
 
-* `extensions`
+- `extensions`
 
   The extensions to append to `name` during lookup. See also: [`opts.extensions`](#optsextensions).
 
-  Type: `String|Array|Object`  
+  Type: `String` or `Array` or `Object`
   Default: The value of [`opts.extensions`](#optsextensions)
 
-* `cwd` 
+- `cwd`
 
   The base directory of `path` (if relative).
 
-  Type: `String`  
+  Type: `String`
+
   Default: The value of [`opts.cwd`](#optscwd)
 
-* `findUp`
+- `findUp`
 
   Whether the `path` should be traversed up to find the file.
 
-  Type: `Boolean`  
+  Type: `Boolean`
+
   Default: `false`
 
 **Examples:**
 
 In this example Liftoff will look for the `.hacker.js` file relative to the `cwd` as declared in `configFiles`.
+
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
   configFiles: {
     '.hacker': {
-      cwd: '.'
-    }
-  }
+      cwd: '.',
+    },
+  },
 });
 ```
 
 In this example, Liftoff will look for `.hackerrc` in the home directory.
+
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
@@ -209,15 +239,16 @@ const MyApp = new Liftoff({
       home: {
         path: '~',
         extensions: {
-          'rc': null
-        }
-      }
-    }
-  }
+          rc: null,
+        },
+      },
+    },
+  },
 });
 ```
 
 In this example, Liftoff will look in the `cwd` and then lookup the tree for the `.hacker.js` file.
+
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
@@ -225,14 +256,15 @@ const MyApp = new Liftoff({
     '.hacker': {
       up: {
         path: '.',
-        findUp: true
-      }
-    }
-  }
+        findUp: true,
+      },
+    },
+  },
 });
 ```
 
 In this example, the `name` is overridden and the key is ignored so Liftoff looks for `.override.js`.
+
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
@@ -240,14 +272,15 @@ const MyApp = new Liftoff({
     hacker: {
       override: {
         path: '.',
-        name: '.override'
-      }
-    }
-  }
+        name: '.override',
+      },
+    },
+  },
 });
 ```
 
 In this example, Liftoff will use the home directory as the `cwd` and looks for `~/.hacker.js`.
+
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
@@ -255,22 +288,22 @@ const MyApp = new Liftoff({
     '.hacker': {
       home: {
         path: '.',
-        cwd: '~'
-      }
-    }
-  }
+        cwd: '~',
+      },
+    },
+  },
 });
 ```
 
 ### prepare(opts, callback(env))
 
-Prepares the environment for your application with provided options, and invokes your callback with the calculated environment as the first argument.  The environment can be modified before using it as the first argument to `execute`.
+Prepares the environment for your application with provided options, and invokes your callback with the calculated environment as the first argument. The environment can be modified before using it as the first argument to `execute`.
 
 **Example Configuration w/ Options Parsing:**
 
 ```js
 const Liftoff = require('liftoff');
-const MyApp = new Liftoff({name:'myapp'});
+const MyApp = new Liftoff({ name: 'myapp' });
 const argv = require('minimist')(process.argv.slice(2));
 const onExecute = function (env, argv) {
   // Do post-execute things
@@ -280,12 +313,15 @@ const onPrepare = function (env) {
   console.log('my liftoff config is:', this);
   MyApp.execute(env, onExecute);
 };
-MyApp.prepare({
-  cwd: argv.cwd,
-  configPath: argv.myappfile,
-  preload: argv.preload,
-  completion: argv.completion
-}, onPrepare);
+MyApp.prepare(
+  {
+    cwd: argv.cwd,
+    configPath: argv.myappfile,
+    preload: argv.preload,
+    completion: argv.completion,
+  },
+  onPrepare
+);
 ```
 
 **Example w/ modified environment**
@@ -296,21 +332,24 @@ const Hacker = new Liftoff({
   name: 'hacker',
   configFiles: {
     '.hacker': {
-      home: { path: '.', cwd: '~' }
-    }
-  }
+      home: { path: '.', cwd: '~' },
+    },
+  },
 });
 const onExecute = function (env, argv) {
   // Do post-execute things
 };
 const onPrepare = function (env) {
-   env.configProps = ['home', 'cwd'].map(function(dirname) {
-    return env.configFiles['.hacker'][dirname]
-  }).filter(function(filePath) {
-    return Boolean(filePath);
-  }).reduce(function(config, filePath) {
-    return mergeDeep(config, require(filePath));
-  }, {});
+  env.configProps = ['home', 'cwd']
+    .map(function (dirname) {
+      return env.configFiles['.hacker'][dirname];
+    })
+    .filter(function (filePath) {
+      return Boolean(filePath);
+    })
+    .reduce(function (config, filePath) {
+      return mergeDeep(config, require(filePath));
+    }, {});
 
   if (env.configProps.hackerfile) {
     env.configPath = path.resolve(env.configProps.hackerfile);
@@ -326,18 +365,24 @@ Hacker.prepare({}, onPrepare);
 
 Change the current working directory for this launch. Relative paths are calculated against `process.cwd()`.
 
-Type: `String`  
+Type: `String`
+
 Default: `process.cwd()`
 
 **Example Configuration:**
+
 ```js
 const argv = require('minimist')(process.argv.slice(2));
-MyApp.launch({
-  cwd: argv.cwd
-}, invoke);
+MyApp.launch(
+  {
+    cwd: argv.cwd,
+  },
+  invoke
+);
 ```
 
 **Matching CLI Invocation:**
+
 ```
 myapp --cwd ../
 ```
@@ -346,32 +391,40 @@ myapp --cwd ../
 
 Don't search for a config, use the one provided. **Note:** Liftoff will assume the current working directory is the directory containing the config file unless an alternate location is explicitly specified using `cwd`.
 
-Type: `String`  
+Type: `String`
+
 Default: `null`
 
 **Example Configuration:**
+
 ```js
 var argv = require('minimist')(process.argv.slice(2));
-MyApp.launch({
-  configPath: argv.myappfile
-}, invoke);
+MyApp.launch(
+  {
+    configPath: argv.myappfile,
+  },
+  invoke
+);
 ```
 
 **Matching CLI Invocation:**
-```
+
+```sh
 myapp --myappfile /var/www/project/Myappfile.js
 ```
 
 **Examples using `cwd` and `configPath` together:**
 
 These are functionally identical:
-```
+
+```sh
 myapp --myappfile /var/www/project/Myappfile.js
 myapp --cwd /var/www/project
 ```
 
 These can run myapp from a shared directory as though it were located in another project:
-```
+
+```sh
 myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project1
 myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
 ```
@@ -380,25 +433,30 @@ myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
 
 A string or array of modules to attempt requiring from the local working directory before invoking the launch callback.
 
-Type: `String|Array`  
+Type: `String|Array`
 Default: `null`
 
 **Example Configuration:**
+
 ```js
 var argv = require('minimist')(process.argv.slice(2));
-MyApp.launch({
-  preload: argv.preload
-}, invoke);
+MyApp.launch(
+  {
+    preload: argv.preload,
+  },
+  invoke
+);
 ```
 
 **Matching CLI Invocation:**
-```js
+
+```sh
 myapp --preload coffee-script/register
 ```
 
 #### callback(env)
 
-A function called after your environment is prepared.  A good place to modify the environment before calling `execute`.  When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
+A function called after your environment is prepared. A good place to modify the environment before calling `execute`. When invoked, `this` will be your instance of Liftoff. The `env` param will contain the following keys:
 
 - `cwd`: the current working directory
 - `preload`: an array of modules that liftoff tried to pre-load
@@ -411,13 +469,13 @@ A function called after your environment is prepared.  A good place to modify th
 
 ### execute(env, [forcedFlags], callback(env, argv))
 
-A function to start your application, based on the `env` given.  Optionally takes an array of `forcedFlags`, which will force a respawn with those node or V8 flags during startup.  Invokes your callback with the environment and command-line arguments (minus node & v8 flags) after the application has been executed.
+A function to start your application, based on the `env` given. Optionally takes an array of `forcedFlags`, which will force a respawn with those node or V8 flags during startup. Invokes your callback with the environment and command-line arguments (minus node & v8 flags) after the application has been executed.
 
 **Example:**
 
 ```js
 const Liftoff = require('liftoff');
-const MyApp = new Liftoff({name:'myapp'});
+const MyApp = new Liftoff({ name: 'myapp' });
 const onExecute = function (env, argv) {
   // Do post-execute things
   console.log('my environment is:', env);
@@ -433,7 +491,7 @@ MyApp.prepare({}, onPrepare);
 
 #### callback(env, argv)
 
-A function called after your application is executed.  When invoked, `this` will be your instance of Liftoff, `argv` will be all command-line arguments (minus node & v8 flags), and `env` will contain the following keys:
+A function called after your application is executed. When invoked, `this` will be your instance of Liftoff, `argv` will be all command-line arguments (minus node & v8 flags), and `env` will contain the following keys:
 
 - `cwd`: the current working directory
 - `preload`: an array of modules that liftoff tried to pre-load
@@ -451,9 +509,9 @@ A function called after your application is executed.  When invoked, `this` will
 Emitted before a module is pre-load. (But for only a module which is specified by `opts.preload`.)
 
 ```js
-var Hacker = new Liftoff({name:'hacker', preload:'coffee-script'});
+var Hacker = new Liftoff({ name: 'hacker', preload: 'coffee-script' });
 Hacker.on('preload:before', function (name) {
-  console.log('Requiring external module: '+name+'...');
+  console.log('Requiring external module: ' + name + '...');
 });
 ```
 
@@ -462,9 +520,9 @@ Hacker.on('preload:before', function (name) {
 Emitted when a module has been pre-loaded.
 
 ```js
-var Hacker = new Liftoff({name:'hacker'});
+var Hacker = new Liftoff({ name: 'hacker' });
 Hacker.on('preload:success', function (name, module) {
-  console.log('Required external module: '+name+'...');
+  console.log('Required external module: ' + name + '...');
   // automatically register coffee-script extensions
   if (name === 'coffee-script') {
     module.register();
@@ -477,7 +535,7 @@ Hacker.on('preload:success', function (name, module) {
 Emitted when a requested module cannot be preloaded.
 
 ```js
-var Hacker = new Liftoff({name:'hacker'});
+var Hacker = new Liftoff({ name: 'hacker' });
 Hacker.on('preload:failure', function (name, err) {
   console.log('Unable to load:', name, err);
 });
@@ -491,11 +549,11 @@ Emitted when a loader that matches an extension has been loaded.
 var Hacker = new Liftoff({
   name: 'hacker',
   extensions: {
-    '.ts': 'ts-node/register'
-  }
+    '.ts': 'ts-node/register',
+  },
 });
 Hacker.on('loader:success', function (name, module) {
-  console.log('Required external module: '+name+'...');
+  console.log('Required external module: ' + name + '...');
 });
 ```
 
@@ -507,8 +565,8 @@ Emitted when no loader for an extension can be loaded. Emits an error for each f
 var Hacker = new Liftoff({
   name: 'hacker',
   extensions: {
-    '.ts': 'ts-node/register'
-  }
+    '.ts': 'ts-node/register',
+  },
 });
 Hacker.on('loader:failure', function (name, err) {
   console.log('Unable to load:', name, err);
@@ -522,7 +580,7 @@ Emitted when Liftoff re-spawns your process (when a [`v8flags`](#optsv8flags) is
 ```js
 var Hacker = new Liftoff({
   name: 'hacker',
-  v8flags: ['--harmony']
+  v8flags: ['--harmony'],
 });
 Hacker.on('respawn', function (flags, child) {
   console.log('Detected node flags:', flags);
@@ -535,13 +593,44 @@ Event will be triggered for this command:
 
 ## Examples
 
-Check out how [gulp](https://github.com/gulpjs/gulp-cli/blob/master/index.js) uses Liftoff.
+Check out how [gulp][gulp-cli-index] uses Liftoff.
 
-For a bare-bones example, try [the hacker project](https://github.com/js-cli/js-hacker/blob/master/bin/hacker.js).
+For a bare-bones example, try [the hacker project][hacker-index].
 
 To try the example, do the following:
 
 1. Install the sample project `hacker` with `npm install -g hacker`.
 2. Make a `Hackerfile.js` with some arbitrary javascript it.
 3. Install hacker next to it with `npm install hacker`.
-3. Run `hacker` while in the same parent folder.
+4. Run `hacker` while in the same parent folder.
+
+## License
+
+MIT
+
+<!-- prettier-ignore-start -->
+[downloads-image]: https://img.shields.io/npm/dm/liftoff.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/liftoff
+[npm-image]: https://img.shields.io/npm/v/liftoff.svg?style=flat-square
+
+[ci-url]: https://github.com/gulpjs/liftoff/actions?query=workflow:dev
+[ci-image]: https://img.shields.io/github/workflow/status/gulpjs/liftoff/dev?style=flat-square
+
+[coveralls-url]: https://coveralls.io/r/gulpjs/liftoff
+[coveralls-image]: https://img.shields.io/coveralls/gulpjs/liftoff/master.svg?style=flat-square
+<!-- prettier-ignore-end -->
+
+<!-- prettier-ignore-start -->
+[liftoff-blog]: https://bocoup.com/blog/building-command-line-tools-in-node-with-liftoff
+
+[hacker]: https://github.com/gulpjs/hacker
+[interpret]: https://github.com/gulpjs/interpret
+[flagged-respawn]: http://github.com/gulpjs/flagged-respawn
+[v8flag]: https://github.com/gulpjs/v8flags
+[fined]: https://github.com/gulpjs/fined
+
+[process-title]: http://nodejs.org/api/process.html#process_process_title
+
+[gulp-cli-index]: https://github.com/gulpjs/gulp-cli/blob/master/index.js
+[hacker-index]: https://github.com/gulpjs/js-hacker/blob/master/bin/hacker.js
+<!-- prettier-ignore-end -->
