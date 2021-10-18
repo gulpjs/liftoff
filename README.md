@@ -363,7 +363,7 @@ Hacker.prepare({}, onPrepare);
 
 #### opts.cwd
 
-Change the current working directory for this launch. Relative paths are calculated against `process.cwd()`.
+Change the current working directory for this execution. Relative paths are calculated against `process.cwd()`.
 
 Type: `String`
 
@@ -373,11 +373,13 @@ Default: `process.cwd()`
 
 ```js
 const argv = require('minimist')(process.argv.slice(2));
-MyApp.launch(
+MyApp.prepare(
   {
     cwd: argv.cwd,
   },
-  invoke
+  function (env) {
+    MyApp.execute(env, invoke);
+  }
 );
 ```
 
@@ -399,11 +401,13 @@ Default: `null`
 
 ```js
 var argv = require('minimist')(process.argv.slice(2));
-MyApp.launch(
+MyApp.prepare(
   {
     configPath: argv.myappfile,
   },
-  invoke
+  function (env) {
+    MyApp.execute(env, invoke);
+  }
 );
 ```
 
@@ -431,7 +435,7 @@ myapp --myappfile /Users/name/Myappfile.js --cwd /var/www/project2
 
 #### opts.preload
 
-A string or array of modules to attempt requiring from the local working directory before invoking the launch callback.
+A string or array of modules to attempt requiring from the local working directory before invoking the execute callback.
 
 Type: `String|Array`
 Default: `null`
@@ -440,11 +444,13 @@ Default: `null`
 
 ```js
 var argv = require('minimist')(process.argv.slice(2));
-MyApp.launch(
+MyApp.prepare(
   {
     preload: argv.preload,
   },
-  invoke
+  function (env) {
+    MyApp.execute(env, invoke);
+  }
 );
 ```
 
