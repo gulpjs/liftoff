@@ -118,7 +118,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       var nextCwd = path.dirname(configFilePath);
       return loadConfig(nextCwd, configFile.extends, configFile);
     }
-    return extend(true /* deep */, prev, configFile);
+    return extend(true /* deep */, configFile, prev);
   }
 
   var configFiles = {};

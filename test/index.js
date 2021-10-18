@@ -843,8 +843,8 @@ describe('Liftoff', function () {
       app.prepare({}, function (env) {
         expect(env.config).toEqual({
           testconfig: {
-            aaa: 'CCC',
-            bbb: 'BBB',
+            aaa: 'AAA', // Comes from the base, which overrode `aaa: 'CCC'` in the `extends`
+            bbb: 'BBB', // Comes from the `extends`
           },
         });
         done();
