@@ -172,8 +172,8 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
   // TODO: break this out into lib/
   // locate local module and package next to config or explicitly provided cwd
-  /* eslint one-var: 0 */
-  var modulePath, modulePackage;
+  var modulePath;
+  var modulePackage;
   try {
     var delim = path.delimiter;
     var paths = process.env.NODE_PATH ? process.env.NODE_PATH.split(delim) : [];
