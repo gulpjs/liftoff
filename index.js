@@ -94,7 +94,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   }
 
   var visited = {};
-  function loadConfig(cwd, xtends, prev) {
+  function loadConfig(cwd, xtends, preferred) {
     var configFilePath = getModulePath(cwd, xtends);
 
     if (visited[configFilePath]) {
@@ -118,7 +118,10 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       var nextCwd = path.dirname(configFilePath);
       return loadConfig(nextCwd, configFile.extends, configFile);
     }
-    return extend(true /* deep */, configFile, prev);
+    // Always extend into an empty object so we can call `delete` on `config.extends`
+    var config = extend(true /* deep */, {}, configFile, preferred);
+    delete config.extends;
+    return config;
   }
 
   var configFiles = {};
@@ -140,10 +143,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       return defaultConfig;
     }
 
-    var config = loadConfig(cwd, startingLocation, defaultConfig);
-    // TODO: better filter?
-    delete config.extends;
-    return config;
+    return loadConfig(cwd, startingLocation, defaultConfig);
   });
 
   // if cwd was provided explicitly, only use it for searching config
