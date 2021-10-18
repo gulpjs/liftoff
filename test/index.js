@@ -596,7 +596,9 @@ describe('Liftoff', function () {
 
     it('uses default extensions if not specified (.md)', function (done) {
       var app = new Liftoff({
-        extensions: { '.md': null, '.txt': null },
+        extensions: {
+          '.md': './test/fixtures/configfiles/require-md',
+        },
         name: 'myapp',
         configFiles: {
           README: [{ path: '.' }],
@@ -612,7 +614,9 @@ describe('Liftoff', function () {
 
     it('use default extensions if not specified (.txt)', function (done) {
       var app = new Liftoff({
-        extensions: { '.md': null, '.txt': null },
+        extensions: {
+          '.txt': './test/fixtures/configfiles/require-txt',
+        },
         name: 'myapp',
         configFiles: {
           README: [{ path: 'test/fixtures/configfiles' }],
@@ -904,13 +908,13 @@ describe('Liftoff', function () {
           'local-missing': ['test/fixtures/configfiles-extends'],
         },
       });
-      var circPath = path.resolve(
+      var missingPath = path.resolve(
         __dirname,
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
         app.prepare({}, function () {});
-      }).toThrow(circPath);
+      }).toThrow(missingPath);
       done();
     });
 
@@ -921,13 +925,13 @@ describe('Liftoff', function () {
           'extend-missing': ['test/fixtures/configfiles-extends'],
         },
       });
-      var circPath = path.resolve(
+      var missingPath = path.resolve(
         __dirname,
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
         app.prepare({}, function () {});
-      }).toThrow(circPath);
+      }).toThrow(missingPath);
       done();
     });
 
@@ -938,13 +942,13 @@ describe('Liftoff', function () {
           'missing-path-obj': ['test/fixtures/configfiles-extends'],
         },
       });
-      var circPath = path.resolve(
+      var missingPath = path.resolve(
         __dirname,
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
         app.prepare({}, function () {});
-      }).toThrow(circPath);
+      }).toThrow(missingPath);
       done();
     });
 
@@ -955,13 +959,13 @@ describe('Liftoff', function () {
           'missing-name-obj': ['test/fixtures/configfiles-extends'],
         },
       });
-      var circPath = path.resolve(
+      var missingPath = path.resolve(
         __dirname,
         './fixtures/configfiles-extends/not-exists'
       );
       expect(function () {
         app.prepare({}, function () {});
-      }).toThrow(circPath);
+      }).toThrow(missingPath);
       done();
     });
 
@@ -975,6 +979,37 @@ describe('Liftoff', function () {
       expect(function () {
         app.prepare({}, function () {});
       }).toThrow(/^Unable to locate one of your extends\.$/); // Ensure the error doesn't contain path
+      done();
+    });
+
+    it('throws upon extends of missing npm module', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'npm-missing': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      var missingModule = 'not-installed';
+      expect(function () {
+        app.prepare({}, function () {});
+      }).toThrow(missingModule);
+      done();
+    });
+
+    it('throws upon extends if loading file errors', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          throws: ['test/fixtures/configfiles-extends'],
+        },
+      });
+      var errModulePath = path.resolve(
+        __dirname,
+        './fixtures/configfiles-extends/throws.json'
+      );
+      expect(function () {
+        app.prepare({}, function () {});
+      }).toThrow(errModulePath);
       done();
     });
   });

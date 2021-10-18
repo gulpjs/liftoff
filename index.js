@@ -104,14 +104,21 @@ Liftoff.prototype.buildEnvironment = function (opts) {
           '. Please remove the recursive extends.'
       );
     }
-    // TODO: this should emit a warning if the configFile could not be loaded
-    var configFile = silentRequire(configFilePath);
+    var configFile;
+    try {
+      configFile = require(configFilePath);
+    } catch (e) {
+      // TODO: Consider surfacing the `require` error
+      throw new Error(
+        'Encountered error when loading config file: ' + configFilePath
+      );
+    }
     visited[configFilePath] = true;
     if (configFile && configFile.extends) {
       var nextCwd = path.dirname(configFilePath);
       return loadConfig(nextCwd, configFile.extends, configFile);
     }
-    return extend(true /* deep */, prev, configFile || {});
+    return extend(true /* deep */, prev, configFile);
   }
 
   var configFiles = {};
