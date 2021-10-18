@@ -517,7 +517,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           testconfig: path.resolve('./test/fixtures/configfiles/testconfig.json'),
           package: path.resolve('./package.json'),
         });
@@ -537,7 +537,7 @@ describe('Liftoff', function () {
       app.prepare({
         cwd: 'test/fixtures/configfiles',
       }, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           testconfig: path.resolve('./test/fixtures/configfiles/testconfig.json'),
         });
         done();
@@ -556,7 +556,7 @@ describe('Liftoff', function () {
       app.prepare({
         configPath: 'test/fixtures/configfiles/myapp.js',
       }, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           testconfig: path.resolve('./test/fixtures/configfiles/testconfig.json'),
         });
         done();
@@ -574,7 +574,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           README: path.resolve('./README.md'),
         });
         done();
@@ -592,7 +592,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           README: path.resolve('./test/fixtures/configfiles/README.txt'),
         });
         done();
@@ -610,7 +610,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           README: undefined,
         });
         done();
@@ -628,7 +628,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           README: undefined,
         });
         done();
@@ -653,16 +653,16 @@ describe('Liftoff', function () {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           README: path.resolve('./README.md'),
         });
 
-        expect(logRequire.length).to.equal(1);
+        expect(logRequire.length).toEqual(1);
         expect(logRequire[0].moduleName)
-          .to.equal('./test/fixtures/configfiles/require-md');
+          .toEqual('./test/fixtures/configfiles/require-md');
 
         expect(require(env.configFiles.README))
-          .to.equal('Load README.md by require-md');
+          .toEqual('Load README.md by require-md');
         done();
       });
     });
@@ -685,16 +685,16 @@ describe('Liftoff', function () {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           README: path.resolve('./test/fixtures/configfiles/README.txt'),
         });
 
-        expect(logRequire.length).to.equal(1);
+        expect(logRequire.length).toEqual(1);
         expect(logRequire[0].moduleName)
-          .to.equal('./test/fixtures/configfiles/require-txt');
+          .toEqual('./test/fixtures/configfiles/require-txt');
 
         expect(require(env.configFiles.README))
-          .to.equal('Load README.txt by require-txt');
+          .toEqual('Load README.txt by require-txt');
         done();
       });
     });
@@ -717,13 +717,13 @@ describe('Liftoff', function () {
         logFailure.push({ moduleName: moduleName, error: error });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           README: path.resolve('./test/fixtures/configfiles/README.txt'),
         });
 
-        expect(logFailure.length).to.equal(1);
+        expect(logFailure.length).toEqual(1);
         expect(logFailure[0].moduleName)
-          .to.equal('./test/fixtures/configfiles/require-non-exist');
+          .toEqual('./test/fixtures/configfiles/require-non-exist');
 
         done();
       });
@@ -754,15 +754,15 @@ describe('Liftoff', function () {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).to.deep.equal({
+        expect(env.configFiles).toEqual({
           testconfig: path.resolve('./test/fixtures/configfiles/testconfig.json'),
         });
 
-        expect(logRequire.length).to.equal(0);
-        expect(logFailure.length).to.equal(0);
+        expect(logRequire.length).toEqual(0);
+        expect(logFailure.length).toEqual(0);
 
         expect(require(env.configFiles.testconfig))
-          .to.deep.equal({ aaa: 'AAA' });
+          .toEqual({ aaa: 'AAA' });
         done();
       });
     });
@@ -774,7 +774,7 @@ describe('Liftoff', function () {
         name: 'myapp',
       });
       app.prepare({}, function (env) {
-        expect(env.config).to.deep.equal({});
+        expect(env.config).toEqual({});
         done();
       });
     });
@@ -787,7 +787,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.config).to.deep.equal({
+        expect(env.config).toEqual({
           testconfig: {
             aaa: 'AAA',
           },
@@ -804,7 +804,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.config).to.deep.equal({
+        expect(env.config).toEqual({
           testconfig: {
             aaa: 'CCC',
             bbb: 'BBB',
