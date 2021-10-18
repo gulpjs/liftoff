@@ -129,7 +129,7 @@ describe('Liftoff', function () {
 
     it("should set cwd to match the directory of the config file as long as cwd wasn't explicitly provided", function (done) {
       expect(app.buildEnvironment().cwd).toEqual(
-        path.resolve('test/fixtures/search_path')
+        path.resolve(__dirname, './fixtures/search_path')
       );
       done();
     });
@@ -308,7 +308,10 @@ describe('Liftoff', function () {
         expect(err).toEqual(null);
         expect(stderr).toEqual(
           [
-            path.resolve('test/fixtures/prepare-execute/v8flags_config.js'),
+            path.resolve(
+              __dirname,
+              './fixtures/prepare-execute/v8flags_config.js'
+            ),
             '123',
           ].join(' ') + '\n'
         );
@@ -327,7 +330,10 @@ describe('Liftoff', function () {
         expect(err).toEqual(null);
         expect(stderr).toEqual(
           [
-            path.resolve('test/fixtures/prepare-execute/v8flags_config.js'),
+            path.resolve(
+              __dirname,
+              './fixtures/prepare-execute/v8flags_config.js'
+            ),
             '123',
             'abc',
           ].join(' ') + '\n'
@@ -370,7 +376,10 @@ describe('Liftoff', function () {
         expect(err).toEqual(null);
         expect(stderr).toEqual(
           [
-            path.resolve('test/fixtures/prepare-execute/nodeflags_only.js'),
+            path.resolve(
+              __dirname,
+              './fixtures/prepare-execute/nodeflags_only.js'
+            ),
             '123',
           ].join(' ') + '\n'
         );
@@ -517,9 +526,10 @@ describe('Liftoff', function () {
       app.prepare({}, function (env) {
         expect(env.configFiles).toEqual({
           testconfig: path.resolve(
-            './test/fixtures/configfiles/testconfig.json'
+            __dirname,
+            './fixtures/configfiles/testconfig.json'
           ),
-          package: path.resolve('./package.json'),
+          package: path.resolve(__dirname, '../package.json'),
         });
         done();
       });
@@ -539,7 +549,8 @@ describe('Liftoff', function () {
         function (env) {
           expect(env.configFiles).toEqual({
             testconfig: path.resolve(
-              './test/fixtures/configfiles/testconfig.json'
+              __dirname,
+              './fixtures/configfiles/testconfig.json'
             ),
           });
           done();
@@ -561,7 +572,8 @@ describe('Liftoff', function () {
         function (env) {
           expect(env.configFiles).toEqual({
             testconfig: path.resolve(
-              './test/fixtures/configfiles/testconfig.json'
+              __dirname,
+              './fixtures/configfiles/testconfig.json'
             ),
           });
           done();
@@ -579,7 +591,7 @@ describe('Liftoff', function () {
       });
       app.prepare({}, function (env) {
         expect(env.configFiles).toEqual({
-          README: path.resolve('./README.md'),
+          README: path.resolve(__dirname, '../README.md'),
         });
         done();
       });
@@ -595,7 +607,7 @@ describe('Liftoff', function () {
       });
       app.prepare({}, function (env) {
         expect(env.configFiles).toEqual({
-          README: path.resolve('./test/fixtures/configfiles/README.txt'),
+          README: path.resolve(__dirname, './fixtures/configfiles/README.txt'),
         });
         done();
       });
@@ -652,7 +664,7 @@ describe('Liftoff', function () {
       });
       app.prepare({}, function (env) {
         expect(env.configFiles).toEqual({
-          README: path.resolve('./README.md'),
+          README: path.resolve(__dirname, '../README.md'),
         });
 
         expect(logRequire.length).toEqual(1);
@@ -686,7 +698,7 @@ describe('Liftoff', function () {
       });
       app.prepare({}, function (env) {
         expect(env.configFiles).toEqual({
-          README: path.resolve('./test/fixtures/configfiles/README.txt'),
+          README: path.resolve(__dirname, './fixtures/configfiles/README.txt'),
         });
 
         expect(logRequire.length).toEqual(1);
@@ -722,7 +734,7 @@ describe('Liftoff', function () {
       });
       app.prepare({}, function (env) {
         expect(env.configFiles).toEqual({
-          README: path.resolve('./test/fixtures/configfiles/README.txt'),
+          README: path.resolve(__dirname, './fixtures/configfiles/README.txt'),
         });
 
         expect(logFailure.length).toEqual(1);
@@ -762,7 +774,8 @@ describe('Liftoff', function () {
       app.prepare({}, function (env) {
         expect(env.configFiles).toEqual({
           testconfig: path.resolve(
-            './test/fixtures/configfiles/testconfig.json'
+            __dirname,
+            './fixtures/configfiles/testconfig.json'
           ),
         });
 
