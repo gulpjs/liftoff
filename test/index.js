@@ -63,7 +63,7 @@ describe('Liftoff', function () {
 
   describe('buildEnvironment', function () {
 
-    it('should locate local module using cwd if no config is found', function () {
+    it('should locate local module using cwd if no config is found', function (done) {
       var test = new Liftoff({ name: 'chai' });
       var cwd = 'explicit/cwd';
       var spy = sinon.spy(resolve, 'sync');
