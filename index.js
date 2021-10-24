@@ -10,8 +10,10 @@ var mapValues = require('object.map');
 var fined = require('fined');
 
 var findCwd = require('./lib/find_cwd');
+var arrayFind = require('./lib/array_find');
 var findConfig = require('./lib/find_config');
 var fileSearch = require('./lib/file_search');
+var needsLookup = require('./lib/needs_lookup');
 var parseOptions = require('./lib/parse_options');
 var silentRequire = require('./lib/silent_require');
 var buildConfigName = require('./lib/build_config_name');
@@ -24,14 +26,14 @@ function Liftoff(opts) {
 }
 util.inherits(Liftoff, EE);
 
-Liftoff.prototype.requireLocal = function (module, basedir) {
+Liftoff.prototype.requireLocal = function (moduleName, basedir) {
   try {
-    this.emit('preload:before', module);
-    var result = require(resolve.sync(module, { basedir: basedir }));
-    this.emit('preload:success', module, result);
+    this.emit('preload:before', moduleName);
+    var result = require(resolve.sync(moduleName, { basedir: basedir }));
+    this.emit('preload:success', moduleName, result);
     return result;
   } catch (e) {
-    this.emit('preload:failure', module, e);
+    this.emit('preload:failure', moduleName, e);
   }
 };
 
@@ -51,6 +53,98 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
   // calculate current cwd
   var cwd = findCwd(opts);
+
+  var exts = this.extensions;
+  var eventEmitter = this;
+
+  function findAndRegisterLoader(pathObj, defaultObj) {
+    var found = fined(pathObj, defaultObj);
+    if (!found) {
+      return;
+    }
+    if (isPlainObject(found.extension)) {
+      registerLoader(eventEmitter, found.extension, found.path, cwd);
+    }
+    return found.path;
+  }
+
+  function getModulePath(cwd, xtends) {
+    // If relative, we need to use fined to look up the file. If not, assume a node_module
+    if (needsLookup(xtends)) {
+      var defaultObj = { cwd: cwd, extensions: exts };
+      // Using `xtends` like this should allow people to use a string or any object that fined accepts
+      var foundPath = findAndRegisterLoader(xtends, defaultObj);
+      if (!foundPath) {
+        var name;
+        if (typeof xtends === 'string') {
+          name = xtends;
+        } else {
+          name = xtends.path || xtends.name;
+        }
+        var msg = 'Unable to locate one of your extends.';
+        if (name) {
+          msg += ' Looking for file: ' + path.resolve(cwd, name);
+        }
+        throw new Error(msg);
+      }
+      return foundPath;
+    }
+
+    return xtends;
+  }
+
+  var visited = {};
+  function loadConfig(cwd, xtends, preferred) {
+    var configFilePath = getModulePath(cwd, xtends);
+
+    if (visited[configFilePath]) {
+      throw new Error(
+        'We encountered a circular extend for file: ' +
+          configFilePath +
+          '. Please remove the recursive extends.'
+      );
+    }
+    var configFile;
+    try {
+      configFile = require(configFilePath);
+    } catch (e) {
+      // TODO: Consider surfacing the `require` error
+      throw new Error(
+        'Encountered error when loading config file: ' + configFilePath
+      );
+    }
+    visited[configFilePath] = true;
+    if (configFile && configFile.extends) {
+      var nextCwd = path.dirname(configFilePath);
+      return loadConfig(nextCwd, configFile.extends, configFile);
+    }
+    // Always extend into an empty object so we can call `delete` on `config.extends`
+    var config = extend(true /* deep */, {}, configFile, preferred);
+    delete config.extends;
+    return config;
+  }
+
+  var configFiles = {};
+  if (isPlainObject(this.configFiles)) {
+    configFiles = mapValues(this.configFiles, function (searchPaths, fileStem) {
+      var defaultObj = { name: fileStem, cwd: cwd, extensions: exts };
+
+      var foundPath = arrayFind(searchPaths, function (pathObj) {
+        return findAndRegisterLoader(pathObj, defaultObj);
+      });
+
+      return foundPath;
+    });
+  }
+
+  var config = mapValues(configFiles, function (startingLocation) {
+    var defaultConfig = {};
+    if (!startingLocation) {
+      return defaultConfig;
+    }
+
+    return loadConfig(cwd, startingLocation, defaultConfig);
+  });
 
   // if cwd was provided explicitly, only use it for searching config
   if (opts.cwd) {
@@ -85,8 +179,8 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
   // TODO: break this out into lib/
   // locate local module and package next to config or explicitly provided cwd
-  /* eslint one-var: 0 */
-  var modulePath, modulePackage;
+  var modulePath;
+  var modulePackage;
   try {
     var delim = path.delimiter;
     var paths = process.env.NODE_PATH ? process.env.NODE_PATH.split(delim) : [];
@@ -117,24 +211,6 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }
   }
 
-  var exts = this.extensions;
-  var eventEmitter = this;
-
-  var configFiles = {};
-  if (isPlainObject(this.configFiles)) {
-    var notfound = { path: null };
-    configFiles = mapValues(this.configFiles, function (prop, name) {
-      var defaultObj = { name: name, cwd: cwd, extensions: exts };
-      return mapValues(prop, function (pathObj) {
-        var found = fined(pathObj, defaultObj) || notfound;
-        if (isPlainObject(found.extension)) {
-          registerLoader(eventEmitter, found.extension, found.path, cwd);
-        }
-        return found.path;
-      });
-    });
-  }
-
   return {
     cwd: cwd,
     preload: preload,
@@ -145,6 +221,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     modulePath: modulePath,
     modulePackage: modulePackage || {},
     configFiles: configFiles,
+    config: config,
   };
 };
 

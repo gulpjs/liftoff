@@ -1,0 +1,6 @@
+{
+  "extends": {
+    "path": "./not-exists"
+  },
+  "foo": "bar"
+}

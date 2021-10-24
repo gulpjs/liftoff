@@ -1,0 +1,6 @@
+{
+  "extends": {
+    "name": "not-exists"
+  },
+  "foo": "bar"
+}
