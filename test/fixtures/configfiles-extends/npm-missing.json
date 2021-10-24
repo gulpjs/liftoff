@@ -1,0 +1,4 @@
+{
+  "extends": "not-installed",
+  "foo": "bar"
+}
