@@ -24,9 +24,6 @@
   "engines": {
     "node": ">= 0.10.0"
   },
-  "bin": {
-    "liftoff": "./bin/liftoff.js"
-  },
   "scripts": {
     "test": "tap ./test"
   },
