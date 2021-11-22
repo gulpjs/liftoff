@@ -632,7 +632,7 @@ MIT
 [hacker]: https://github.com/gulpjs/hacker
 [interpret]: https://github.com/gulpjs/interpret
 [flagged-respawn]: http://github.com/gulpjs/flagged-respawn
-[v8flag]: https://github.com/gulpjs/v8flags
+[v8flags]: https://github.com/gulpjs/v8flags
 [fined]: https://github.com/gulpjs/fined
 
 [process-title]: http://nodejs.org/api/process.html#process_process_title
