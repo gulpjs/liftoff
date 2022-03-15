@@ -163,7 +163,7 @@ Default: `null`
 
 #### opts.configFiles
 
-An object of configuration files to find. Each property is keyed by the default basename of the file being found, and the value is an object of [path arguments](#path-arguments) keyed by unique names.
+An object of configuration files to find. Each property is keyed by the default basename of the file being found, and the value is an array of [path arguments](#path-arguments) of which the order indicates priority to find.
 
 **Note:** This option is useful if, for example, you want to support an `.apprc` file in addition to an `appfile.js`. If you only need a single configuration file, you probably don't need this. In addition to letting you find multiple files, this option allows more fine-grained control over how configuration files are located.
 
@@ -222,9 +222,9 @@ In this example Liftoff will look for the `.hacker.js` file relative to the `cwd
 const MyApp = new Liftoff({
   name: 'hacker',
   configFiles: {
-    '.hacker': {
-      cwd: '.',
-    },
+    '.hacker': [
+      { path: '.' },
+    ],
   },
 });
 ```
@@ -235,14 +235,14 @@ In this example, Liftoff will look for `.hackerrc` in the home directory.
 const MyApp = new Liftoff({
   name: 'hacker',
   configFiles: {
-    '.hacker': {
-      home: {
+    '.hacker': [
+      {
         path: '~',
         extensions: {
           rc: null,
         },
       },
-    },
+    ],
   },
 });
 ```
@@ -253,12 +253,12 @@ In this example, Liftoff will look in the `cwd` and then lookup the tree for the
 const MyApp = new Liftoff({
   name: 'hacker',
   configFiles: {
-    '.hacker': {
-      up: {
+    '.hacker': [
+      {
         path: '.',
         findUp: true,
       },
-    },
+    ],
   },
 });
 ```
@@ -269,12 +269,12 @@ In this example, the `name` is overridden and the key is ignored so Liftoff look
 const MyApp = new Liftoff({
   name: 'hacker',
   configFiles: {
-    hacker: {
-      override: {
+    hacker: [
+      {
         path: '.',
         name: '.override',
       },
-    },
+    ],
   },
 });
 ```
@@ -285,12 +285,12 @@ In this example, Liftoff will use the home directory as the `cwd` and looks for 
 const MyApp = new Liftoff({
   name: 'hacker',
   configFiles: {
-    '.hacker': {
-      home: {
+    '.hacker': [
+      {
         path: '.',
         cwd: '~',
       },
-    },
+    [,
   },
 });
 ```
@@ -331,31 +331,20 @@ const Liftoff = require('liftoff');
 const Hacker = new Liftoff({
   name: 'hacker',
   configFiles: {
-    '.hacker': {
-      home: { path: '.', cwd: '~' },
-    },
+    '.hacker': [
+      { path: '.', cwd: '~' },
+    ],
   },
 });
 const onExecute = function (env, argv) {
   // Do post-execute things
 };
-const onPrepare = function (env) {
-  env.configProps = ['home', 'cwd']
-    .map(function (dirname) {
-      return env.configFiles['.hacker'][dirname];
-    })
-    .filter(function (filePath) {
-      return Boolean(filePath);
-    })
-    .reduce(function (config, filePath) {
-      return mergeDeep(config, require(filePath));
-    }, {});
-
-  if (env.configProps.hackerfile) {
-    env.configPath = path.resolve(env.configProps.hackerfile);
+const onPrepare = function(env) {
+  const config = env.config['.hacker'];
+  if (config.hackerfile) {
+    env.configPath = path.resolve(config.hackerfile);
     env.configBase = path.dirname(env.configPath);
   }
-
   Hacker.execute(env, onExecute);
 };
 Hacker.prepare({}, onPrepare);
