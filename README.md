@@ -222,9 +222,7 @@ In this example Liftoff will look for the `.hacker.js` file relative to the `cwd
 const MyApp = new Liftoff({
   name: 'hacker',
   configFiles: {
-    '.hacker': [
-      { path: '.' },
-    ],
+    '.hacker': [{ path: '.' }],
   },
 });
 ```
@@ -331,15 +329,13 @@ const Liftoff = require('liftoff');
 const Hacker = new Liftoff({
   name: 'hacker',
   configFiles: {
-    '.hacker': [
-      { path: '.', cwd: '~' },
-    ],
+    '.hacker': [{ path: '.', cwd: '~' }],
   },
 });
 const onExecute = function (env, argv) {
   // Do post-execute things
 };
-const onPrepare = function(env) {
+const onPrepare = function (env) {
   const config = env.config['.hacker'];
   if (config.hackerfile) {
     env.configPath = path.resolve(config.hackerfile);
