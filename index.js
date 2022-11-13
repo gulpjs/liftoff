@@ -8,6 +8,7 @@ var flaggedRespawn = require('flagged-respawn');
 var isPlainObject = require('is-plain-object').isPlainObject;
 var mapValues = require('object.map');
 var fined = require('fined');
+var expandTilde = require('expand-tilde');
 
 var findCwd = require('./lib/find_cwd');
 var arrayFind = require('./lib/array_find');
@@ -106,7 +107,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }
     var configFile;
     try {
-      configFile = require(configFilePath);
+      configFile = require(expandTilde(configFilePath));
     } catch (e) {
       // TODO: Consider surfacing the `require` error
       throw new Error(

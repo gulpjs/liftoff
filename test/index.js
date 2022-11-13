@@ -851,6 +851,24 @@ describe('Liftoff', function () {
       });
     });
 
+    it('expands heading `~` in extends property to home dir', function(done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'expand-homedir-config': ['test/fixtures/configfiles-extends'],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.config).toEqual({
+          'expand-homedir-config': {
+            aaa: 'AAA', // Comes from the base, which overrode `aaa: 'CCC'` in the `extends`
+            bbb: 'BBB', // Comes from the `extends`
+          },
+        });
+        done();
+      });
+    });
+
     it('throws error on circular extends', function (done) {
       var app = new Liftoff({
         name: 'myapp',

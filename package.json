@@ -25,6 +25,7 @@
     "test": "nyc mocha --async-only"
   },
   "dependencies": {
+    "expand-tilde": "^2.0.2",
     "extend": "^3.0.2",
     "findup-sync": "^5.0.0",
     "fined": "^2.0.0",
