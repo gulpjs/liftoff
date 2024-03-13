@@ -6,7 +6,6 @@ var extend = require('extend');
 var resolve = require('resolve');
 var flaggedRespawn = require('flagged-respawn');
 var isPlainObject = require('is-plain-object').isPlainObject;
-var mapValues = require('object.map');
 var fined = require('fined');
 
 var findCwd = require('./lib/find_cwd');
@@ -124,10 +123,10 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     return config;
   }
 
-  var configFiles = {};
-  if (isPlainObject(this.configFiles)) {
-    configFiles = mapValues(this.configFiles, function (searchPaths, fileStem) {
-      var defaultObj = { name: fileStem, cwd: cwd, extensions: exts };
+  var configFiles = [];
+  if (Array.isArray(this.configFiles)) {
+    configFiles = this.configFiles.map(function (searchPaths) {
+      var defaultObj = { cwd: cwd, extensions: exts };
 
       var foundPath = arrayFind(searchPaths, function (pathObj) {
         return findAndRegisterLoader(pathObj, defaultObj);
@@ -137,7 +136,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     });
   }
 
-  var config = mapValues(configFiles, function (startingLocation) {
+  var config = configFiles.map(function (startingLocation) {
     var defaultConfig = {};
     if (!startingLocation) {
       return defaultConfig;
@@ -164,7 +163,12 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var configPath = findConfig({
     configNameSearch: configNameSearch,
     searchPaths: searchPaths,
-    configPath: opts.configPath,
+    // If the configPath was not specified, look for the configName inside each `config` object to see if it was overridden
+    configPath: opts.configPath || arrayFind(config, function (cfg) {
+      if (cfg.hasOwnProperty(this.configName)) {
+        return cfg[this.configName];
+      }
+    }),
   });
 
   // if we have a config path, save the directory it resides in.
