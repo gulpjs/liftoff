@@ -165,7 +165,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     searchPaths: searchPaths,
     // If the configPath was not specified, look for the configName inside each `config` object to see if it was overridden
     configPath: opts.configPath || arrayFind(config, function (cfg) {
-      if (cfg.hasOwnProperty(this.configName)) {
+      if (Object.prototype.hasOwnProperty.call(cfg, this.configName)) {
         return cfg[this.configName];
       }
     }),
