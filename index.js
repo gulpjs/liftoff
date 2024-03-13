@@ -146,6 +146,15 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     return loadConfig(cwd, startingLocation, defaultConfig);
   });
 
+  var configName = this.configName;
+
+  var configPathOverride = arrayFind(Object.keys(config), function (key) {
+    var cfg = config[key];
+    if (Object.prototype.hasOwnProperty.call(cfg, configName)) {
+      return cfg[configName];
+    }
+  });
+
   // if cwd was provided explicitly, only use it for searching config
   if (opts.cwd) {
     searchPaths = [cwd];
@@ -156,7 +165,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
   // calculate the regex to use for finding the config file
   var configNameSearch = buildConfigName({
-    configName: this.configName,
+    configName: configName,
     extensions: Object.keys(this.extensions),
   });
 
@@ -164,7 +173,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var configPath = findConfig({
     configNameSearch: configNameSearch,
     searchPaths: searchPaths,
-    configPath: opts.configPath,
+    configPath: opts.configPath || configPathOverride,
   });
 
   // if we have a config path, save the directory it resides in.
