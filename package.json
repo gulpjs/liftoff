@@ -30,7 +30,6 @@
     "fined": "^2.0.0",
     "flagged-respawn": "^2.0.0",
     "is-plain-object": "^5.0.0",
-    "object.map": "^1.0.1",
     "rechoir": "^0.8.0",
     "resolve": "^1.20.0"
   },
