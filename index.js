@@ -6,7 +6,6 @@ var extend = require('extend');
 var resolve = require('resolve');
 var flaggedRespawn = require('flagged-respawn');
 var isPlainObject = require('is-plain-object').isPlainObject;
-var mapValues = require('object.map');
 var fined = require('fined');
 
 var findCwd = require('./lib/find_cwd');
@@ -66,7 +65,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   function findAndRegisterLoader(pathObj, defaultObj) {
     var found = fined(pathObj, defaultObj);
     if (!found) {
-      return;
+      return null;
     }
     if (isPlainObject(found.extension)) {
       registerLoader(eventEmitter, found.extension, found.path, cwd);
@@ -139,20 +138,16 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     return config;
   }
 
-  var configFiles = {};
-  if (isPlainObject(this.configFiles)) {
-    configFiles = mapValues(this.configFiles, function (searchPaths, fileStem) {
-      var defaultObj = { name: fileStem, cwd: cwd, extensions: exts };
+  var configFiles = [];
+  if (Array.isArray(this.configFiles)) {
+    configFiles = this.configFiles.map(function (pathObj) {
+      var defaultObj = { cwd: cwd, extensions: exts };
 
-      var foundPath = arrayFind(searchPaths, function (pathObj) {
-        return findAndRegisterLoader(pathObj, defaultObj);
-      });
-
-      return foundPath;
+      return findAndRegisterLoader(pathObj, defaultObj);
     });
   }
 
-  var config = mapValues(configFiles, function (startingLocation) {
+  var config = configFiles.map(function (startingLocation) {
     var defaultConfig = {};
     if (!startingLocation) {
       return defaultConfig;
@@ -161,8 +156,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     return loadConfig(cwd, startingLocation, defaultConfig);
   });
 
-  var configPathOverride = arrayFind(Object.keys(config), function (key) {
-    var cfg = config[key];
+  var configPathOverride = arrayFind(config, function (cfg) {
     if (Object.prototype.hasOwnProperty.call(cfg, configName)) {
       if (isString(cfg[configName])) {
         return cfg[configName];

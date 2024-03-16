@@ -502,7 +502,7 @@ describe('Liftoff', function () {
         name: 'myapp',
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({});
+        expect(env.configFiles).toEqual([]);
         done();
       });
     });
@@ -511,11 +511,11 @@ describe('Liftoff', function () {
       var app = new Liftoff({
         name: 'myapp',
         configFiles: {
-          foo: 'bar',
-        },
+          name: "foobar"
+        }
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({});
+        expect(env.configFiles).toEqual([]);
         done();
       });
     });
@@ -523,49 +523,43 @@ describe('Liftoff', function () {
     it('should find multiple files if specified', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          testconfig: [
-            '.',
-            { path: 'test/fixtures/configfiles' },
-            { path: 'test', cwd: 'text/fixtures/configfiles', findUp: true },
-          ],
-          package: [
-            '.',
-            { path: 'test/fixtures/configfiles' },
-            { path: 'test', cwd: 'text/fixtures/configfiles', findUp: true },
-          ],
-        },
+        configFiles: [
+          { name: 'testconfig', path: '.' },
+          { name: 'testconfig', path: 'test/fixtures/configfiles' },
+          { name: 'testconfig', path: 'test', cwd: 'text/fixtures/configfiles', findUp: true },
+          { name: 'package', path: '.' },
+          { name: 'package', path: 'test/fixtures/configfiles' },
+          { name: 'package', path: 'test', cwd: 'text/fixtures/configfiles', findUp: true },
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          testconfig: path.resolve(
-            __dirname,
-            './fixtures/configfiles/testconfig.json'
-          ),
-          package: path.resolve(__dirname, '../package.json'),
-        });
+        expect(env.configFiles).toEqual([
+          null,
+          path.resolve(__dirname, './fixtures/configfiles/testconfig.json'),
+          null,
+          path.resolve(__dirname, '../package.json'),
+          null,
+          null
+        ]);
         done();
       });
     });
 
-    it('should use default cwd if not specified', function (done) {
+    it('should use prepare cwd if specified', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          testconfig: [{ path: '.', extensions: ['.js', '.json'] }],
-        },
+        configFiles: [
+          { name: 'testconfig', path: '.', extensions: ['.js', '.json'] }
+        ],
       });
       app.prepare(
         {
           cwd: 'test/fixtures/configfiles',
         },
         function (env) {
-          expect(env.configFiles).toEqual({
-            testconfig: path.resolve(
-              __dirname,
-              './fixtures/configfiles/testconfig.json'
-            ),
-          });
+          expect(env.configFiles).toEqual([
+            path.resolve(__dirname, './fixtures/configfiles/testconfig.json'),
+          ]);
           done();
         }
       );
@@ -574,11 +568,9 @@ describe('Liftoff', function () {
     it('overrides the configPath if the configName key exists in the config', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'override-config-path-absolute': [
-            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
-          ],
-        },
+        configFiles: [
+          { name: 'override-config-path-absolute', path: 'test/fixtures/configfiles', extensions: ['.js'] }
+        ],
       });
       app.prepare({}, function (env) {
         expect(env.configPath).toMatch(/override-the-config-path\.js$/);
@@ -589,11 +581,9 @@ describe('Liftoff', function () {
     it('resolves relative configPath if the configName key exists in the config', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'override-config-path-relative': [
-            { path: 'test/fixtures/configfiles', extensions: ['.json'] }
-          ],
-        },
+        configFiles: [
+          { name: 'override-config-path-relative', path: 'test/fixtures/configfiles', extensions: ['.json'] }
+        ],
       });
       app.prepare({}, function (env) {
         expect(env.configPath).toMatch(/override-the-config-path\.js$/);
@@ -604,11 +594,9 @@ describe('Liftoff', function () {
     it('ignores non-string configPath if the configName key exists in the config', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'override-config-path-non-string': [
-            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
-          ],
-        },
+        configFiles: [
+          { name: 'override-config-path-non-string', path: 'test/fixtures/configfiles', extensions: ['.js'] }
+        ],
       });
       app.prepare({}, function (env) {
         expect(env.configPath).toEqual(null);
@@ -713,21 +701,18 @@ describe('Liftoff', function () {
     it('should use dirname of configPath if no cwd is specified', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          testconfig: [{ path: '.', extensions: ['.js', '.json'] }],
-        },
+        configFiles: [
+          { name: 'testconfig', path: '.', extensions: ['.js', '.json'] }
+        ],
       });
       app.prepare(
         {
           configPath: 'test/fixtures/configfiles/myapp.js',
         },
         function (env) {
-          expect(env.configFiles).toEqual({
-            testconfig: path.resolve(
-              __dirname,
-              './fixtures/configfiles/testconfig.json'
-            ),
-          });
+          expect(env.configFiles).toEqual([
+            path.resolve(__dirname, './fixtures/configfiles/testconfig.json'),
+          ]);
           done();
         }
       );
@@ -739,14 +724,14 @@ describe('Liftoff', function () {
           '.md': './test/fixtures/configfiles/require-md',
         },
         name: 'myapp',
-        configFiles: {
-          README: [{ path: '.' }],
-        },
+        configFiles: [
+          { name: "README", path: '.' }
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          README: path.resolve(__dirname, '../README.md'),
-        });
+        expect(env.configFiles).toEqual([
+          path.resolve(__dirname, '../README.md'),
+        ]);
         done();
       });
     });
@@ -757,14 +742,14 @@ describe('Liftoff', function () {
           '.txt': './test/fixtures/configfiles/require-txt',
         },
         name: 'myapp',
-        configFiles: {
-          README: [{ path: 'test/fixtures/configfiles' }],
-        },
+        configFiles: [
+          { name: 'README', path: 'test/fixtures/configfiles' }
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          README: path.resolve(__dirname, './fixtures/configfiles/README.txt'),
-        });
+        expect(env.configFiles).toEqual([
+          path.resolve(__dirname, './fixtures/configfiles/README.txt'),
+        ]);
         done();
       });
     });
@@ -773,14 +758,14 @@ describe('Liftoff', function () {
       var app = new Liftoff({
         extensions: { '.md': null, '.txt': null },
         name: 'myapp',
-        configFiles: {
-          README: [{ path: '.', extensions: ['.js'] }],
-        },
+        configFiles: [
+          { name: "README", path: '.', extensions: ['.js'] }
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          README: undefined,
-        });
+        expect(env.configFiles).toEqual([
+          null
+        ]);
         done();
       });
     });
@@ -789,16 +774,14 @@ describe('Liftoff', function () {
       var app = new Liftoff({
         extensions: { '.md': null, '.txt': null },
         name: 'myapp',
-        configFiles: {
-          README: [
-            { path: 'test/fixtures/configfiles', extensions: ['.json'] },
-          ],
-        },
+        configFiles: [
+          { name: "README", path: 'test/fixtures/configfiles', extensions: ['.json'] },
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          README: undefined,
-        });
+        expect(env.configFiles).toEqual([
+          null
+        ]);
         done();
       });
     });
@@ -811,24 +794,24 @@ describe('Liftoff', function () {
           '.md': './test/fixtures/configfiles/require-md',
         },
         name: 'myapp',
-        configFiles: {
-          README: [{ path: '.' }],
-        },
+        configFiles: [
+          { name: 'README', path: '.' }
+        ],
       });
       app.on('loader:success', function (moduleName, module) {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          README: path.resolve(__dirname, '../README.md'),
-        });
+        expect(env.configFiles).toEqual([
+          path.resolve(__dirname, '../README.md'),
+        ]);
 
         expect(logRequire.length).toEqual(1);
         expect(logRequire[0].moduleName).toEqual(
           './test/fixtures/configfiles/require-md'
         );
 
-        expect(require(env.configFiles.README)).toEqual(
+        expect(require(env.configFiles[0])).toEqual(
           'Load README.md by require-md'
         );
         done();
@@ -840,29 +823,28 @@ describe('Liftoff', function () {
 
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          README: [
-            {
-              path: 'test/fixtures/configfiles',
-              extensions: { '.txt': './test/fixtures/configfiles/require-txt' },
-            },
-          ],
-        },
+        configFiles: [
+          {
+            name: 'README',
+            path: 'test/fixtures/configfiles',
+            extensions: { '.txt': './test/fixtures/configfiles/require-txt' },
+          },
+        ],
       });
       app.on('loader:success', function (moduleName, module) {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          README: path.resolve(__dirname, './fixtures/configfiles/README.txt'),
-        });
+        expect(env.configFiles).toEqual([
+          path.resolve(__dirname, './fixtures/configfiles/README.txt'),
+        ]);
 
         expect(logRequire.length).toEqual(1);
         expect(logRequire[0].moduleName).toEqual(
           './test/fixtures/configfiles/require-txt'
         );
 
-        expect(require(env.configFiles.README)).toEqual(
+        expect(require(env.configFiles[0])).toEqual(
           'Load README.txt by require-txt'
         );
         done();
@@ -874,24 +856,23 @@ describe('Liftoff', function () {
 
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          README: [
-            {
-              path: 'test/fixtures/configfiles',
-              extensions: {
-                '.txt': './test/fixtures/configfiles/require-non-exist',
-              },
+        configFiles: [
+          {
+            name: 'README',
+            path: 'test/fixtures/configfiles',
+            extensions: {
+              '.txt': './test/fixtures/configfiles/require-non-exist',
             },
-          ],
-        },
+          },
+        ],
       });
       app.on('loader:failure', function (moduleName, error) {
         logFailure.push({ moduleName: moduleName, error: error });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          README: path.resolve(__dirname, './fixtures/configfiles/README.txt'),
-        });
+        expect(env.configFiles).toEqual([
+          path.resolve(__dirname, './fixtures/configfiles/README.txt'),
+        ]);
 
         expect(logFailure.length).toEqual(1);
         expect(logFailure[0].moduleName).toEqual(
@@ -908,18 +889,17 @@ describe('Liftoff', function () {
 
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          testconfig: [
-            {
-              path: 'test/fixtures/configfiles',
-              extensions: {
-                // ignored
-                '.js': './test/fixtures/configfiles/require-js',
-                '.json': './test/fixtures/configfiles/require-json',
-              },
+        configFiles: [
+          {
+            name: 'testconfig',
+            path: 'test/fixtures/configfiles',
+            extensions: {
+              // ignored
+              '.js': './test/fixtures/configfiles/require-js',
+              '.json': './test/fixtures/configfiles/require-json',
             },
-          ],
-        },
+          },
+        ],
       });
       app.on('loader:failure', function (moduleName, error) {
         logFailure.push({ moduleName: moduleName, error: error });
@@ -928,17 +908,17 @@ describe('Liftoff', function () {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual({
-          testconfig: path.resolve(
+        expect(env.configFiles).toEqual([
+          path.resolve(
             __dirname,
             './fixtures/configfiles/testconfig.json'
           ),
-        });
+        ]);
 
         expect(logRequire.length).toEqual(0);
         expect(logFailure.length).toEqual(0);
 
-        expect(require(env.configFiles.testconfig)).toEqual({ aaa: 'AAA' });
+        expect(require(env.configFiles[0])).toEqual({ aaa: 'AAA' });
         done();
       });
     });
@@ -950,7 +930,7 @@ describe('Liftoff', function () {
         name: 'myapp',
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual({});
+        expect(env.config).toEqual([]);
         done();
       });
     });
@@ -958,16 +938,16 @@ describe('Liftoff', function () {
     it('loads config if a `configFiles` is found and makes it available with the same key on `config`', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          testconfig: ['test/fixtures/configfiles'],
-        },
+        configFiles: [
+          { name: 'testconfig',  path: 'test/fixtures/configfiles' },
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual({
-          testconfig: {
+        expect(env.config).toEqual([
+          {
             aaa: 'AAA',
           },
-        });
+        ]);
         done();
       });
     });
@@ -975,17 +955,17 @@ describe('Liftoff', function () {
     it('loads and merges a config file specified if loaded file provides `extends` property', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          testconfig: ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'testconfig', path: 'test/fixtures/configfiles-extends' },
+        ]
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual({
-          testconfig: {
+        expect(env.config).toEqual([
+          {
             aaa: 'AAA', // Comes from the base, which overrode `aaa: 'CCC'` in the `extends`
             bbb: 'BBB', // Comes from the `extends`
           },
-        });
+        ]);
         done();
       });
     });
@@ -993,9 +973,9 @@ describe('Liftoff', function () {
     it('throws error on circular extends', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          circular1: ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'circular1', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       var circPath = path.resolve(
         __dirname,
@@ -1010,14 +990,14 @@ describe('Liftoff', function () {
     it('gracefully handles a null-ish extends', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          null: ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'null', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual({
-          null: {},
-        });
+        expect(env.config).toEqual([
+          {}
+        ]);
         done();
       });
     });
@@ -1025,17 +1005,17 @@ describe('Liftoff', function () {
     it('stops processing extends on an empty (or null-ish) extends', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'load-empty': ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'load-empty', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual({
-          'load-empty': {
+        expect(env.config).toEqual([
+          {
             aaa: 'bbb',
             ccc: 'ddd',
           },
-        });
+        ]);
         done();
       });
     });
@@ -1043,9 +1023,9 @@ describe('Liftoff', function () {
     it('throws upon extends of missing local file', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'local-missing': ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'local-missing', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       var missingPath = path.resolve(
         __dirname,
@@ -1060,9 +1040,9 @@ describe('Liftoff', function () {
     it('throws (with correct path) upon extends of missing deep in tree', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'extend-missing': ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'extend-missing', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       var missingPath = path.resolve(
         __dirname,
@@ -1077,9 +1057,9 @@ describe('Liftoff', function () {
     it('throws (with correct path) upon extends using `fined` object with `path`', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'missing-path-obj': ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'missing-path-obj', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       var missingPath = path.resolve(
         __dirname,
@@ -1094,9 +1074,9 @@ describe('Liftoff', function () {
     it('throws (with correct path) upon extends using `fined` object with `name`', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'missing-name-obj': ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'missing-name-obj', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       var missingPath = path.resolve(
         __dirname,
@@ -1111,9 +1091,9 @@ describe('Liftoff', function () {
     it('throws (without path) upon extends using invalid `fined` object', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'missing-invalid-obj': ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'missing-invalid-obj', path: 'test/fixtures/configfiles-extends' },
+        ]
       });
       expect(function () {
         app.prepare({}, function () {});
@@ -1124,9 +1104,9 @@ describe('Liftoff', function () {
     it('throws upon extends of missing npm module', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          'npm-missing': ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'npm-missing', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       var missingModule = 'not-installed';
       expect(function () {
@@ -1138,9 +1118,9 @@ describe('Liftoff', function () {
     it('throws upon extends if loading file errors', function (done) {
       var app = new Liftoff({
         name: 'myapp',
-        configFiles: {
-          throws: ['test/fixtures/configfiles-extends'],
-        },
+        configFiles: [
+          { name: 'throws', path: 'test/fixtures/configfiles-extends' },
+        ],
       });
       var errModulePath = path.resolve(
         __dirname,
