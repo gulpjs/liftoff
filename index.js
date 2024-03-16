@@ -164,8 +164,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     }
   });
 
-  var additionPreloads = arrayFind(Object.keys(config), function (key) {
-    var cfg = config[key];
+  var additionPreloads = arrayFind(config, function (cfg) {
     if (Object.prototype.hasOwnProperty.call(cfg, 'preload')) {
       if (Array.isArray(cfg.preload)) {
         if (cfg.preload.every(isString)) {
