@@ -20,6 +20,10 @@ var buildConfigName = require('./lib/build_config_name');
 var registerLoader = require('./lib/register_loader');
 var getNodeFlags = require('./lib/get_node_flags');
 
+function isString(val) {
+  return typeof val === 'string';
+}
+
 function Liftoff(opts) {
   EE.call(this);
   extend(this, parseOptions(opts));
@@ -119,7 +123,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     // resolve something like `{ gulpfile: "./abc.xyz" }` to the absolute path
     // based on the path of the configFile
     if (Object.prototype.hasOwnProperty.call(configFile, configName)) {
-      if (typeof configFile[configName] === 'string') {
+      if (isString(configFile[configName])) {
         configFile[configName] = path.resolve(path.dirname(configFilePath), configFile[configName]);
       }
     }
@@ -160,8 +164,22 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var configPathOverride = arrayFind(Object.keys(config), function (key) {
     var cfg = config[key];
     if (Object.prototype.hasOwnProperty.call(cfg, configName)) {
-      if (typeof cfg[configName] === "string") {
+      if (isString(cfg[configName])) {
         return cfg[configName];
+      }
+    }
+  });
+
+  var additionPreloads = arrayFind(Object.keys(config), function (key) {
+    var cfg = config[key];
+    if (Object.prototype.hasOwnProperty.call(cfg, 'preload')) {
+      if (Array.isArray(cfg.preload)) {
+        if (cfg.preload.every(isString)) {
+          return cfg.preload;
+        }
+      }
+      if (isString(cfg.preload)) {
+        return cfg.preload;
       }
     }
   });
@@ -233,7 +251,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
   return {
     cwd: cwd,
-    preload: preload,
+    preload: preload.concat(additionPreloads || []),
     completion: opts.completion,
     configNameSearch: configNameSearch,
     configPath: configPath,

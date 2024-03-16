@@ -616,6 +616,100 @@ describe('Liftoff', function () {
       });
     });
 
+    it('adds array of preloads specified in config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'preload-array': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.preload).toEqual(['abc', 'xyz']);
+        done();
+      });
+    });
+
+    it('combines array of preloads specified in config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'preload-array': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({
+        preload: ['123']
+      }, function (env) {
+        expect(env.preload).toEqual(['123', 'abc', 'xyz']);
+        done();
+      });
+    });
+
+    it('adds string preload specified in config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'preload-string': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.preload).toEqual(['abc']);
+        done();
+      });
+    });
+
+    it('combines string preload specified in config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'preload-string': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({
+        preload: ['xyz']
+      }, function (env) {
+        expect(env.preload).toEqual(['xyz', 'abc']);
+        done();
+      });
+    });
+
+    it('ignores non-string/non-array preload specified in config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'preload-invalid': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.preload).toEqual([]);
+        done();
+      });
+    });
+
+    it('ignores array with any non-strings preload specified in config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'preload-invalid-array': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.preload).toEqual([]);
+        done();
+      });
+    });
+
     it('should use dirname of configPath if no cwd is specified', function (done) {
       var app = new Liftoff({
         name: 'myapp',
