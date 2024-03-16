@@ -594,6 +594,10 @@ All `extends` properties will be traversed and become the basis for the resultin
 
 Users can override the `configPath` via their config files by specifying a field with the same name as the primary `configName`. For example, the `hackerfile` property in a `configFile` will resolve the `configPath` and `configBase` against the path.
 
+### `preload`
+
+If specified as a string or array of strings, they will be added to the list of preloads in the environment.
+
 ## Examples
 
 Check out how [gulp][gulp-cli-index] uses Liftoff.
