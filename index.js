@@ -50,6 +50,8 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
   // make a copy of search paths that can be mutated for this run
   var searchPaths = this.searchPaths.slice();
+  // store the instance configName to use in closures without access to `this`
+  var configName = this.configName;
 
   // calculate current cwd
   var cwd = findCwd(opts);
@@ -113,6 +115,13 @@ Liftoff.prototype.buildEnvironment = function (opts) {
         'Encountered error when loading config file: ' + configFilePath
       );
     }
+
+    // resolve something like `{ gulpfile: "./abc.xyz" }` to the absolute path
+    // based on the path of the configFile
+    if (Object.prototype.hasOwnProperty.call(configFile, configName)) {
+      configFile[configName] = path.resolve(path.dirname(configFilePath), configFile[configName]);
+    }
+
     visited[configFilePath] = true;
     if (configFile && configFile.extends) {
       var nextCwd = path.dirname(configFilePath);
@@ -146,6 +155,13 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     return loadConfig(cwd, startingLocation, defaultConfig);
   });
 
+  var configPathOverride = arrayFind(Object.keys(config), function (key) {
+    var cfg = config[key];
+    if (Object.prototype.hasOwnProperty.call(cfg, configName)) {
+      return cfg[configName];
+    }
+  });
+
   // if cwd was provided explicitly, only use it for searching config
   if (opts.cwd) {
     searchPaths = [cwd];
@@ -156,7 +172,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
   // calculate the regex to use for finding the config file
   var configNameSearch = buildConfigName({
-    configName: this.configName,
+    configName: configName,
     extensions: Object.keys(this.extensions),
   });
 
@@ -164,7 +180,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var configPath = findConfig({
     configNameSearch: configNameSearch,
     searchPaths: searchPaths,
-    configPath: opts.configPath,
+    configPath: opts.configPath || configPathOverride,
   });
 
   // if we have a config path, save the directory it resides in.

@@ -165,6 +165,8 @@ Default: `null`
 
 An object of configuration files to find. Each property is keyed by the default basename of the file being found, and the value is an array of [path arguments](#path-arguments) of which the order indicates priority to find.
 
+See [Config Files](#config-files) for the config file specification.
+
 **Note:** This option is useful if, for example, you want to support an `.apprc` file in addition to an `appfile.js`. If you only need a single configuration file, you probably don't need this. In addition to letting you find multiple files, this option allows more fine-grained control over how configuration files are located.
 
 Type: `Object`
@@ -337,11 +339,7 @@ const onExecute = function (env, argv) {
 };
 const onPrepare = function (env) {
   const config = env.config['.hacker'];
-  if (config.hackerfile) {
-    env.configPath = path.resolve(config.hackerfile);
-    env.configBase = path.dirname(env.configPath);
-  }
-  Hacker.execute(env, onExecute);
+  Hacker.execute(env, config.forcedFlags, onExecute);
 };
 Hacker.prepare({}, onPrepare);
 ```
@@ -457,6 +455,7 @@ A function called after your environment is prepared. A good place to modify the
 - `modulePath`: the full path to the local module your project relies on (if found)
 - `modulePackage`: the contents of the local module's package.json (if found)
 - `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
+- `config`: an object with keys matching `configFiles` but with the loaded config object
 
 ### execute(env, [forcedFlags], callback(env, argv))
 
@@ -492,6 +491,7 @@ A function called after your application is executed. When invoked, `this` will 
 - `modulePath`: the full path to the local module your project relies on (if found)
 - `modulePackage`: the contents of the local module's package.json (if found)
 - `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
+- `config`: an object with keys matching `configFiles` but with the loaded config object
 
 ### events
 
@@ -581,6 +581,18 @@ Hacker.on('respawn', function (flags, child) {
 
 Event will be triggered for this command:
 `hacker --harmony commmand`
+
+## Config files
+
+Liftoff supports a small definition of config files, but all details provided by users will be available in `env.config`.
+
+### `extends`
+
+All `extends` properties will be traversed and become the basis for the resulting config object. Any path provided for `extends` will be loaded with node's `require`, so all extensions and loaders supported on the Liftoff instance will be available to them.
+
+### Field matching the `configName`
+
+Users can override the `configPath` via their config files by specifying a field with the same name as the primary `configName`. For example, the `hackerfile` property in a `configFile` will resolve the `configPath` and `configBase` against the path.
 
 ## Examples
 
