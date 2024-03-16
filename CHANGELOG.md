@@ -1,5 +1,25 @@
 # Changelog
 
+## [5.0.0](https://www.github.com/gulpjs/liftoff/compare/v4.0.0...v5.0.0) (2024-03-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* Define `configFiles` with an array to prioritize configs (#133)
+* Populate additional preload modules with `configFiles` (#131)
+* Lookup `configPath` in `configFiles` (#128)
+
+### Features
+
+* Define `configFiles` with an array to prioritize configs ([#133](https://www.github.com/gulpjs/liftoff/issues/133)) ([55123fc](https://www.github.com/gulpjs/liftoff/commit/55123fcb0b679aa8739a966c791e2bc1c20cdac6))
+* Lookup `configPath` in `configFiles` ([#128](https://www.github.com/gulpjs/liftoff/issues/128)) ([5301335](https://www.github.com/gulpjs/liftoff/commit/5301335a9f2dea21c5802a05eb9f8abdfbbeed51))
+* Populate additional preload modules with `configFiles` ([#131](https://www.github.com/gulpjs/liftoff/issues/131)) ([fad21a9](https://www.github.com/gulpjs/liftoff/commit/fad21a98d1a9b263f320a2258fef94328687a5a0))
+
+
+### Bug Fixes
+
+* Disallow non-string `configPath` overrides ([#130](https://www.github.com/gulpjs/liftoff/issues/130)) ([6bcd381](https://www.github.com/gulpjs/liftoff/commit/6bcd381f328463ff78a43b5b8af3fe6c62bf3bdb))
+
 ## [4.0.0](https://www.github.com/gulpjs/liftoff/compare/v3.1.0...v4.0.0) (2021-11-22)
 
 
