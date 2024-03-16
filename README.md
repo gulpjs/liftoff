@@ -165,7 +165,7 @@ Default: `null`
 
 An object of configuration files to find. Each property is keyed by the default basename of the file being found, and the value is an array of [path arguments](#path-arguments) of which the order indicates priority to find.
 
-When specified, users can override the `configPath` via their config files. For example, the `hackerfile` property in a `configFile` will resolve the `configPath` and `configBase` against the path.
+See [Config Files](#config-files) for the config file specification.
 
 **Note:** This option is useful if, for example, you want to support an `.apprc` file in addition to an `appfile.js`. If you only need a single configuration file, you probably don't need this. In addition to letting you find multiple files, this option allows more fine-grained control over how configuration files are located.
 
@@ -581,6 +581,18 @@ Hacker.on('respawn', function (flags, child) {
 
 Event will be triggered for this command:
 `hacker --harmony commmand`
+
+## Config files
+
+Liftoff supports a small definition of config files, but all details provided by users will be available in `env.config`.
+
+### `extends`
+
+All `extends` properties will be traversed and become the basis for the resulting config object. Any path provided for `extends` will be loaded with node's `require`, so all extensions and loaders supported on the Liftoff instance will be available to them.
+
+### Field matching the `configName`
+
+Users can override the `configPath` via their config files by specifying a field with the same name as the primary `configName`. For example, the `hackerfile` property in a `configFile` will resolve the `configPath` and `configBase` against the path.
 
 ## Examples
 
