@@ -923,6 +923,28 @@ describe('Liftoff', function () {
       });
     });
 
+    it('loads all config for every found configFile', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: [
+          { name: 'testconfig',  path: 'test/fixtures/configfiles' },
+          { name: 'testconfig', path: 'test/fixtures/configfiles-extends' },
+        ],
+      });
+      app.prepare({}, function (env) {
+        expect(env.config).toEqual([
+          {
+            aaa: 'AAA',
+          },
+          {
+            aaa: 'AAA', // Comes from the base, which overrode `aaa: 'CCC'` in the `extends`
+            bbb: 'BBB', // Comes from the `extends`
+          },
+        ]);
+        done();
+      });
+    });
+
     it('loads config if a `configFiles` is found and makes it available with the same key on `config`', function (done) {
       var app = new Liftoff({
         name: 'myapp',
