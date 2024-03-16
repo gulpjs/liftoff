@@ -575,8 +575,23 @@ describe('Liftoff', function () {
       var app = new Liftoff({
         name: 'myapp',
         configFiles: {
-          'override-config-path': [
-            { path: 'test/fixtures/configfiles', extensions: ['.js', '.json'] }
+          'override-config-path-absolute': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.configPath).toMatch(/override-the-config-path\.js$/);
+        done();
+      });
+    });
+
+    it('resolves relative configPath if the configName key exists in the config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'override-config-path-relative': [
+            { path: 'test/fixtures/configfiles', extensions: ['.json'] }
           ],
         },
       });
