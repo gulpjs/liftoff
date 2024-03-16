@@ -163,13 +163,13 @@ Default: `null`
 
 #### opts.configFiles
 
-An object of configuration files to find. Each property is keyed by the default basename of the file being found, and the value is an array of [path arguments](#path-arguments) of which the order indicates priority to find.
+An array of configuration files to find with each value being a [path arguments](#path-arguments).
 
-See [Config Files](#config-files) for the config file specification.
+The order of the array indicates the priority that config file overrides are applied. See [Config Files](#config-files) for the config file specification and description of overrides.
 
 **Note:** This option is useful if, for example, you want to support an `.apprc` file in addition to an `appfile.js`. If you only need a single configuration file, you probably don't need this. In addition to letting you find multiple files, this option allows more fine-grained control over how configuration files are located.
 
-Type: `Object`
+Type: `Array`
 
 Default: `null`
 
@@ -223,9 +223,9 @@ In this example Liftoff will look for the `.hacker.js` file relative to the `cwd
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
-  configFiles: {
-    '.hacker': [{ path: '.' }],
-  },
+  configFiles: [
+    { name: '.hacker', path: '.' }
+  ],
 });
 ```
 
@@ -234,16 +234,15 @@ In this example, Liftoff will look for `.hackerrc` in the home directory.
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
-  configFiles: {
-    '.hacker': [
-      {
-        path: '~',
-        extensions: {
-          rc: null,
-        },
+  configFiles: [
+    {
+      name: '.hacker',
+      path: '~',
+      extensions: {
+        rc: null,
       },
-    ],
-  },
+    },
+  ],
 });
 ```
 
@@ -252,30 +251,13 @@ In this example, Liftoff will look in the `cwd` and then lookup the tree for the
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
-  configFiles: {
-    '.hacker': [
-      {
-        path: '.',
-        findUp: true,
-      },
-    ],
-  },
-});
-```
-
-In this example, the `name` is overridden and the key is ignored so Liftoff looks for `.override.js`.
-
-```js
-const MyApp = new Liftoff({
-  name: 'hacker',
-  configFiles: {
-    hacker: [
-      {
-        path: '.',
-        name: '.override',
-      },
-    ],
-  },
+  configFiles: [
+    {
+      name: '.hacker',
+      path: '.',
+      findUp: true,
+    },
+  ],
 });
 ```
 
@@ -284,14 +266,13 @@ In this example, Liftoff will use the home directory as the `cwd` and looks for 
 ```js
 const MyApp = new Liftoff({
   name: 'hacker',
-  configFiles: {
-    '.hacker': [
-      {
-        path: '.',
-        cwd: '~',
-      },
-    [,
-  },
+  configFiles: [
+    {
+      name: '.hacker',
+      path: '.',
+      cwd: '~',
+    },
+  ],
 });
 ```
 
@@ -330,9 +311,9 @@ MyApp.prepare(
 const Liftoff = require('liftoff');
 const Hacker = new Liftoff({
   name: 'hacker',
-  configFiles: {
-    '.hacker': [{ path: '.', cwd: '~' }],
-  },
+  configFiles: [
+    { name: '.hacker', path: '.', cwd: '~' }
+  ],
 });
 const onExecute = function (env, argv) {
   // Do post-execute things
@@ -454,8 +435,8 @@ A function called after your environment is prepared. A good place to modify the
 - `configBase`: the base directory of your configuration file (if found)
 - `modulePath`: the full path to the local module your project relies on (if found)
 - `modulePackage`: the contents of the local module's package.json (if found)
-- `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
-- `config`: an object with keys matching `configFiles` but with the loaded config object
+- `configFiles`: an array of filepaths for each found config file (filepath values will be null if not found)
+- `config`: an array of loaded config objects in the same order as `configFiles`
 
 ### execute(env, [forcedFlags], callback(env, argv))
 
@@ -490,8 +471,8 @@ A function called after your application is executed. When invoked, `this` will 
 - `configBase`: the base directory of your configuration file (if found)
 - `modulePath`: the full path to the local module your project relies on (if found)
 - `modulePackage`: the contents of the local module's package.json (if found)
-- `configFiles`: an object of filepaths for each found config file (filepath values will be null if not found)
-- `config`: an object with keys matching `configFiles` but with the loaded config object
+- `configFiles`: an array of filepaths for each found config file (filepath values will be null if not found)
+- `config`: an array of loaded config objects in the same order as `configFiles`
 
 ### events
 
