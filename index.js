@@ -119,7 +119,9 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     // resolve something like `{ gulpfile: "./abc.xyz" }` to the absolute path
     // based on the path of the configFile
     if (Object.prototype.hasOwnProperty.call(configFile, configName)) {
-      configFile[configName] = path.resolve(path.dirname(configFilePath), configFile[configName]);
+      if (typeof configFile[configName] === 'string') {
+        configFile[configName] = path.resolve(path.dirname(configFilePath), configFile[configName]);
+      }
     }
 
     visited[configFilePath] = true;
@@ -158,7 +160,9 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var configPathOverride = arrayFind(Object.keys(config), function (key) {
     var cfg = config[key];
     if (Object.prototype.hasOwnProperty.call(cfg, configName)) {
-      return cfg[configName];
+      if (typeof cfg[configName] === "string") {
+        return cfg[configName];
+      }
     }
   });
 
