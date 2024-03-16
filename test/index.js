@@ -611,7 +611,7 @@ describe('Liftoff', function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.configPath).toMatch(null);
+        expect(env.configPath).toEqual(null);
         done();
       });
     });
