@@ -601,6 +601,21 @@ describe('Liftoff', function () {
       });
     });
 
+    it('ignores non-string configPath if the configName key exists in the config', function (done) {
+      var app = new Liftoff({
+        name: 'myapp',
+        configFiles: {
+          'override-config-path-non-string': [
+            { path: 'test/fixtures/configfiles', extensions: ['.js'] }
+          ],
+        },
+      });
+      app.prepare({}, function (env) {
+        expect(env.configPath).toMatch(null);
+        done();
+      });
+    });
+
     it('should use dirname of configPath if no cwd is specified', function (done) {
       var app = new Liftoff({
         name: 'myapp',

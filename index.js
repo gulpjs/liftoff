@@ -158,7 +158,9 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   var configPathOverride = arrayFind(Object.keys(config), function (key) {
     var cfg = config[key];
     if (Object.prototype.hasOwnProperty.call(cfg, configName)) {
-      return cfg[configName];
+      if (typeof cfg[configName] === "string") {
+        return cfg[configName];
+      }
     }
   });
 
