@@ -119,7 +119,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     // resolve something like `{ gulpfile: "./abc.xyz" }` to the absolute path
     // based on the path of the configFile
     if (Object.prototype.hasOwnProperty.call(configFile, configName)) {
-      configFile[configName] = path.resolve(configFilePath, configFile[configName]);
+      configFile[configName] = path.resolve(path.dirname(configFilePath), configFile[configName]);
     }
 
     visited[configFilePath] = true;
