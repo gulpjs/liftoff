@@ -1,5 +1,12 @@
 # Changelog
 
+### [5.0.1](https://www.github.com/gulpjs/liftoff/compare/v5.0.0...v5.0.1) (2025-06-01)
+
+
+### Bug Fixes
+
+* Avoid passing a null value to existsSync ([#134](https://www.github.com/gulpjs/liftoff/issues/134)) ([1c54ffb](https://www.github.com/gulpjs/liftoff/commit/1c54ffb39dfd798c58fc036701edcb6d5234027c))
+
 ## [5.0.0](https://www.github.com/gulpjs/liftoff/compare/v4.0.0...v5.0.0) (2024-03-16)
 
 

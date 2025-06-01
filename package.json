@@ -1,6 +1,6 @@
 {
   "name": "liftoff",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Launch your command line tool with ease.",
   "author": "Gulp Team <team@gulpjs.com> (https://gulpjs.com/)",
   "contributors": [
