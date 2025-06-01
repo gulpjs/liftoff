@@ -3,7 +3,6 @@ var Module = require('module');
 var exec = require('child_process').exec;
 
 var expect = require('expect');
-var sinon = require('sinon');
 var resolve = require('resolve');
 
 var Liftoff = require('../');
@@ -62,6 +61,13 @@ describe('Liftoff', function () {
 
   describe('buildEnvironment', function () {
     it('should locate local module using cwd if no config is found', function (done) {
+      if (process.versions.node.startsWith("10.") || process.versions.node.startsWith("12.")) {
+        this.skip();
+        return;
+      }
+
+      var sinon = require('sinon');
+
       var test = new Liftoff({ name: 'chai' });
       var cwd = 'explicit/cwd';
       var spy = sinon.spy(resolve, 'sync');
@@ -79,6 +85,13 @@ describe('Liftoff', function () {
     });
 
     it('should locate global module using NODE_PATH if defined', function (done) {
+       if (process.versions.node.startsWith("10.") || process.versions.node.startsWith("12.")) {
+        this.skip();
+        return;
+      }
+
+      var sinon = require('sinon');
+
       var test = new Liftoff({ name: 'dummy' });
       var cwd = 'explicit/cwd';
       var spy = sinon.spy(resolve, 'sync');
