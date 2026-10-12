@@ -1,7 +1,7 @@
 <p align="center">
   <a href="http://liftoffjs.com">
     <img height="100" width="297" src="https://cdn.rawgit.com/tkellen/js-liftoff/master/artwork/liftoff.svg"/>
-  </a>
+<img height="100" width="297" src="https://cdn.rawgit.com/tkellen/js-liftoff/master/artwork/liftoff.svg"/>
 </p>
 
 <p align="center">
