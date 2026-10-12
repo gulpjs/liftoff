@@ -628,5 +628,5 @@ MIT
 
 [gulp-cli-index]: https://github.com/gulpjs/gulp-cli/blob/master/index.js
 [hacker-index]: https://github.com/gulpjs/js-hacker/blob/master/bin/hacker.js
-<!-- prettier-ignore-start -->
+<!-- prettier-ignore-end -->
 
