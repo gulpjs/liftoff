@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.0.0](https://github.com/gulpjs/liftoff/compare/v5.0.1...v6.0.0) (2026-10-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* Normalize repository, dropping Node <22.15.0 ([#137](https://github.com/gulpjs/liftoff/issues/137))
+
+### Miscellaneous Chores
+
+* Normalize repository, dropping Node &lt;22.15.0 ([#137](https://github.com/gulpjs/liftoff/issues/137)) ([c6e2562](https://github.com/gulpjs/liftoff/commit/c6e2562606cf36b775616c254f3da33d646c5ab0))
+
 ### [5.0.1](https://www.github.com/gulpjs/liftoff/compare/v5.0.0...v5.0.1) (2025-06-01)
 
 
