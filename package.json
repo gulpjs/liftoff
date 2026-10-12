@@ -43,7 +43,6 @@
     "coffeescript": "^2.6.1",
     "eslint": "10.11.0",
     "eslint-config-gulp": "7.0.0",
-    "eslint-config-prettier": "^6.11.0",
     "expect": "^27.0.0",
     "mocha": "^8.0.0",
     "nyc": "^15.0.0",
