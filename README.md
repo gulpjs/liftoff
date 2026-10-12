@@ -607,9 +607,25 @@ MIT
 [npm-url]: https://www.npmjs.com/package/liftoff
 [npm-image]: https://img.shields.io/npm/v/liftoff.svg?style=flat-square
 
-[ci-url]: https://github.com/gulpjs/$PROJECT_NAME/actions/workflows/dev.yml
-[ci-image]: https://img.shields.io/github/actions/workflow/status/gulpjs/$PROJECT_NAME/dev.yml?style=flat-square
+[ci-url]: https://github.com/gulpjs/liftoff/actions/workflows/dev.yml
+[ci-image]: https://img.shields.io/github/actions/workflow/status/gulpjs/liftoff/dev.yml?style=flat-square
 
-[coveralls-url]: https://coveralls.io/r/gulpjs/$PROJECT_NAME
-[coveralls-image]: https://img.shields.io/coveralls/gulpjs/$PROJECT_NAME/main.svg?style=flat-square
+[coveralls-url]: https://coveralls.io/r/gulpjs/liftoff
+[coveralls-image]: https://img.shields.io/coveralls/gulpjs/liftoff/main.svg?style=flat-square
 <!-- prettier-ignore-end -->
+
+
+<!-- prettier-ignore-start -->
+[liftoff-blog]: https://bocoup.com/blog/building-command-line-tools-in-node-with-liftoff
+
+[hacker]: https://github.com/gulpjs/hacker
+[interpret]: https://github.com/gulpjs/interpret
+[flagged-respawn]: http://github.com/gulpjs/flagged-respawn
+[v8flags]: https://github.com/gulpjs/v8flags
+[fined]: https://github.com/gulpjs/fined
+
+[process-title]: http://nodejs.org/api/process.html#process_process_title
+
+[gulp-cli-index]: https://github.com/gulpjs/gulp-cli/blob/master/index.js
+[hacker-index]: https://github.com/gulpjs/js-hacker/blob/master/bin/hacker.js
+<!-- prettier-ignore-start -->
