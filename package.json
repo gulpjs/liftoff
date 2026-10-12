@@ -8,18 +8,24 @@
     "Tyler Kellen <tyler@sleekcode.net> (https://github.com/tkellen)",
     "Takayuki Sato (https://github.com/sttk)"
   ],
-  "repository": "gulpjs/liftoff",
+  "funding": "https://github.com/sponsors/gulpjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gulpjs/liftoff.git"
+  },
   "license": "MIT",
   "engines": {
-    "node": ">=10.13.0"
+    "node": ">= 22.15.0"
   },
-  "main": "index.js",
+  "main": "./index.js",
   "files": [
     "index.js",
     "lib",
     "LICENSE"
   ],
   "scripts": {
+    "format-check": "prettier . --check",
+    "format-write": "prettier . --write",
     "lint": "eslint .",
     "pretest": "npm run lint",
     "test": "nyc mocha --async-only"
@@ -35,13 +41,12 @@
   },
   "devDependencies": {
     "coffeescript": "^2.6.1",
-    "eslint": "^7.0.0",
-    "eslint-config-gulp": "^5.0.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-node": "^11.1.0",
+    "eslint": "10.11.0",
+    "eslint-config-gulp": "7.0.0",
     "expect": "^27.0.0",
     "mocha": "^8.0.0",
     "nyc": "^15.0.0",
+    "prettier": "3.9.6",
     "sinon": "^11.0.0"
   },
   "nyc": {
@@ -49,9 +54,6 @@
       "lcov",
       "text-summary"
     ]
-  },
-  "prettier": {
-    "singleQuote": true
   },
   "keywords": [
     "command line"

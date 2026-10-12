@@ -1,8 +1,8 @@
 (function () {
-  var path = require('path');
+  var path = require("path");
 
-  require.extensions['.b'] = function (module, filepath) {
+  require.extensions[".b"] = function (module, filepath) {
     module.loaded = true;
-    module.exports = 'Load ' + path.basename(filepath) + ' by require-file-b';
+    module.exports = "Load " + path.basename(filepath) + " by require-file-b";
   };
 })();

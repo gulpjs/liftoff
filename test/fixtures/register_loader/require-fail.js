@@ -1,1 +1,1 @@
-throw Error('Fail to register!');
+throw Error("Fail to register!");

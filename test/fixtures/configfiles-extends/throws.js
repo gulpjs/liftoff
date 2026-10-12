@@ -1,1 +1,1 @@
-throw new Error('Kaboom');
+throw new Error("Kaboom");

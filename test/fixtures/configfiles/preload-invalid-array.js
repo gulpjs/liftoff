@@ -1,3 +1,3 @@
 module.exports = {
-  preload: [{}, 123, 'no']
+  preload: [{}, 123, "no"],
 };

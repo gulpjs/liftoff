@@ -1,7 +1,7 @@
-var Liftoff = require('../../..');
+var Liftoff = require("../../..");
 
 var app0 = new Liftoff({
-  name: 'app0',
+  name: "app0",
 });
 
 app0.prepare({}, function (env) {

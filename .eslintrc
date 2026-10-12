@@ -1,7 +1,0 @@
-{
-  "extends": "gulp",
-  "rules": {
-    "max-statements": [1, 50],
-    "no-empty": ["error", { "allowEmptyCatch": true }]
-  }
-}

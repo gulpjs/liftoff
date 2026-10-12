@@ -1,8 +1,8 @@
 (function () {
-  var path = require('path');
+  var path = require("path");
 
-  require.extensions['.d'] = function (module, filepath) {
+  require.extensions[".d"] = function (module, filepath) {
     module.loaded = true;
-    module.exports = 'Load ' + path.basename(filepath) + ' by require-file-ecd';
+    module.exports = "Load " + path.basename(filepath) + " by require-file-ecd";
   };
 })();

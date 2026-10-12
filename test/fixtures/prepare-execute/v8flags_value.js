@@ -1,12 +1,12 @@
-var Liftoff = require('../../..');
+var Liftoff = require("../../..");
 
 var Test = new Liftoff({
-  name: 'test',
-  v8flags: ['--stack_size'],
+  name: "test",
+  v8flags: ["--stack_size"],
 });
 
-Test.on('respawn', function (flags) {
-  console.error(flags.join(' '));
+Test.on("respawn", function (flags) {
+  console.error(flags.join(" "));
 });
 
 Test.prepare({}, function (env) {

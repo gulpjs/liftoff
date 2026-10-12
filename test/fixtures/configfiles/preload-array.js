@@ -1,3 +1,3 @@
 module.exports = {
-  preload: ['abc', 'xyz']
+  preload: ["abc", "xyz"],
 };

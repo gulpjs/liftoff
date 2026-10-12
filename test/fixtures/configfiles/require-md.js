@@ -1,8 +1,8 @@
 (function () {
-  var path = require('path');
+  var path = require("path");
 
-  require.extensions['.md'] = function (module, filepath) {
+  require.extensions[".md"] = function (module, filepath) {
     module.loaded = true;
-    module.exports = 'Load ' + path.basename(filepath) + ' by require-md';
+    module.exports = "Load " + path.basename(filepath) + " by require-md";
   };
 })();

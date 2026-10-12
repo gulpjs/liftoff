@@ -1,26 +1,26 @@
-var util = require('util');
-var path = require('path');
-var EE = require('events').EventEmitter;
+var util = require("util");
+var path = require("path");
+var EE = require("events").EventEmitter;
 
-var extend = require('extend');
-var resolve = require('resolve');
-var flaggedRespawn = require('flagged-respawn');
-var isPlainObject = require('is-plain-object').isPlainObject;
-var fined = require('fined');
+var extend = require("extend");
+var resolve = require("resolve");
+var flaggedRespawn = require("flagged-respawn");
+var isPlainObject = require("is-plain-object").isPlainObject;
+var fined = require("fined");
 
-var findCwd = require('./lib/find_cwd');
-var arrayFind = require('./lib/array_find');
-var findConfig = require('./lib/find_config');
-var fileSearch = require('./lib/file_search');
-var needsLookup = require('./lib/needs_lookup');
-var parseOptions = require('./lib/parse_options');
-var silentRequire = require('./lib/silent_require');
-var buildConfigName = require('./lib/build_config_name');
-var registerLoader = require('./lib/register_loader');
-var getNodeFlags = require('./lib/get_node_flags');
+var findCwd = require("./lib/find_cwd");
+var arrayFind = require("./lib/array_find");
+var findConfig = require("./lib/find_config");
+var fileSearch = require("./lib/file_search");
+var needsLookup = require("./lib/needs_lookup");
+var parseOptions = require("./lib/parse_options");
+var silentRequire = require("./lib/silent_require");
+var buildConfigName = require("./lib/build_config_name");
+var registerLoader = require("./lib/register_loader");
+var getNodeFlags = require("./lib/get_node_flags");
 
 function isString(val) {
-  return typeof val === 'string';
+  return typeof val === "string";
 }
 
 function Liftoff(opts) {
@@ -31,12 +31,12 @@ util.inherits(Liftoff, EE);
 
 Liftoff.prototype.requireLocal = function (moduleName, basedir) {
   try {
-    this.emit('preload:before', moduleName);
+    this.emit("preload:before", moduleName);
     var result = require(resolve.sync(moduleName, { basedir: basedir }));
-    this.emit('preload:success', moduleName, result);
+    this.emit("preload:success", moduleName, result);
     return result;
   } catch (e) {
-    this.emit('preload:failure', moduleName, e);
+    this.emit("preload:failure", moduleName, e);
   }
 };
 
@@ -81,14 +81,14 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       var foundPath = findAndRegisterLoader(xtends, defaultObj);
       if (!foundPath) {
         var name;
-        if (typeof xtends === 'string') {
+        if (typeof xtends === "string") {
           name = xtends;
         } else {
           name = xtends.path || xtends.name;
         }
-        var msg = 'Unable to locate one of your extends.';
+        var msg = "Unable to locate one of your extends.";
         if (name) {
-          msg += ' Looking for file: ' + path.resolve(cwd, name);
+          msg += " Looking for file: " + path.resolve(cwd, name);
         }
         throw new Error(msg);
       }
@@ -104,18 +104,18 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 
     if (visited[configFilePath]) {
       throw new Error(
-        'We encountered a circular extend for file: ' +
+        "We encountered a circular extend for file: " +
           configFilePath +
-          '. Please remove the recursive extends.'
+          ". Please remove the recursive extends.",
       );
     }
     var configFile;
     try {
       configFile = require(configFilePath);
-    } catch (e) {
+    } catch {
       // TODO: Consider surfacing the `require` error
       throw new Error(
-        'Encountered error when loading config file: ' + configFilePath
+        "Encountered error when loading config file: " + configFilePath,
       );
     }
 
@@ -123,7 +123,10 @@ Liftoff.prototype.buildEnvironment = function (opts) {
     // based on the path of the configFile
     if (Object.prototype.hasOwnProperty.call(configFile, configName)) {
       if (isString(configFile[configName])) {
-        configFile[configName] = path.resolve(path.dirname(configFilePath), configFile[configName]);
+        configFile[configName] = path.resolve(
+          path.dirname(configFilePath),
+          configFile[configName],
+        );
       }
     }
 
@@ -165,7 +168,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
   });
 
   var additionPreloads = arrayFind(config, function (cfg) {
-    if (Object.prototype.hasOwnProperty.call(cfg, 'preload')) {
+    if (Object.prototype.hasOwnProperty.call(cfg, "preload")) {
       if (Array.isArray(cfg.preload)) {
         if (cfg.preload.every(isString)) {
           return cfg.preload;
@@ -219,21 +222,23 @@ Liftoff.prototype.buildEnvironment = function (opts) {
       basedir: configBase || cwd,
       paths: paths,
     });
-    modulePackage = silentRequire(fileSearch('package.json', [modulePath]));
-  } catch (e) {}
+    modulePackage = silentRequire(fileSearch("package.json", [modulePath]));
+  } catch {
+    // Failures are ignored
+  }
 
   // if we have a configuration but we failed to find a local module, maybe
   // we are developing against ourselves?
   if (!modulePath && configPath) {
     // check the package.json sibling to our config to see if its `name`
     // matches the module we're looking for
-    var modulePackagePath = fileSearch('package.json', [configBase]);
+    var modulePackagePath = fileSearch("package.json", [configBase]);
     modulePackage = silentRequire(modulePackagePath);
     if (modulePackage && modulePackage.name === this.moduleName) {
       // if it does, our module path is `main` inside package.json
       modulePath = path.join(
         path.dirname(modulePackagePath),
-        modulePackage.main || 'index.js'
+        modulePackage.main || "index.js",
       );
       cwd = configBase;
     } else {
@@ -257,7 +262,7 @@ Liftoff.prototype.buildEnvironment = function (opts) {
 };
 
 Liftoff.prototype.handleFlags = function (cb) {
-  if (typeof this.v8flags === 'function') {
+  if (typeof this.v8flags === "function") {
     this.v8flags(function (err, flags) {
       if (err) {
         cb(err);
@@ -269,14 +274,14 @@ Liftoff.prototype.handleFlags = function (cb) {
     process.nextTick(
       function () {
         cb(null, this.v8flags);
-      }.bind(this)
+      }.bind(this),
     );
   }
 };
 
 Liftoff.prototype.prepare = function (opts, fn) {
-  if (typeof fn !== 'function') {
-    throw new Error('You must provide a callback function.');
+  if (typeof fn !== "function") {
+    throw new Error("You must provide a callback function.");
   }
 
   process.title = this.processTitle;
@@ -292,12 +297,12 @@ Liftoff.prototype.execute = function (env, forcedFlags, fn) {
     return this.completions(completion);
   }
 
-  if (typeof forcedFlags === 'function') {
+  if (typeof forcedFlags === "function") {
     fn = forcedFlags;
     forcedFlags = undefined;
   }
-  if (typeof fn !== 'function') {
-    throw new Error('You must provide a callback function.');
+  if (typeof fn !== "function") {
+    throw new Error("You must provide a callback function.");
   }
 
   this.handleFlags(
@@ -312,7 +317,7 @@ Liftoff.prototype.execute = function (env, forcedFlags, fn) {
       function execute(ready, child, argv) {
         if (child !== process) {
           var execArgv = getNodeFlags.fromReorderedArgv(argv);
-          this.emit('respawn', execArgv, child);
+          this.emit("respawn", execArgv, child);
         }
         if (ready) {
           preloadModules(this, env);
@@ -320,7 +325,7 @@ Liftoff.prototype.execute = function (env, forcedFlags, fn) {
           fn.call(this, env, argv);
         }
       }
-    }.bind(this)
+    }.bind(this),
   );
 };
 
