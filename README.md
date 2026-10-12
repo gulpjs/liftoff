@@ -612,7 +612,6 @@ MIT
 [coveralls-image]: https://img.shields.io/coveralls/gulpjs/liftoff/main.svg?style=flat-square
 <!-- prettier-ignore-end -->
 
-
 <!-- prettier-ignore-start -->
 [liftoff-blog]: https://bocoup.com/blog/building-command-line-tools-in-node-with-liftoff
 
