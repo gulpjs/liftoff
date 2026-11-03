@@ -117,7 +117,7 @@ describe("registerLoader", function () {
   });
 
   describe("extensions", function () {
-    it("Should do nothing when extensions is null", function (t, done) {
+    it("Should do nothing when extensions is null", function () {
       var app = new App();
       app.on("loader:success", handlerNotEmit);
       app.on("loader:failure", handlerNotEmit);
@@ -127,10 +127,9 @@ describe("registerLoader", function () {
       // .js is one of default extensions
       registerLoader(app, null, "aaa/bbb.js");
       registerLoader(app, null, "aaa/bbb.js", ".");
-      done();
     });
 
-    it("Should do nothing when extensions is illegal type", function (t, done) {
+    it("Should do nothing when extensions is illegal type", function () {
       var app = new App();
       app.on("loader:success", handlerNotEmit);
       app.on("loader:failure", handlerNotEmit);
@@ -143,21 +142,19 @@ describe("registerLoader", function () {
       registerLoader(app, true, "aaa/bbb.js");
       registerLoader(app, function () {}, "aaa/bbb.js");
       registerLoader(app, [".js", ".json"], "aaa/bbb.js");
-      done();
     });
 
-    it("Should do nothing when extensions is a string", function (t, done) {
+    it("Should do nothing when extensions is a string", function () {
       var app = new App();
       app.on("loader:success", handlerNotEmit);
       app.on("loader:failure", handlerNotEmit);
       registerLoader(app, ".cfg", "aaa/bbb.cfg");
       registerLoader(app, ".js", "aaa/bbb.js");
-      done();
     });
   });
 
   describe("configPath", function () {
-    it("Should do nothing when configPath is null", function (t, done) {
+    it("Should do nothing when configPath is null", function () {
       var extensions0 = [".js", ".json", ".coffee", ".coffee.md"];
       var extensions1 = {
         ".js": null,
@@ -172,10 +169,9 @@ describe("registerLoader", function () {
       registerLoader(app, extensions1);
       registerLoader(app, extensions0, null, ".");
       registerLoader(app, extensions1, null, ".");
-      done();
     });
 
-    it("Should do nothing when configPath is illegal type", function (t, done) {
+    it("Should do nothing when configPath is illegal type", function () {
       var extensions0 = [".js", ".json", ".coffee", ".coffee.md"];
       var extensions1 = {
         ".js": null,
@@ -190,10 +186,9 @@ describe("registerLoader", function () {
       registerLoader(app, extensions0, ["aaa", "bbb"]);
       registerLoader(app, extensions1, {});
       registerLoader(app, extensions1, function () {});
-      done();
     });
 
-    it("Should do nothing when configPath does not end with one of extensions", function (t, done) {
+    it("Should do nothing when configPath does not end with one of extensions", function () {
       var loaderPath = path.join(testDir, "require-rc.js");
       var configPath = path.join(testDir, "app.xxx");
       var extensions = { ".cfg": loaderPath };
@@ -201,10 +196,9 @@ describe("registerLoader", function () {
       app.on("loader:success", handlerNotEmit);
       app.on("loader:failure", handlerNotEmit);
       registerLoader(app, extensions, configPath);
-      done();
     });
 
-    it("Should do nothing when configPath ends with one of extensions of which the loader was already registered", function (t, done) {
+    it("Should do nothing when configPath ends with one of extensions of which the loader was already registered", function () {
       var loaderPath = path.join(testDir, "require-cfg.js");
       var configPath = path.join(testDir, "app.cfg");
       var extensions = { ".cfg": loaderPath };
@@ -212,7 +206,6 @@ describe("registerLoader", function () {
       app.on("loader:success", handlerNotEmit);
       app.on("loader:failure", handlerNotEmit);
       registerLoader(app, extensions, configPath);
-      done();
     });
   });
 
