@@ -9,8 +9,12 @@ describe("getNodeFlags", function () {
   describe("arrayOrFunction", function () {
     it("should return the first argument when it is an array", function () {
       var env = { cwd: "aaa" };
-      assert.deepStrictEqual(getNodeFlags.arrayOrFunction([], env), []);
-      
+      assert.deepStrictEqual(
+        getNodeFlags.arrayOrFunction(function () {
+          return [];
+        }, env),
+        [],
+      );
       var envFlags = getNodeFlags.arrayOrFunction(
         ["--lazy", "--use_strict", "--harmony"],
         env,

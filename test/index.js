@@ -113,17 +113,30 @@ describe("Liftoff", { timeout: 5000 }, function () {
       );
     });
 
+    // TODO relying on any other module is probably a mistake if we remove and don't flag this
     it("should find module in the directory next to config", function () {
+      var test = new Liftoff({
+        name: NAME,
+        moduleName: "resolve",
+        searchPaths: ["test/fixtures/search_path"],
+      });
+
       assert.strictEqual(
-        app.buildEnvironment().modulePath,
-        path.resolve("node_modules/mocha/index.js"),
+        test.buildEnvironment().modulePath,
+        path.resolve("node_modules/resolve/index.js"),
       );
     });
 
     it("should require the package sibling to the module", function () {
+      var test = new Liftoff({
+        name: NAME,
+        moduleName: "resolve",
+        searchPaths: ["test/fixtures/search_path"],
+      });
+
       assert.strictEqual(
-        app.buildEnvironment().modulePackage,
-        require("../node_modules/mocha/package.json"),
+        test.buildEnvironment().modulePackage,
+        require("../node_modules/resolve/package.json"),
       );
     });
 
@@ -135,7 +148,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
     });
 
     describe("for developing against yourself", function () {
-      it("should find and load package.json", function () {
+      it("should find and load package.json", function (t, done) {
         var fixturesDir = path.resolve(__dirname, "fixtures");
         var cwd = path.resolve(fixturesDir, "developing_yourself");
 
@@ -153,6 +166,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
               cwd +
               "\n",
           );
+          done();
         }
       });
 
@@ -175,7 +189,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       it(
         "should use `index.js` if `main` property in package.json " +
           "does not exist",
-        function () {
+        function (t, done) {
           var fixturesDir = path.resolve(__dirname, "fixtures");
           var cwd = path.resolve(fixturesDir, "developing_yourself/app2");
 
@@ -196,6 +210,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
                 cwd +
                 "\n",
             );
+            done();
           }
         },
       );
@@ -479,17 +494,20 @@ describe("Liftoff", { timeout: 5000 }, function () {
     it("should emit `preload:before` and `preload:success` with the name of the module and the required module", function (t, done) {
       var requireTest = new Liftoff({ name: "require" });
       var isEmittedBeforeRequired = false;
+
       requireTest.on("preload:before", function (name) {
-        assert.strictEqual(name, "mocha");
+        assert.strictEqual(name, "resolve");
         isEmittedBeforeRequired = true;
       });
+
       requireTest.on("preload:success", function (name, module) {
-        assert.strictEqual(name, "mocha");
-        assert.strictEqual(module, require("mocha"));
+        assert.strictEqual(name, "resolve");
+        assert.strictEqual(module, require("resolve"));
         assert.strictEqual(isEmittedBeforeRequired, true);
         done();
       });
-      requireTest.requireLocal("mocha", __dirname);
+
+      requireTest.requireLocal("resolve", __dirname);
     });
 
     it("should emit `preload:before` and `preload:failure` with an error if a module can't be found.", function (t, done) {
