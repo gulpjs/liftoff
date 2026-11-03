@@ -154,7 +154,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
 
         exec("cd " + cwd + " && node main.js", cb);
         function cb(err, stdout, stderr) {
-          assert.strictEqual(err, null);
+          assert.ifError(err)
           assert.strictEqual(stderr, "");
           var fp = path.resolve(cwd, "package.json");
           assert.strictEqual(
@@ -176,7 +176,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
 
         exec("cd " + cwd + " && node index.js", cb);
         function cb(err, stdout, stderr) {
-          assert.strictEqual(err, null);
+          assert.ifError(err)
           assert.strictEqual(stderr, "");
           assert.strictEqual(
             stripVTControlCharacters(stdout),
@@ -198,7 +198,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
             cb,
           );
           function cb(err, stdout, stderr) {
-            assert.strictEqual(err, null);
+            assert.ifError(err)
             assert.strictEqual(stderr, "");
             var fp = "./fixtures/developing_yourself/app2/package.json";
             assert.strictEqual(
@@ -319,7 +319,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       exec("node test/fixtures/prepare-execute/v8flags_config.js 123", cb);
 
       function cb(err, stdout, stderr) {
-        assert.strictEqual(err, null);
+        assert.ifError(err)
         assert.strictEqual(
           stderr,
           [
@@ -345,7 +345,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       );
 
       function cb(err, stdout, stderr) {
-        assert.strictEqual(err, null);
+        assert.ifError(err)
         assert.strictEqual(
           stderr,
           [
@@ -395,7 +395,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       exec("node test/fixtures/prepare-execute/nodeflags_only.js 123", cb);
 
       function cb(err, stdout, stderr) {
-        assert.strictEqual(err, null);
+        assert.ifError(err)
         assert.strictEqual(
           stderr,
           [
@@ -478,7 +478,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
 
       exec("cd " + fixturesDir + " && node respawn_and_require.js", cb);
       function cb(err, stdout, stderr) {
-        assert.strictEqual(err, null);
+        assert.ifError(err)
         assert.strictEqual(stderr, "");
         assert.strictEqual(
           stripVTControlCharacters(stdout),
