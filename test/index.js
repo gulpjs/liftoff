@@ -59,7 +59,6 @@ describe("Liftoff", { timeout: 5000 }, function () {
 
   describe("buildEnvironment", function () {
     it("should locate local module using cwd if no config is found", function (t) {
-      console.log("asdas");
       var test = new Liftoff({ name: "chai" });
       var cwd = "explicit/cwd";
       var spy = t.mock.method(resolve, "sync");

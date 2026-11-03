@@ -7,40 +7,37 @@ var getNodeFlags = require("../lib/get_node_flags");
 
 describe("getNodeFlags", function () {
   describe("arrayOrFunction", function () {
-    // it("should return the first argument when it is an array", function () {
-    //   var env = { cwd: "aaa" };
-    //   expect(getNodeFlags.arrayOrFunction([], env)).toEqual([]);
-    //   expect(
-    //     getNodeFlags.arrayOrFunction(
-    //       ["--lazy", "--use_strict", "--harmony"],
-    //       env,
-    //     ),
-    //   ).toEqual(
-    //     expect.arrayContaining(["--lazy", "--harmony", "--use_strict"]),
-    //   );
-    // });
+    it("should return the first argument when it is an array", function () {
+      var env = { cwd: "aaa" };
+      assert.deepStrictEqual(getNodeFlags.arrayOrFunction([], env), []);
+      
+      var envFlags = getNodeFlags.arrayOrFunction(
+        ["--lazy", "--use_strict", "--harmony"],
+        env,
+      );
+      assert.strictEqual(envFlags.includes("--lazy"), true);
+      assert.strictEqual(envFlags.includes("--use_strict"), true);
+      assert.strictEqual(envFlags.includes("--harmony"), true);
+    });
 
-    // it("should return the exection result of the first argument when it is a function", function () {
-    //   var env = { cwd: "aaa" };
-    //   expect(
-    //     getNodeFlags.arrayOrFunction(function () {
-    //       return [];
-    //     }, env),
-    //   ).toEqual([]);
-    //   expect(
-    //     getNodeFlags.arrayOrFunction(function (arg) {
-    //       expect(arg).toEqual(env);
-    //       return ["--lazy", "--harmony"];
-    //     }, env),
-    //   ).toEqual(expect.arrayContaining(["--lazy", "--harmony"]));
-    // });
+    it("should return the execution result of the first argument when it is a function", function () {
+      var env = { cwd: "aaa" };
+      assert.deepStrictEqual(getNodeFlags.arrayOrFunction([], env), []);
 
-    // it("should return an array which has an element of the first argument when the first argument is a string", function () {
-    //   var env = { cwd: "aaa" };
-    //   expect(getNodeFlags.arrayOrFunction("--lazy", env)).toEqual(
-    //     expect.arrayContaining(["--lazy"]),
-    //   );
-    // });
+      var result = getNodeFlags.arrayOrFunction(function (arg) {
+        assert.deepStrictEqual(arg, env);
+        return ["--lazy", "--harmony"];
+      }, env);
+
+      assert.strictEqual(result.includes("--lazy"), true);
+      assert.strictEqual(result.includes("--harmony"), true);
+    });
+
+    it("should return an array which has an element of the first argument when the first argument is a string", function () {
+      var env = { cwd: "aaa" };
+      var envFlags = getNodeFlags.arrayOrFunction("--lazy", env);
+      assert.strictEqual(envFlags.includes("--lazy"), true);
+    });
 
     it("should return an empty array when the first argument is neither an array, a function nor a string", function () {
       var env = { cwd: "aaa" };
