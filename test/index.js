@@ -1,7 +1,7 @@
 var path = require("node:path");
 var Module = require("node:module");
 var { stripVTControlCharacters } = require("node:util");
-var exec = require("node:child_process").exec;
+var { exec } = require("node:child_process");
 var assert = require("node:assert");
 var { beforeEach, describe, it } = require("node:test");
 
@@ -65,16 +65,13 @@ describe("Liftoff", { timeout: 5000 }, function () {
       // NODE_PATH might be defined.
       delete process.env.NODE_PATH;
       test.buildEnvironment({ cwd: cwd });
-      assert.deepStrictEqual(
-        [
-          "chai",
-          {
-            basedir: path.join(process.cwd(), cwd),
-            paths: [],
-          },
-        ],
-        spy.mock.calls[0].arguments,
-      );
+      assert.deepStrictEqual(spy.mock.calls[0].arguments, [
+        "chai",
+        {
+          basedir: path.join(process.cwd(), cwd),
+          paths: [],
+        },
+      ]);
     });
 
     it("should locate global module using NODE_PATH if defined", function (t) {
@@ -83,16 +80,13 @@ describe("Liftoff", { timeout: 5000 }, function () {
       var spy = t.mock.method(resolve, "sync");
       process.env.NODE_PATH = path.join(process.cwd(), cwd);
       test.buildEnvironment();
-      assert.deepStrictEqual(
-        [
-          "dummy",
-          {
-            basedir: process.cwd(),
-            paths: [path.join(process.cwd(), cwd)],
-          },
-        ],
-        spy.mock.calls[0].arguments,
-      );
+      assert.deepStrictEqual(spy.mock.calls[0].arguments, [
+        "dummy",
+        {
+          basedir: process.cwd(),
+          paths: [path.join(process.cwd(), cwd)],
+        },
+      ]);
     });
 
     it("if cwd is explicitly provided, don't use search_paths", function () {
@@ -154,7 +148,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
 
         exec("cd " + cwd + " && node main.js", cb);
         function cb(err, stdout, stderr) {
-          assert.ifError(err)
+          assert.ifError(err);
           assert.strictEqual(stderr, "");
           var fp = path.resolve(cwd, "package.json");
           assert.strictEqual(
@@ -176,7 +170,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
 
         exec("cd " + cwd + " && node index.js", cb);
         function cb(err, stdout, stderr) {
-          assert.ifError(err)
+          assert.ifError(err);
           assert.strictEqual(stderr, "");
           assert.strictEqual(
             stripVTControlCharacters(stdout),
@@ -198,7 +192,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
             cb,
           );
           function cb(err, stdout, stderr) {
-            assert.ifError(err)
+            assert.ifError(err);
             assert.strictEqual(stderr, "");
             var fp = "./fixtures/developing_yourself/app2/package.json";
             assert.strictEqual(
@@ -319,7 +313,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       exec("node test/fixtures/prepare-execute/v8flags_config.js 123", cb);
 
       function cb(err, stdout, stderr) {
-        assert.ifError(err)
+        assert.ifError(err);
         assert.strictEqual(
           stderr,
           [
@@ -345,7 +339,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       );
 
       function cb(err, stdout, stderr) {
-        assert.ifError(err)
+        assert.ifError(err);
         assert.strictEqual(
           stderr,
           [
@@ -395,7 +389,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       exec("node test/fixtures/prepare-execute/nodeflags_only.js 123", cb);
 
       function cb(err, stdout, stderr) {
-        assert.ifError(err)
+        assert.ifError(err);
         assert.strictEqual(
           stderr,
           [
@@ -478,7 +472,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
 
       exec("cd " + fixturesDir + " && node respawn_and_require.js", cb);
       function cb(err, stdout, stderr) {
-        assert.ifError(err)
+        assert.ifError(err);
         assert.strictEqual(stderr, "");
         assert.strictEqual(
           stripVTControlCharacters(stdout),
@@ -1189,9 +1183,8 @@ describe("Liftoff", { timeout: 5000 }, function () {
         ],
       });
       assert.throws(
-        function () {
-          app.prepare({}, function () {});
-        },
+        () => app.prepare({}, function () {}),
+        // Ensure the error doesn't contain path
         { message: /^Unable to locate one of your extends\.$/ },
       );
     });
