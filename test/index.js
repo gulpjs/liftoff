@@ -212,15 +212,17 @@ describe("Liftoff", { timeout: 5000 }, function () {
   });
 
   describe("prepare", function () {
-    it("should set the process.title to the moduleName", function () {
+    it("should set the process.title to the moduleName", function (t, done) {
       app.prepare({}, function () {
         assert.strictEqual(process.title, app.moduleName);
+        done();
       });
     });
 
-    it("should call prepare with liftoff instance as context", function () {
+    it("should call prepare with liftoff instance as context", function (t, done) {
       app.prepare({}, function () {
         assert.strictEqual(this, app);
+        done();
       });
     });
 
@@ -1063,8 +1065,9 @@ describe("Liftoff", { timeout: 5000 }, function () {
       );
       assert.throws(
         () => app.prepare({}, function () {}),
+        // Ensure that the error includes the circular path
         (err) => err.message.includes(circPath),
-      ); // Ensure that the error includes the circular path
+      );
     });
 
     it("gracefully handles a null-ish extends", function (t, done) {
