@@ -303,7 +303,7 @@ describe("Liftoff", { timeout: 5000 }, function () {
       exec(
         "node test/fixtures/prepare-execute/v8flags_error.js --lazy",
         function (err, stdout, stderr) {
-          assert.strictEqual(err instanceof Error, true);
+          assert.ok(err instanceof Error);
           assert.strictEqual(stdout, "");
           assert.match(stderr, /v8flags error!/);
           done();
