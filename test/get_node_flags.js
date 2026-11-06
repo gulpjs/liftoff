@@ -22,6 +22,7 @@ describe("getNodeFlags", function () {
 
     it("should return the execution result of the first argument when it is a function", function () {
       var env = { cwd: "aaa" };
+      assert.deepStrictEqual(getNodeFlags.arrayOrFunction(() => [], env), []);
       var result = getNodeFlags.arrayOrFunction(function (arg) {
         assert.deepStrictEqual(arg, env);
         return ["--lazy", "--harmony"];
