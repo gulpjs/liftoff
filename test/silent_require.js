@@ -1,21 +1,20 @@
-var path = require("path");
-
-var expect = require("expect");
+var path = require("node:path");
+var assert = require("node:assert");
+var { describe, it } = require("node:test");
 
 var silentRequire = require("../lib/silent_require");
 
 describe("silentRequire", function () {
-  it("should require a file", function (done) {
-    expect(silentRequire(path.resolve("./package"))).toEqual(
+  it("should require a file", function () {
+    assert.strictEqual(
+      silentRequire(path.resolve("./package")),
       require("../package"),
     );
-    done();
   });
 
-  it("should not throw if file is not found", function (done) {
-    expect(function () {
+  it("should not throw if file is not found", function () {
+    assert.doesNotThrow(function () {
       silentRequire("path/to/nowhere");
-    }).not.toThrow();
-    done();
+    });
   });
 });

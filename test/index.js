@@ -1,8 +1,10 @@
-var path = require("path");
-var Module = require("module");
-var exec = require("child_process").exec;
+var path = require("node:path");
+var Module = require("node:module");
+var { stripVTControlCharacters } = require("node:util");
+var { exec } = require("node:child_process");
+var assert = require("node:assert");
+var { beforeEach, describe, it } = require("node:test");
 
-var expect = require("expect");
 var resolve = require("resolve");
 
 var Liftoff = require("../");
@@ -45,125 +47,112 @@ function cleanupExtensions(ext) {
   }
 }
 
-function cleanup(done) {
+function cleanup() {
   // restore the require.cache to startup state
   Object.keys(require.cache).forEach(cleanupCache);
   // restore the original Module._extensions
   Object.keys(Module._extensions).forEach(cleanupExtensions);
-
-  done();
 }
 
-describe("Liftoff", function () {
-  this.timeout(5000);
-
+describe("Liftoff", { timeout: 5000 }, function () {
   beforeEach(cleanup);
 
   describe("buildEnvironment", function () {
-    it("should locate local module using cwd if no config is found", function (done) {
-      if (
-        process.versions.node.startsWith("10.") ||
-        process.versions.node.startsWith("12.")
-      ) {
-        this.skip();
-        return;
-      }
-
-      var sinon = require("sinon");
-
+    it("should locate local module using cwd if no config is found", function (t) {
       var test = new Liftoff({ name: "chai" });
       var cwd = "explicit/cwd";
-      var spy = sinon.spy(resolve, "sync");
+      var spy = t.mock.method(resolve, "sync");
       // NODE_PATH might be defined.
       delete process.env.NODE_PATH;
       test.buildEnvironment({ cwd: cwd });
-      expect(
-        spy.calledWith("chai", {
+      assert.deepStrictEqual(spy.mock.calls[0].arguments, [
+        "chai",
+        {
           basedir: path.join(process.cwd(), cwd),
           paths: [],
-        }),
-      ).toBe(true);
-      spy.restore();
-      done();
+        },
+      ]);
     });
 
-    it("should locate global module using NODE_PATH if defined", function (done) {
-      if (
-        process.versions.node.startsWith("10.") ||
-        process.versions.node.startsWith("12.")
-      ) {
-        this.skip();
-        return;
-      }
-
-      var sinon = require("sinon");
-
+    it("should locate global module using NODE_PATH if defined", function (t) {
       var test = new Liftoff({ name: "dummy" });
       var cwd = "explicit/cwd";
-      var spy = sinon.spy(resolve, "sync");
+      var spy = t.mock.method(resolve, "sync");
       process.env.NODE_PATH = path.join(process.cwd(), cwd);
       test.buildEnvironment();
-      expect(
-        spy.calledWith("dummy", {
+      assert.deepStrictEqual(spy.mock.calls[0].arguments, [
+        "dummy",
+        {
           basedir: process.cwd(),
           paths: [path.join(process.cwd(), cwd)],
-        }),
-      ).toBe(true);
-      spy.restore();
-      done();
+        },
+      ]);
     });
 
-    it("if cwd is explicitly provided, don't use search_paths", function (done) {
-      expect(app.buildEnvironment({ cwd: "./" }).configPath).toEqual(null);
-      done();
+    it("if cwd is explicitly provided, don't use search_paths", function () {
+      assert.strictEqual(app.buildEnvironment({ cwd: "./" }).configPath, null);
     });
 
-    it("should find case sensitive configPath", function (done) {
+    it("should find case sensitive configPath", function () {
       var expected = path.resolve(
         __dirname,
         "fixtures",
         "case",
         process.platform === "linux" ? "Mochafile.js" : "mochafile.js",
       );
-      expect(
+      assert.strictEqual(
         app.buildEnvironment({ cwd: path.join(__dirname, "fixtures", "case") })
           .configPath,
-      ).toEqual(expected);
-      done();
-    });
-
-    it("should find module in the directory next to config", function (done) {
-      expect(app.buildEnvironment().modulePath).toEqual(
-        path.resolve("node_modules/mocha/index.js"),
+        expected,
       );
-      done();
     });
 
-    it("should require the package sibling to the module", function (done) {
-      expect(app.buildEnvironment().modulePackage).toEqual(
-        require("../node_modules/mocha/package.json"),
+    // TODO relying on any other module is probably a mistake if we remove and don't flag this
+    it("should find module in the directory next to config", function () {
+      var test = new Liftoff({
+        name: NAME,
+        moduleName: "resolve",
+        searchPaths: ["test/fixtures/search_path"],
+      });
+
+      assert.strictEqual(
+        test.buildEnvironment().modulePath,
+        path.resolve("node_modules/resolve/index.js"),
       );
-      done();
     });
 
-    it("should set cwd to match the directory of the config file as long as cwd wasn't explicitly provided", function (done) {
-      expect(app.buildEnvironment().cwd).toEqual(
+    it("should require the package sibling to the module", function () {
+      var test = new Liftoff({
+        name: NAME,
+        moduleName: "resolve",
+        searchPaths: ["test/fixtures/search_path"],
+      });
+
+      assert.strictEqual(
+        test.buildEnvironment().modulePackage,
+        require("../node_modules/resolve/package.json"),
+      );
+    });
+
+    it("should set cwd to match the directory of the config file as long as cwd wasn't explicitly provided", function () {
+      assert.strictEqual(
+        app.buildEnvironment().cwd,
         path.resolve(__dirname, "./fixtures/search_path"),
       );
-      done();
     });
 
     describe("for developing against yourself", function () {
-      it("should find and load package.json", function (done) {
+      it("should find and load package.json", function (t, done) {
         var fixturesDir = path.resolve(__dirname, "fixtures");
         var cwd = path.resolve(fixturesDir, "developing_yourself");
 
         exec("cd " + cwd + " && node main.js", cb);
         function cb(err, stdout, stderr) {
-          expect(err).toEqual(null);
-          expect(stderr).toEqual("");
+          assert.ifError(err);
+          assert.strictEqual(stderr, "");
           var fp = path.resolve(cwd, "package.json");
-          expect(stdout).toEqual(
+          assert.strictEqual(
+            stdout,
             JSON.stringify(require(fp)) +
               "\n" +
               path.resolve(cwd, "main.js") +
@@ -175,15 +164,18 @@ describe("Liftoff", function () {
         }
       });
 
-      it("should clear modulePackage if package.json is of different project", function (done) {
+      it("should clear modulePackage if package.json is of different project", function (t, done) {
         var fixturesDir = path.resolve(__dirname, "fixtures");
         var cwd = path.resolve(fixturesDir, "developing_yourself/app1");
 
         exec("cd " + cwd + " && node index.js", cb);
         function cb(err, stdout, stderr) {
-          expect(err).toEqual(null);
-          expect(stderr).toEqual("");
-          expect(stdout).toEqual("{}\n" + "undefined\n" + cwd + "\n");
+          assert.ifError(err);
+          assert.strictEqual(stderr, "");
+          assert.strictEqual(
+            stripVTControlCharacters(stdout),
+            "{}\n" + "undefined\n" + cwd + "\n",
+          );
           done();
         }
       });
@@ -191,7 +183,7 @@ describe("Liftoff", function () {
       it(
         "should use `index.js` if `main` property in package.json " +
           "does not exist",
-        function (done) {
+        function (t, done) {
           var fixturesDir = path.resolve(__dirname, "fixtures");
           var cwd = path.resolve(fixturesDir, "developing_yourself/app2");
 
@@ -200,10 +192,11 @@ describe("Liftoff", function () {
             cb,
           );
           function cb(err, stdout, stderr) {
-            expect(err).toEqual(null);
-            expect(stderr).toEqual("");
+            assert.ifError(err);
+            assert.strictEqual(stderr, "");
             var fp = "./fixtures/developing_yourself/app2/package.json";
-            expect(stdout).toEqual(
+            assert.strictEqual(
+              stdout,
               JSON.stringify(require(fp)) +
                 "\n" +
                 path.resolve(cwd, "index.js") +
@@ -219,52 +212,50 @@ describe("Liftoff", function () {
   });
 
   describe("prepare", function () {
-    it("should set the process.title to the moduleName", function (done) {
+    it("should set the process.title to the moduleName", function (t, done) {
       app.prepare({}, function () {
-        expect(process.title).toEqual(app.moduleName);
+        assert.strictEqual(process.title, app.moduleName);
         done();
       });
     });
 
-    it("should call prepare with liftoff instance as context", function (done) {
+    it("should call prepare with liftoff instance as context", function (t, done) {
       app.prepare({}, function () {
-        expect(this).toEqual(app);
+        assert.strictEqual(this, app);
         done();
       });
     });
 
-    it("should pass environment to first argument of prepare callback", function (done) {
+    it("should pass environment to first argument of prepare callback", function (t, done) {
       app.prepare({}, function (env) {
-        expect(env).toEqual(app.buildEnvironment());
+        assert.deepStrictEqual(env, app.buildEnvironment());
         done();
       });
     });
 
-    it("should throw if 2nd arg is not a function", function (done) {
-      expect(function () {
+    it("should throw if 2nd arg is not a function", function () {
+      assert.throws(function () {
         app.prepare({});
-      }).toThrow();
-      done();
+      });
     });
   });
 
   describe("execute", function () {
-    it("should pass environment to first argument of execute callback", function (done) {
+    it("should pass environment to first argument of execute callback", function (t, done) {
       var testEnv = app.buildEnvironment();
       app.execute(testEnv, function (env) {
-        expect(env).toEqual(testEnv);
+        assert.strictEqual(env, testEnv);
         done();
       });
     });
 
-    it("should throw if 2nd arg is not a function", function (done) {
-      expect(function () {
+    it("should throw if 2nd arg is not a function", function () {
+      assert.throws(function () {
         app.execute({});
-      }).toThrow();
-      done();
+      });
     });
 
-    it("should return early if completions are available and requested", function (done) {
+    it("should return early if completions are available and requested", function (t, done) {
       var test = new Liftoff({
         name: "whatever",
         completions: function () {
@@ -276,15 +267,15 @@ describe("Liftoff", function () {
       });
     });
 
-    it("should skip respawning if process.argv has no values from v8flags in it", function (done) {
+    it("should skip respawning if process.argv has no values from v8flags in it", function (t, done) {
       exec(
         "node test/fixtures/prepare-execute/v8flags.js",
         function (err, stdout, stderr) {
-          expect(stderr).toEqual("\n");
+          assert.strictEqual(stderr, "\n");
           exec(
             "node test/fixtures/prepare-execute/v8flags_function.js",
             function (err, stdout, stderr) {
-              expect(stderr).toEqual("\n");
+              assert.strictEqual(stderr, "\n");
               done();
             },
           );
@@ -292,15 +283,15 @@ describe("Liftoff", function () {
       );
     });
 
-    it("should respawn if process.argv has values from v8flags in it", function (done) {
+    it("should respawn if process.argv has values from v8flags in it", function (t, done) {
       exec(
         "node test/fixtures/prepare-execute/v8flags.js --lazy",
         function (err, stdout, stderr) {
-          expect(stderr).toEqual("--lazy\n");
+          assert.strictEqual(stderr, "--lazy\n");
           exec(
             "node test/fixtures/prepare-execute/v8flags_function.js --lazy",
             function (err, stdout, stderr) {
-              expect(stderr).toEqual("--lazy\n");
+              assert.strictEqual(stderr, "--lazy\n");
               done();
             },
           );
@@ -308,24 +299,25 @@ describe("Liftoff", function () {
       );
     });
 
-    it("should throw if v8flags is a function and it causes an error", function (done) {
+    it("should throw if v8flags is a function and it causes an error", function (t, done) {
       exec(
         "node test/fixtures/prepare-execute/v8flags_error.js --lazy",
         function (err, stdout, stderr) {
-          expect(err).not.toEqual(null);
-          expect(stdout).toEqual("");
-          expect(stderr).toMatch("v8flags error!");
+          assert.ok(err instanceof Error);
+          assert.strictEqual(stdout, "");
+          assert.match(stderr, /v8flags error!/);
           done();
         },
       );
     });
 
-    it("should respawn if v8flag is set by forcedFlags", function (done) {
+    it("should respawn if v8flag is set by forcedFlags", function (t, done) {
       exec("node test/fixtures/prepare-execute/v8flags_config.js 123", cb);
 
       function cb(err, stdout, stderr) {
-        expect(err).toEqual(null);
-        expect(stderr).toEqual(
+        assert.ifError(err);
+        assert.strictEqual(
+          stderr,
           [
             path.resolve(
               __dirname,
@@ -334,20 +326,24 @@ describe("Liftoff", function () {
             "123",
           ].join(" ") + "\n",
         );
-        expect(stdout).toEqual("saw respawn [ '--lazy' ]\n");
+        assert.deepStrictEqual(
+          stripVTControlCharacters(stdout),
+          "saw respawn [ '--lazy' ]\n",
+        );
         done();
       }
     });
 
-    it("should respawn if v8flag is set by both cli flag and forcedFlags", function (done) {
+    it("should respawn if v8flag is set by both cli flag and forcedFlags", function (t, done) {
       exec(
         "node test/fixtures/prepare-execute/v8flags_config.js 123 --harmony abc",
         cb,
       );
 
       function cb(err, stdout, stderr) {
-        expect(err).toEqual(null);
-        expect(stderr).toEqual(
+        assert.ifError(err);
+        assert.strictEqual(
+          stderr,
           [
             path.resolve(
               __dirname,
@@ -357,20 +353,23 @@ describe("Liftoff", function () {
             "abc",
           ].join(" ") + "\n",
         );
-        expect(stdout).toEqual("saw respawn [ '--lazy', '--harmony' ]\n");
+        assert.strictEqual(
+          stripVTControlCharacters(stdout),
+          "saw respawn [ '--lazy', '--harmony' ]\n",
+        );
         done();
       }
     });
 
-    it("should emit a respawn event if a respawn is required", function (done) {
+    it("should emit a respawn event if a respawn is required", function (t, done) {
       exec(
         "node test/fixtures/prepare-execute/v8flags.js",
         function (err, stdout) {
-          expect(stdout).toEqual("");
+          assert.strictEqual(stdout, "");
           exec(
             "node test/fixtures/prepare-execute/v8flags_function.js --lazy",
             function (err, stdout) {
-              expect(stdout).toEqual("saw respawn\n");
+              assert.strictEqual(stdout, "saw respawn\n");
               done();
             },
           );
@@ -378,22 +377,23 @@ describe("Liftoff", function () {
       );
     });
 
-    it("should respawn if process.argv has v8flags with values in it", function (done) {
+    it("should respawn if process.argv has v8flags with values in it", function (t, done) {
       exec(
         "node test/fixtures/prepare-execute/v8flags_value.js --stack_size=2048",
         function (err, stdout, stderr) {
-          expect(stderr).toEqual("--stack_size=2048\n");
+          assert.strictEqual(stderr, "--stack_size=2048\n");
           done();
         },
       );
     });
 
-    it("should respawn if v8flags is empty but forcedFlags are specified", function (done) {
+    it("should respawn if v8flags is empty but forcedFlags are specified", function (t, done) {
       exec("node test/fixtures/prepare-execute/nodeflags_only.js 123", cb);
 
       function cb(err, stdout, stderr) {
-        expect(err).toEqual(null);
-        expect(stderr).toEqual(
+        assert.ifError(err);
+        assert.strictEqual(
+          stderr,
           [
             path.resolve(
               __dirname,
@@ -402,19 +402,22 @@ describe("Liftoff", function () {
             "123",
           ].join(" ") + "\n",
         );
-        expect(stdout).toEqual("saw respawn [ '--lazy' ]\n");
+        assert.strictEqual(
+          stripVTControlCharacters(stdout),
+          "saw respawn [ '--lazy' ]\n",
+        );
         done();
       }
     });
   });
 
   describe("requireLocal", function () {
-    it("should attempt pre-loading local modules if they are requested", function (done) {
+    it("should attempt pre-loading local modules if they are requested", function (t, done) {
       var app = new Liftoff({ name: "test" });
       var logs = [];
       app.on("preload:success", function (moduleName, module) {
-        expect(moduleName).toEqual("coffeescript/register");
-        expect(module).toEqual(require("coffeescript/register"));
+        assert.strictEqual(moduleName, "coffeescript/register");
+        assert.strictEqual(module, require("coffeescript/register"));
         logs.push("preload:success");
       });
       app.on("preload:failure", function (moduleName, err) {
@@ -422,19 +425,19 @@ describe("Liftoff", function () {
       });
       app.prepare({ preload: ["coffeescript/register"] }, function (env) {
         app.execute(env, function (env) {
-          expect(env.preload).toEqual(["coffeescript/register"]);
-          expect(logs).toEqual(["preload:success"]);
+          assert.deepStrictEqual(env.preload, ["coffeescript/register"]);
+          assert.deepStrictEqual(logs, ["preload:success"]);
           done();
         });
       });
     });
 
-    it("should attempt pre-loading a local module if it is requested", function (done) {
+    it("should attempt pre-loading a local module if it is requested", function (t, done) {
       var app = new Liftoff({ name: "test" });
       var logs = [];
       app.on("preload:success", function (moduleName, module) {
-        expect(moduleName).toEqual("coffeescript/register");
-        expect(module).toEqual(require("coffeescript/register"));
+        assert.strictEqual(moduleName, "coffeescript/register");
+        assert.strictEqual(module, require("coffeescript/register"));
         logs.push("preload:success");
       });
       app.on("preload:failure", function (moduleName, err) {
@@ -442,38 +445,39 @@ describe("Liftoff", function () {
       });
       app.prepare({ preload: "coffeescript/register" }, function (env) {
         app.execute(env, function (env) {
-          expect(env.preload).toEqual(["coffeescript/register"]);
-          expect(logs).toEqual(["preload:success"]);
+          assert.deepStrictEqual(env.preload, ["coffeescript/register"]);
+          assert.deepStrictEqual(logs, ["preload:success"]);
           done();
         });
       });
     });
 
-    it("should attempt pre-loading local modules but fail", function (done) {
+    it("should attempt pre-loading local modules but fail", function (t, done) {
       var app = new Liftoff({ name: "test" });
       var logs = [];
       app.on("preload:failure", function (moduleName, err) {
-        expect(moduleName).toEqual("badmodule");
-        expect(err).not.toEqual(null);
+        assert.strictEqual(moduleName, "badmodule");
+        assert.notStrictEqual(err, null);
         logs.push("preload:failure");
       });
       app.prepare({ preload: "badmodule" }, function (env) {
         app.execute(env, function (env) {
-          expect(env.preload).toEqual(["badmodule"]);
-          expect(logs).toEqual(["preload:failure"]);
+          assert.deepStrictEqual(env.preload, ["badmodule"]);
+          assert.deepStrictEqual(logs, ["preload:failure"]);
           done();
         });
       });
     });
 
-    it("should pre-load a local module only once even if be respawned", function (done) {
+    it("should pre-load a local module only once even if be respawned", function (t, done) {
       var fixturesDir = path.resolve(__dirname, "fixtures");
 
       exec("cd " + fixturesDir + " && node respawn_and_require.js", cb);
       function cb(err, stdout, stderr) {
-        expect(err).toEqual(null);
-        expect(stderr).toEqual("");
-        expect(stdout).toEqual(
+        assert.ifError(err);
+        assert.strictEqual(stderr, "");
+        assert.strictEqual(
+          stripVTControlCharacters(stdout),
           "saw respawn [ '--lazy' ]\n" +
             "preload:success coffeescript/register\n" +
             "execute\n" +
@@ -483,32 +487,35 @@ describe("Liftoff", function () {
       }
     });
 
-    it("should emit `preload:before` and `preload:success` with the name of the module and the required module", function (done) {
+    it("should emit `preload:before` and `preload:success` with the name of the module and the required module", function (t, done) {
       var requireTest = new Liftoff({ name: "require" });
       var isEmittedBeforeRequired = false;
+
       requireTest.on("preload:before", function (name) {
-        expect(name).toEqual("mocha");
+        assert.strictEqual(name, "resolve");
         isEmittedBeforeRequired = true;
       });
+
       requireTest.on("preload:success", function (name, module) {
-        expect(name).toEqual("mocha");
-        expect(module).toEqual(require("mocha"));
-        expect(isEmittedBeforeRequired).toEqual(true);
+        assert.strictEqual(name, "resolve");
+        assert.strictEqual(module, require("resolve"));
+        assert.strictEqual(isEmittedBeforeRequired, true);
         done();
       });
-      requireTest.requireLocal("mocha", __dirname);
+
+      requireTest.requireLocal("resolve", __dirname);
     });
 
-    it("should emit `preload:before` and `preload:failure` with an error if a module can't be found.", function (done) {
+    it("should emit `preload:before` and `preload:failure` with an error if a module can't be found.", function (t, done) {
       var requireFailTest = new Liftoff({ name: "preload:failure" });
       var isEmittedBeforeRequired = false;
       requireFailTest.on("preload:before", function (name) {
-        expect(name).toEqual("badmodule");
+        assert.strictEqual(name, "badmodule");
         isEmittedBeforeRequired = true;
       });
       requireFailTest.on("preload:failure", function (name) {
-        expect(name).toEqual("badmodule");
-        expect(isEmittedBeforeRequired).toEqual(true);
+        assert.strictEqual(name, "badmodule");
+        assert.strictEqual(isEmittedBeforeRequired, true);
         done();
       });
       requireFailTest.requireLocal("badmodule", __dirname);
@@ -516,17 +523,17 @@ describe("Liftoff", function () {
   });
 
   describe("configFiles", function () {
-    it("should be empty if not specified", function (done) {
+    it("should be empty if not specified", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([]);
+        assert.deepStrictEqual(env.configFiles, []);
         done();
       });
     });
 
-    it("excludes files if value is not an array", function (done) {
+    it("excludes files if value is not an array", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: {
@@ -534,12 +541,12 @@ describe("Liftoff", function () {
         },
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([]);
+        assert.deepStrictEqual(env.configFiles, []);
         done();
       });
     });
 
-    it("should find multiple files if specified", function (done) {
+    it("should find multiple files if specified", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -562,7 +569,7 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([
+        assert.deepStrictEqual(env.configFiles, [
           null,
           path.resolve(__dirname, "./fixtures/configfiles/testconfig.json"),
           null,
@@ -574,7 +581,7 @@ describe("Liftoff", function () {
       });
     });
 
-    it("should use prepare cwd if specified", function (done) {
+    it("should use prepare cwd if specified", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -586,7 +593,7 @@ describe("Liftoff", function () {
           cwd: "test/fixtures/configfiles",
         },
         function (env) {
-          expect(env.configFiles).toEqual([
+          assert.deepStrictEqual(env.configFiles, [
             path.resolve(__dirname, "./fixtures/configfiles/testconfig.json"),
           ]);
           done();
@@ -594,7 +601,7 @@ describe("Liftoff", function () {
       );
     });
 
-    it("overrides the configPath if the configName key exists in the config", function (done) {
+    it("overrides the configPath if the configName key exists in the config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -606,12 +613,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.configPath).toMatch(/override-the-config-path\.js$/);
+        assert.match(env.configPath, /override-the-config-path\.js$/);
         done();
       });
     });
 
-    it("resolves relative configPath if the configName key exists in the config", function (done) {
+    it("resolves relative configPath if the configName key exists in the config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -623,12 +630,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.configPath).toMatch(/override-the-config-path\.js$/);
+        assert.match(env.configPath, /override-the-config-path\.js$/);
         done();
       });
     });
 
-    it("ignores non-string configPath if the configName key exists in the config", function (done) {
+    it("ignores non-string configPath if the configName key exists in the config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -640,12 +647,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.configPath).toEqual(null);
+        assert.strictEqual(env.configPath, null);
         done();
       });
     });
 
-    it("adds array of preloads specified in config", function (done) {
+    it("adds array of preloads specified in config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -657,12 +664,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.preload).toEqual(["abc", "xyz"]);
+        assert.deepStrictEqual(env.preload, ["abc", "xyz"]);
         done();
       });
     });
 
-    it("combines array of preloads specified in config", function (done) {
+    it("combines array of preloads specified in config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -678,13 +685,13 @@ describe("Liftoff", function () {
           preload: ["123"],
         },
         function (env) {
-          expect(env.preload).toEqual(["123", "abc", "xyz"]);
+          assert.deepStrictEqual(env.preload, ["123", "abc", "xyz"]);
           done();
         },
       );
     });
 
-    it("adds string preload specified in config", function (done) {
+    it("adds string preload specified in config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -696,12 +703,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.preload).toEqual(["abc"]);
+        assert.deepStrictEqual(env.preload, ["abc"]);
         done();
       });
     });
 
-    it("combines string preload specified in config", function (done) {
+    it("combines string preload specified in config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -717,13 +724,13 @@ describe("Liftoff", function () {
           preload: ["xyz"],
         },
         function (env) {
-          expect(env.preload).toEqual(["xyz", "abc"]);
+          assert.deepStrictEqual(env.preload, ["xyz", "abc"]);
           done();
         },
       );
     });
 
-    it("ignores non-string/non-array preload specified in config", function (done) {
+    it("ignores non-string/non-array preload specified in config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -735,12 +742,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.preload).toEqual([]);
+        assert.deepStrictEqual(env.preload, []);
         done();
       });
     });
 
-    it("ignores array with any non-strings preload specified in config", function (done) {
+    it("ignores array with any non-strings preload specified in config", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -752,12 +759,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.preload).toEqual([]);
+        assert.deepStrictEqual(env.preload, []);
         done();
       });
     });
 
-    it("should use dirname of configPath if no cwd is specified", function (done) {
+    it("should use dirname of configPath if no cwd is specified", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -769,7 +776,7 @@ describe("Liftoff", function () {
           configPath: "test/fixtures/configfiles/myapp.js",
         },
         function (env) {
-          expect(env.configFiles).toEqual([
+          assert.deepStrictEqual(env.configFiles, [
             path.resolve(__dirname, "./fixtures/configfiles/testconfig.json"),
           ]);
           done();
@@ -777,7 +784,7 @@ describe("Liftoff", function () {
       );
     });
 
-    it("uses default extensions if not specified (.md)", function (done) {
+    it("uses default extensions if not specified (.md)", function (t, done) {
       var app = new Liftoff({
         extensions: {
           ".md": "./test/fixtures/configfiles/require-md",
@@ -786,14 +793,14 @@ describe("Liftoff", function () {
         configFiles: [{ name: "README", path: "." }],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([
+        assert.deepStrictEqual(env.configFiles, [
           path.resolve(__dirname, "../README.md"),
         ]);
         done();
       });
     });
 
-    it("use default extensions if not specified (.txt)", function (done) {
+    it("use default extensions if not specified (.txt)", function (t, done) {
       var app = new Liftoff({
         extensions: {
           ".txt": "./test/fixtures/configfiles/require-txt",
@@ -802,26 +809,26 @@ describe("Liftoff", function () {
         configFiles: [{ name: "README", path: "test/fixtures/configfiles" }],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([
+        assert.deepStrictEqual(env.configFiles, [
           path.resolve(__dirname, "./fixtures/configfiles/README.txt"),
         ]);
         done();
       });
     });
 
-    it("does not use default extensions if specified (.js)", function (done) {
+    it("does not use default extensions if specified (.js)", function (t, done) {
       var app = new Liftoff({
         extensions: { ".md": null, ".txt": null },
         name: "myapp",
         configFiles: [{ name: "README", path: ".", extensions: [".js"] }],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([null]);
+        assert.deepStrictEqual(env.configFiles, [null]);
         done();
       });
     });
 
-    it("does not use default extensions if specified (.json)", function (done) {
+    it("does not use default extensions if specified (.json)", function (t, done) {
       var app = new Liftoff({
         extensions: { ".md": null, ".txt": null },
         name: "myapp",
@@ -834,12 +841,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([null]);
+        assert.deepStrictEqual(env.configFiles, [null]);
         done();
       });
     });
 
-    it("should use specified loaders (.md)", function (done) {
+    it("should use specified loaders (.md)", function (t, done) {
       var logRequire = [];
 
       var app = new Liftoff({
@@ -853,23 +860,25 @@ describe("Liftoff", function () {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([
+        assert.deepStrictEqual(env.configFiles, [
           path.resolve(__dirname, "../README.md"),
         ]);
 
-        expect(logRequire.length).toEqual(1);
-        expect(logRequire[0].moduleName).toEqual(
+        assert.strictEqual(logRequire.length, 1);
+        assert.strictEqual(
+          logRequire[0].moduleName,
           "./test/fixtures/configfiles/require-md",
         );
 
-        expect(require(env.configFiles[0])).toEqual(
+        assert.strictEqual(
+          require(env.configFiles[0]),
           "Load README.md by require-md",
         );
         done();
       });
     });
 
-    it("should use specified loaders (.txt)", function (done) {
+    it("should use specified loaders (.txt)", function (t, done) {
       var logRequire = [];
 
       var app = new Liftoff({
@@ -886,23 +895,25 @@ describe("Liftoff", function () {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([
+        assert.deepStrictEqual(env.configFiles, [
           path.resolve(__dirname, "./fixtures/configfiles/README.txt"),
         ]);
 
-        expect(logRequire.length).toEqual(1);
-        expect(logRequire[0].moduleName).toEqual(
+        assert.strictEqual(logRequire.length, 1);
+        assert.strictEqual(
+          logRequire[0].moduleName,
           "./test/fixtures/configfiles/require-txt",
         );
 
-        expect(require(env.configFiles[0])).toEqual(
+        assert.strictEqual(
+          require(env.configFiles[0]),
           "Load README.txt by require-txt",
         );
         done();
       });
     });
 
-    it("emits `loader:failure` but still resolves with invalid loaders", function (done) {
+    it("emits `loader:failure` but still resolves with invalid loaders", function (t, done) {
       var logFailure = [];
 
       var app = new Liftoff({
@@ -921,12 +932,13 @@ describe("Liftoff", function () {
         logFailure.push({ moduleName: moduleName, error: error });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([
+        assert.deepStrictEqual(env.configFiles, [
           path.resolve(__dirname, "./fixtures/configfiles/README.txt"),
         ]);
 
-        expect(logFailure.length).toEqual(1);
-        expect(logFailure[0].moduleName).toEqual(
+        assert.strictEqual(logFailure.length, 1);
+        assert.strictEqual(
+          logFailure[0].moduleName,
           "./test/fixtures/configfiles/require-non-exist",
         );
 
@@ -934,7 +946,7 @@ describe("Liftoff", function () {
       });
     });
 
-    it("prioritizes intrinsic extension-loader mappings", function (done) {
+    it("prioritizes intrinsic extension-loader mappings", function (t, done) {
       var logRequire = [];
       var logFailure = [];
 
@@ -959,31 +971,31 @@ describe("Liftoff", function () {
         logRequire.push({ moduleName: moduleName, module: module });
       });
       app.prepare({}, function (env) {
-        expect(env.configFiles).toEqual([
+        assert.deepStrictEqual(env.configFiles, [
           path.resolve(__dirname, "./fixtures/configfiles/testconfig.json"),
         ]);
 
-        expect(logRequire.length).toEqual(0);
-        expect(logFailure.length).toEqual(0);
+        assert.strictEqual(logRequire.length, 0);
+        assert.strictEqual(logFailure.length, 0);
 
-        expect(require(env.configFiles[0])).toEqual({ aaa: "AAA" });
+        assert.deepStrictEqual(require(env.configFiles[0]), { aaa: "AAA" });
         done();
       });
     });
   });
 
   describe("config", function () {
-    it("is empty if `configFiles` is not specified", function (done) {
+    it("is empty if `configFiles` is not specified", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual([]);
+        assert.deepStrictEqual(env.config, []);
         done();
       });
     });
 
-    it("loads all config for every found configFile", function (done) {
+    it("loads all config for every found configFile", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -992,7 +1004,7 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual([
+        assert.deepStrictEqual(env.config, [
           {
             aaa: "AAA",
           },
@@ -1005,7 +1017,7 @@ describe("Liftoff", function () {
       });
     });
 
-    it("loads config if a `configFiles` is found and makes it available with the same key on `config`", function (done) {
+    it("loads config if a `configFiles` is found and makes it available with the same key on `config`", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1013,7 +1025,7 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual([
+        assert.deepStrictEqual(env.config, [
           {
             aaa: "AAA",
           },
@@ -1022,7 +1034,7 @@ describe("Liftoff", function () {
       });
     });
 
-    it("loads and merges a config file specified if loaded file provides `extends` property", function (done) {
+    it("loads and merges a config file specified if loaded file provides `extends` property", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1030,7 +1042,7 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual([
+        assert.deepStrictEqual(env.config, [
           {
             aaa: "AAA", // Comes from the base, which overrode `aaa: 'CCC'` in the `extends`
             bbb: "BBB", // Comes from the `extends`
@@ -1040,7 +1052,7 @@ describe("Liftoff", function () {
       });
     });
 
-    it("throws error on circular extends", function (done) {
+    it("throws error on circular extends", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1051,13 +1063,14 @@ describe("Liftoff", function () {
         __dirname,
         "./fixtures/configfiles-extends/circular1.json",
       );
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(circPath); // Ensure that the error includes the circular path
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        // Ensure that the error includes the circular path
+        (err) => err.message.includes(circPath),
+      );
     });
 
-    it("gracefully handles a null-ish extends", function (done) {
+    it("gracefully handles a null-ish extends", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1065,12 +1078,12 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual([{}]);
+        assert.deepStrictEqual(env.config, [{}]);
         done();
       });
     });
 
-    it("stops processing extends on an empty (or null-ish) extends", function (done) {
+    it("stops processing extends on an empty (or null-ish) extends", function (t, done) {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1078,7 +1091,7 @@ describe("Liftoff", function () {
         ],
       });
       app.prepare({}, function (env) {
-        expect(env.config).toEqual([
+        assert.deepStrictEqual(env.config, [
           {
             aaa: "bbb",
             ccc: "ddd",
@@ -1088,7 +1101,7 @@ describe("Liftoff", function () {
       });
     });
 
-    it("throws upon extends of missing local file", function (done) {
+    it("throws upon extends of missing local file", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1099,13 +1112,13 @@ describe("Liftoff", function () {
         __dirname,
         "./fixtures/configfiles-extends/not-exists",
       );
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(missingPath);
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        (err) => err.message.includes(missingPath),
+      );
     });
 
-    it("throws (with correct path) upon extends of missing deep in tree", function (done) {
+    it("throws (with correct path) upon extends of missing deep in tree", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1116,13 +1129,13 @@ describe("Liftoff", function () {
         __dirname,
         "./fixtures/configfiles-extends/not-exists",
       );
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(missingPath);
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        (err) => err.message.includes(missingPath),
+      );
     });
 
-    it("throws (with correct path) upon extends using `fined` object with `path`", function (done) {
+    it("throws (with correct path) upon extends using `fined` object with `path`", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1136,13 +1149,13 @@ describe("Liftoff", function () {
         __dirname,
         "./fixtures/configfiles-extends/not-exists",
       );
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(missingPath);
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        (err) => err.message.includes(missingPath),
+      );
     });
 
-    it("throws (with correct path) upon extends using `fined` object with `name`", function (done) {
+    it("throws (with correct path) upon extends using `fined` object with `name`", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1156,13 +1169,13 @@ describe("Liftoff", function () {
         __dirname,
         "./fixtures/configfiles-extends/not-exists",
       );
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(missingPath);
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        (err) => err.message.includes(missingPath),
+      );
     });
 
-    it("throws (without path) upon extends using invalid `fined` object", function (done) {
+    it("throws (without path) upon extends using invalid `fined` object", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1172,13 +1185,14 @@ describe("Liftoff", function () {
           },
         ],
       });
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(/^Unable to locate one of your extends\.$/); // Ensure the error doesn't contain path
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        // Ensure the error doesn't contain path
+        { message: /^Unable to locate one of your extends\.$/ },
+      );
     });
 
-    it("throws upon extends of missing npm module", function (done) {
+    it("throws upon extends of missing npm module", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1186,13 +1200,13 @@ describe("Liftoff", function () {
         ],
       });
       var missingModule = "not-installed";
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(missingModule);
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        (err) => err.message.includes(missingModule),
+      );
     });
 
-    it("throws upon extends if loading file errors", function (done) {
+    it("throws upon extends if loading file errors", function () {
       var app = new Liftoff({
         name: "myapp",
         configFiles: [
@@ -1203,10 +1217,10 @@ describe("Liftoff", function () {
         __dirname,
         "./fixtures/configfiles-extends/throws.js",
       );
-      expect(function () {
-        app.prepare({}, function () {});
-      }).toThrow(errModulePath);
-      done();
+      assert.throws(
+        () => app.prepare({}, function () {}),
+        (err) => err.message.includes(errModulePath),
+      );
     });
   });
 });

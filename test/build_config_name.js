@@ -1,80 +1,76 @@
-var expect = require("expect");
+"use strict";
+
+var assert = require("node:assert");
+var { describe, it } = require("node:test");
 
 var buildConfigName = require("../lib/build_config_name");
 
 describe("buildConfigName", function () {
-  it("should throw if no configName is provided", function (done) {
-    expect(function () {
+  it("should throw if no configName is provided", function () {
+    assert.throws(function () {
       buildConfigName();
-    }).toThrow();
-    done();
+    });
   });
 
-  it("should use configName directly if it is a regex", function (done) {
+  it("should use configName directly if it is a regex", function () {
     var configNameSearch = /mocha/;
-    expect(buildConfigName({ configName: configNameSearch })).toEqual([
+    assert.deepStrictEqual(buildConfigName({ configName: configNameSearch }), [
       configNameSearch,
     ]);
-    done();
   });
 
-  it("should throw if no array of extensions are provided and config is not a regex already", function (done) {
-    expect(function () {
+  it("should throw if no array of extensions are provided and config is not a regex already", function () {
+    assert.throws(function () {
       buildConfigName({ configName: "foo" });
-    }).toThrow();
-    expect(function () {
+    });
+    assert.throws(function () {
       buildConfigName({ configName: "foo", extensions: "?" });
-    }).toThrow();
-    expect(function () {
+    });
+    assert.doesNotThrow(function () {
       buildConfigName({ configName: "foo", extensions: [".js"] });
-    }).not.toThrow();
-    done();
+    });
   });
 
-  it("should build an array of possible config names", function (done) {
+  it("should build an array of possible config names", function () {
     var multiExtension = buildConfigName({
       configName: "foo",
       extensions: [".js", ".coffee"],
     });
-    expect(multiExtension).toEqual(["foo.js", "foo.coffee"]);
+    assert.deepStrictEqual(multiExtension, ["foo.js", "foo.coffee"]);
     var singleExtension = buildConfigName({
       configName: "foo",
       extensions: [".js"],
     });
-    expect(singleExtension).toEqual(["foo.js"]);
-    done();
+    assert.deepStrictEqual(singleExtension, ["foo.js"]);
   });
 
-  it("should throw error if opts is null or empty", function (done) {
-    expect(function () {
+  it("should throw error if opts is null or empty", function () {
+    assert.throws(function () {
       buildConfigName();
-    }).toThrow();
-    expect(function () {
+    });
+    assert.throws(function () {
       buildConfigName(null);
-    }).toThrow();
-    expect(function () {
+    });
+    assert.throws(function () {
       buildConfigName({});
-    }).toThrow();
-    done();
+    });
   });
 
-  it("should throw error if .configName is null", function (done) {
-    expect(function () {
+  it("should throw error if .configName is null", function () {
+    assert.throws(function () {
       buildConfigName({ extensions: [".js"] });
-    }).toThrow();
-    done();
+    });
   });
 
-  it("should throw error if .extension is not an array", function (done) {
-    expect(function () {
+  it("should throw error if .extension is not an array", function () {
+    assert.throws(function () {
       buildConfigName({ configName: "foo" });
-    }).toThrow();
-    expect(function () {
+    });
+    assert.throws(function () {
       buildConfigName({ configName: "foo", extensions: null });
-    }).toThrow();
-    expect(function () {
+    });
+    assert.throws(function () {
       buildConfigName({ configName: "foo", extensions: ".js" });
-    }).toThrow();
-    done();
+    });
   });
 });

@@ -27,8 +27,7 @@
     "format-check": "prettier . --check",
     "format-write": "prettier . --write",
     "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "nyc mocha --async-only"
+    "test": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=test/lcov.info \"test/*.js\""
   },
   "dependencies": {
     "extend": "^3.0.2",
@@ -43,17 +42,7 @@
     "coffeescript": "^2.6.1",
     "eslint": "10.11.0",
     "eslint-config-gulp": "7.0.0",
-    "expect": "^27.0.0",
-    "mocha": "^8.0.0",
-    "nyc": "^15.0.0",
-    "prettier": "3.9.6",
-    "sinon": "^11.0.0"
-  },
-  "nyc": {
-    "reporter": [
-      "lcov",
-      "text-summary"
-    ]
+    "prettier": "3.9.6"
   },
   "keywords": [
     "command line"
